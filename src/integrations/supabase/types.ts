@@ -14,7 +14,238 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      caregivers: {
+        Row: {
+          created_at: string
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string
+          phone: string | null
+          profile_image_url: string | null
+          role: string
+          shift: string | null
+          specialization: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          phone?: string | null
+          profile_image_url?: string | null
+          role: string
+          shift?: string | null
+          specialization?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string | null
+          profile_image_url?: string | null
+          role?: string
+          shift?: string | null
+          specialization?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
+      medical_records: {
+        Row: {
+          attachments: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          is_confidential: boolean | null
+          patient_id: string
+          record_type: string
+          recorded_by: string | null
+          recorded_date: string | null
+          title: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_confidential?: boolean | null
+          patient_id: string
+          record_type: string
+          recorded_by?: string | null
+          recorded_date?: string | null
+          title: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_confidential?: boolean | null
+          patient_id?: string
+          record_type?: string
+          recorded_by?: string | null
+          recorded_date?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_allergies: {
+        Row: {
+          allergy_name: string
+          created_at: string
+          id: string
+          notes: string | null
+          patient_id: string
+          reaction: string | null
+          severity: string | null
+        }
+        Insert: {
+          allergy_name: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          reaction?: string | null
+          severity?: string | null
+        }
+        Update: {
+          allergy_name?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          reaction?: string | null
+          severity?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_allergies_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_caregivers: {
+        Row: {
+          assignment_date: string | null
+          caregiver_id: string
+          created_at: string
+          id: string
+          is_primary: boolean | null
+          notes: string | null
+          patient_id: string
+        }
+        Insert: {
+          assignment_date?: string | null
+          caregiver_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          notes?: string | null
+          patient_id: string
+        }
+        Update: {
+          assignment_date?: string | null
+          caregiver_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          notes?: string | null
+          patient_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_caregivers_caregiver_id_fkey"
+            columns: ["caregiver_id"]
+            isOneToOne: false
+            referencedRelation: "caregivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_caregivers_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patients: {
+        Row: {
+          address: string | null
+          admission_date: string | null
+          care_level: string | null
+          created_at: string
+          date_of_birth: string
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          first_name: string
+          gender: string | null
+          id: string
+          last_name: string
+          phone: string | null
+          profile_image_url: string | null
+          room_number: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          admission_date?: string | null
+          care_level?: string | null
+          created_at?: string
+          date_of_birth: string
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name: string
+          gender?: string | null
+          id?: string
+          last_name: string
+          phone?: string | null
+          profile_image_url?: string | null
+          room_number?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          admission_date?: string | null
+          care_level?: string | null
+          created_at?: string
+          date_of_birth?: string
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string
+          gender?: string | null
+          id?: string
+          last_name?: string
+          phone?: string | null
+          profile_image_url?: string | null
+          room_number?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
