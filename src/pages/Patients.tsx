@@ -154,8 +154,9 @@ export default function Patients() {
 
               {/* Patients Table */}
               <Card>
-                <CardContent className="p-0">
-                  <Table>
+                <CardContent className="p-0 overflow-auto">
+                  <div className="min-w-full">
+                  <Table className="w-full">
                     <TableHeader>
                       <TableRow>
                         <TableHead>Patient</TableHead>
