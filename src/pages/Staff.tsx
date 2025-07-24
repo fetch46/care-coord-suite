@@ -194,9 +194,11 @@ export default function Staff() {
                           </Badge>
                         </div>
 
-                        <Button variant="outline" size="sm" className="w-full">
-                          View Details
-                        </Button>
+                        <Link to={`/staff/${caregiver.id}`}>
+                          <Button variant="outline" size="sm" className="w-full">
+                            View Details
+                          </Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>
