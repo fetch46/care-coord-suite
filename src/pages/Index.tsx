@@ -17,7 +17,7 @@ const Index = () => {
           <AppHeader />
           
           {/* Main Dashboard Content */}
-          <main className="flex-1 p-6 space-y-6 w-full">
+          <main className="flex-1 p-6 space-y-6">
             {/* Welcome Section */}
             <div className="relative overflow-hidden rounded-2xl">
               <div 
@@ -29,7 +29,7 @@ const Index = () => {
                 }}
               >
                 <div className="z-10">
-                  <h1 className="text-3xl font-bold mb-2">Welcome back, Dr. Andrew</h1>
+                  <h1 className="text-3xl font-bold mb-2">Welcome back, Dr. Johnson</h1>
                   <p className="text-lg opacity-90">Mercy General Hospital • Administrator Dashboard</p>
                   <p className="text-sm opacity-75 mt-2">Today is a great day to provide exceptional care</p>
                 </div>
@@ -40,7 +40,7 @@ const Index = () => {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatsCard
                 title="Total Patients"
                 value="847"
@@ -72,7 +72,7 @@ const Index = () => {
             </div>
 
             {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Quick Actions */}
               <div className="lg:col-span-1">
                 <QuickActions />
@@ -85,7 +85,7 @@ const Index = () => {
             </div>
 
             {/* Additional Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Patient Status Overview */}
               <Card className="shadow-card">
                 <CardHeader>

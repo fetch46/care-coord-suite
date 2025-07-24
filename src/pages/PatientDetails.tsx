@@ -175,7 +175,7 @@ export default function PatientDetails() {
   if (loading) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen w-full">
+        <div className="flex h-screen">
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
@@ -191,9 +191,9 @@ export default function PatientDetails() {
   if (!patient) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen w-full">
+        <div className="flex h-screen">
           <AppSidebar />
-          <SidebarInset className="w-full">
+          <SidebarInset>
             <AppHeader />
             <div className="flex items-center justify-center h-full">
               <div className="text-center">Patient not found</div>
@@ -206,12 +206,12 @@ export default function PatientDetails() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full">
+      <div className="flex h-screen">
         <AppSidebar />
-        <SidebarInset className="w-full">
+        <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-none w-full space-y-8">
+          <main className="flex-1 overflow-auto">
+            <div className="max-w-7xl mx-auto p-6 space-y-6">
               {/* Header */}
               <div className="flex items-center gap-4">
                 <Button variant="ghost" size="sm" asChild>

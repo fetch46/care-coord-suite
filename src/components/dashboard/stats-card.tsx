@@ -1,4 +1,4 @@
-import { type LucideIcon } from "lucide-react"
+import { LucideIcon } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
@@ -61,7 +61,7 @@ export function StatsCard({
 
   return (
     <Card className={cn(
-      "w-full shadow-card hover:shadow-elevated transition-all duration-200 animate-fade-in",
+      "shadow-card hover:shadow-elevated transition-all duration-200 animate-fade-in",
       getVariantStyles(),
       className
     )}>

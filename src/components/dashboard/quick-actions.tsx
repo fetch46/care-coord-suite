@@ -35,7 +35,7 @@ const quickActions = [
 
 export function QuickActions() {
   return (
-    <Card className="w-full shadow-card">
+    <Card className="shadow-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Plus className="w-5 h-5" />
