@@ -61,7 +61,7 @@ export function StatsCard({
 
   return (
     <Card className={cn(
-      "shadow-card hover:shadow-elevated transition-all duration-200 animate-fade-in",
+      "w-full shadow-card hover:shadow-elevated transition-all duration-200 animate-fade-in",
       getVariantStyles(),
       className
     )}>

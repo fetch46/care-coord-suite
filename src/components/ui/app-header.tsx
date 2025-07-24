@@ -13,8 +13,8 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 
 export function AppHeader() {
   return (
-    <header className="h-16 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-      <div className="flex h-full items-center gap-4 px-6">
+    <header className="w-full h-16 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+      <div className="flex h-full items-center gap-4 px-6 w-full">
         {/* Sidebar Toggle */}
         <SidebarTrigger />
         
