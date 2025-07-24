@@ -133,7 +133,7 @@ export default function Patients() {
 
               {/* Search and Filter */}
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-12">
                   <div className="flex gap-4">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
