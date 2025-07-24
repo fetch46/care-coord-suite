@@ -191,9 +191,9 @@ export default function PatientDetails() {
   if (!patient) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen">
+        <div className="flex h-screen w-full">
           <AppSidebar />
-          <SidebarInset>
+          <SidebarInset className="w-full">
             <AppHeader />
             <div className="flex items-center justify-center h-full">
               <div className="text-center">Patient not found</div>
@@ -206,9 +206,9 @@ export default function PatientDetails() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen">
+      <div className="flex h-screen w-full">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="w-full">
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
             <div className="max-w-none w-full space-y-8">
