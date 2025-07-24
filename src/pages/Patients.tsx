@@ -118,7 +118,7 @@ export default function Patients() {
         <SidebarInset>
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-none w-full space-y-8">
+            <div className="w-full space-y-8">
               {/* Header */}
               <div className="flex justify-between items-center">
                 <div>
