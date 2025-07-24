@@ -210,8 +210,8 @@ export default function PatientDetails() {
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto">
-            <div className="w-full p-12 space-y-12">
+          <main className="flex-1 overflow-auto p-6">
+            <div className="max-w-none w-full space-y-8">
               {/* Header */}
               <div className="flex items-center gap-4">
                 <Button variant="ghost" size="sm" asChild>
