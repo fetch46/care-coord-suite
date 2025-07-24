@@ -115,7 +115,7 @@ export default function Patients() {
     <SidebarProvider>
       <div className="flex h-screen">
         <AppSidebar />
-        <div className="flex h-screen w-full">
+        <SidebarInset>
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
             <div className="max-w-none w-full space-y-8">
