@@ -69,7 +69,7 @@ export function RecentActivity() {
   }
 
   return (
-    <Card className="shadow-card">
+    <Card className="w-full shadow-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="w-5 h-5" />

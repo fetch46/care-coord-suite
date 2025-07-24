@@ -118,7 +118,7 @@ export default function Patients() {
         <SidebarInset>
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
-            <div className="w-full mx-auto space-y-6"> 
+            <div className="max-w-none w-full space-y-8">
               {/* Header */}
               <div className="flex justify-between items-center">
                 <div>
@@ -133,7 +133,7 @@ export default function Patients() {
 
               {/* Search and Filter */}
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-12">
                   <div className="flex gap-4">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
