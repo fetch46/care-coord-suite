@@ -192,7 +192,7 @@ export default function PatientDetails() {
   if (!patient) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen">
+        <div className="flex h-screen w-screen">
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
