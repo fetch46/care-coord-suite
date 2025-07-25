@@ -78,7 +78,7 @@ export default function Staff() {
   if (loading) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen">
+        <div className="flex h-screen w-screen">
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
