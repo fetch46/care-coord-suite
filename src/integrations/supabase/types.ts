@@ -14,6 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          appointment_date: string
+          appointment_type: string | null
+          caregiver_id: string
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          notes: string | null
+          patient_id: string
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_date: string
+          appointment_type?: string | null
+          caregiver_id: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_date?: string
+          appointment_type?: string | null
+          caregiver_id?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      caregiver_assessments: {
+        Row: {
+          assessed_by: string
+          assessment_date: string
+          assessment_type: string
+          assessor_name: string
+          caregiver_id: string
+          created_at: string
+          description: string | null
+          id: string
+          max_score: number | null
+          next_assessment_date: string | null
+          notes: string | null
+          recommendations: string | null
+          score: number | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assessed_by: string
+          assessment_date?: string
+          assessment_type: string
+          assessor_name: string
+          caregiver_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_score?: number | null
+          next_assessment_date?: string | null
+          notes?: string | null
+          recommendations?: string | null
+          score?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assessed_by?: string
+          assessment_date?: string
+          assessment_type?: string
+          assessor_name?: string
+          caregiver_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_score?: number | null
+          next_assessment_date?: string | null
+          notes?: string | null
+          recommendations?: string | null
+          score?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       caregivers: {
         Row: {
           created_at: string
@@ -140,6 +242,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      patient_assessments: {
+        Row: {
+          assessed_by: string
+          assessment_date: string
+          assessment_type: string
+          assessor_name: string
+          created_at: string
+          description: string | null
+          id: string
+          max_score: number | null
+          next_assessment_date: string | null
+          notes: string | null
+          patient_id: string
+          recommendations: string | null
+          score: number | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assessed_by: string
+          assessment_date?: string
+          assessment_type: string
+          assessor_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_score?: number | null
+          next_assessment_date?: string | null
+          notes?: string | null
+          patient_id: string
+          recommendations?: string | null
+          score?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assessed_by?: string
+          assessment_date?: string
+          assessment_type?: string
+          assessor_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_score?: number | null
+          next_assessment_date?: string | null
+          notes?: string | null
+          patient_id?: string
+          recommendations?: string | null
+          score?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       patient_caregivers: {
         Row: {

@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { CaregiverAssessments } from "@/components/assessments/caregiver-assessments";
 
 interface Caregiver {
   id: string;
@@ -257,8 +258,9 @@ export default function StaffDetails() {
 
               {/* Tabs */}
               <Tabs defaultValue="assignments" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="assignments">Patient Assignments</TabsTrigger>
+                  <TabsTrigger value="assessments">Assessments</TabsTrigger>
                   <TabsTrigger value="schedule">Schedule</TabsTrigger>
                   <TabsTrigger value="performance">Performance</TabsTrigger>
                 </TabsList>
@@ -325,6 +327,10 @@ export default function StaffDetails() {
                       )}
                     </CardContent>
                   </Card>
+                </TabsContent>
+
+                <TabsContent value="assessments" className="space-y-4">
+                  <CaregiverAssessments caregiverId={id!} />
                 </TabsContent>
 
                 <TabsContent value="schedule" className="space-y-4">

@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PatientAssessments } from "@/components/assessments/patient-assessments";
 
 interface Patient {
   id: string;
@@ -287,10 +288,11 @@ export default function PatientDetails() {
 
               {/* Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="medical-records">Medical Records</TabsTrigger>
                   <TabsTrigger value="caregivers">Assigned Caregivers</TabsTrigger>
+                  <TabsTrigger value="assessments">Assessments</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-6">
@@ -464,6 +466,10 @@ export default function PatientDetails() {
                       )}
                     </CardContent>
                   </Card>
+                </TabsContent>
+
+                <TabsContent value="assessments">
+                  <PatientAssessments patientId={id!} />
                 </TabsContent>
               </Tabs>
             </div>
