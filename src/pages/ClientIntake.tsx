@@ -66,15 +66,17 @@ export default function ClientIntake() {
           <main className="flex-1 overflow-auto p-6">
             <div className="w-full max-w-screen-2xl mx-auto space-y-8">
               {/* Header */}
-              <div className="text-center space-y-2">
-                <h1 className="text-3xl font-bold text-foreground">
-                  Patient Registration Form
-                </h1>
-                <p className="text-muted-foreground">
-                  Complete all sections to register a new patient
-                </p>
-              </div>
 
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground">Patient registration form</h1>
+                  <p className="text-muted-foreground mt-1">Complete all sections to register a new patient</p>
+                </div>
+                <Button className="bg-gradient-primary text-white hover:opacity-90">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Patient
+                </Button>
+              </div>         
               {/* Tabs Layout */}
               <Tabs defaultValue="client-info" className="w-full">
                 <TabsList className="mb-6 flex flex-wrap gap-2">
