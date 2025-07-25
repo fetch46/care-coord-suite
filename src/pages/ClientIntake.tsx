@@ -43,6 +43,20 @@ export default function ClientIntake() {
 
   // [Helper functions: addSurgery, removeSurgery, etc. same as before]
 
+  const handleSubmit = () => {
+    toast({
+      title: "Form Submitted",
+      description: "Client intake form has been submitted successfully.",
+    });
+  };
+
+  const handleSaveDraft = () => {
+    toast({
+      title: "Draft Saved",
+      description: "Client intake form has been saved as draft.",
+    });
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen">
