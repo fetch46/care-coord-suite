@@ -98,7 +98,7 @@ export default function Patients() {
   if (loading) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen">
+        <div className="flex h-screen w-screen">
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
@@ -113,7 +113,7 @@ export default function Patients() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen">
+      <div className="flex h-screen">
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
