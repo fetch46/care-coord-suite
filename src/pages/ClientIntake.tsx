@@ -68,10 +68,10 @@ export default function ClientIntake() {
               {/* Header */}
               <div className="text-center space-y-2">
                 <h1 className="text-3xl font-bold text-foreground">
-                  Client Intake Form
+                  Patient Registration Form
                 </h1>
                 <p className="text-muted-foreground">
-                  Complete all sections to register a new client
+                  Complete all sections to register a new patient
                 </p>
               </div>
 
