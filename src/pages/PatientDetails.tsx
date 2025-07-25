@@ -176,7 +176,7 @@ export default function PatientDetails() {
   if (loading) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen">
+        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
@@ -192,7 +192,7 @@ export default function PatientDetails() {
   if (!patient) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen w-screen">
+        <div className="flex h-screen">
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
