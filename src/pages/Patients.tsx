@@ -113,7 +113,7 @@ export default function Patients() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen">
+      <div className="flex h-screen w-screen"> {/* aDDED BY aNDREW*/}
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
