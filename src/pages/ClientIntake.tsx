@@ -43,60 +43,104 @@ import {
 export default function ClientIntake() {
   const { toast } = useToast();
 
-  // State to manage form data for each section
+  // State to manage all form data
   const [formData, setFormData] = useState({
     clientInfo: {
-      firstName: "",
       lastName: "",
-      dob: "",
+      firstName: "",
+      middleName: "",
       address: "",
-      phone: "",
-      email: "",
-    },
-    insurance: {
-      provider: "",
-      policyNumber: "",
-      groupNumber: "",
-      insurancePhone: "",
-    },
-    healthHistory: {
+      dob: "",
+      sex: "",
+      race: "",
+      ssn: "",
+      referralSource: "",
+      dateOfDischarge: "",
+      primaryDiagnosis: "",
+      secondaryDiagnosis: "",
       allergies: "",
-      medications: "",
-      medicalConditions: "",
-      pastSurgeries: "",
-      familyHistory: "",
+      planOfCare: "",
+    },
+    insuranceDetails: {
+      company: "",
+      memberNumber: "",
+      groupNumber: "",
+      phoneNumber: "",
+      medicaidNumber: "",
+    },
+    pastHealthHistory: {
+      surgeries: [], // Array for dynamic surgery entries
     },
     emergencyContacts: [
-      { name: "", relationship: "", phone: "" },
-      { name: "", relationship: "", phone: "" },
+      { name: "", relationship: "", homePhone: "", workPhone: "", cellPhone: "", address: "" },
+      { name: "", relationship: "", homePhone: "", workPhone: "", cellPhone: "", address: "" },
     ],
     physicianInfo: {
-      name: "",
-      specialty: "",
-      phone: "",
-      address: "",
+      primaryPhysicianName: "",
+      physicianPhone: "",
+      npiNumber: "",
+      physicianAddress: "",
     },
   });
 
-  // Handle input changes for all fields
-  const handleInputChange = (section, field, value, index = null) => {
+  // Generic handler for input changes
+  const handleInputChange = (section, field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [section]: {
+        ...prevData[section],
+        [field]: value,
+      },
+    }));
+  };
+
+  // Handlers for dynamic Past Surgeries
+  const handleAddSurgery = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      pastHealthHistory: {
+        ...prevData.pastHealthHistory,
+        surgeries: [...prevData.pastHealthHistory.surgeries, { name: "", date: "" }],
+      },
+    }));
+  };
+
+  const handleRemoveSurgery = (index) => {
     setFormData((prevData) => {
-      if (index !== null) {
-        const updatedArray = [...prevData[section]];
-        updatedArray[index] = { ...updatedArray[index], [field]: value };
-        return {
-          ...prevData,
-          [section]: updatedArray,
-        };
-      } else {
-        return {
-          ...prevData,
-          [section]: {
-            ...prevData[section],
-            [field]: value,
-          },
-        };
-      }
+      const updatedSurgeries = prevData.pastHealthHistory.surgeries.filter((_, i) => i !== index);
+      return {
+        ...prevData,
+        pastHealthHistory: {
+          ...prevData.pastHealthHistory,
+          surgeries: updatedSurgeries,
+        },
+      };
+    });
+  };
+
+  const handleSurgeryChange = (index, field, value) => {
+    setFormData((prevData) => {
+      const updatedSurgeries = [...prevData.pastHealthHistory.surgeries];
+      updatedSurgeries[index] = { ...updatedSurgeries[index], [field]: value };
+      return {
+        ...prevData,
+        pastHealthHistory: {
+          ...prevData.pastHealthHistory,
+          surgeries: updatedSurgeries,
+        },
+      };
+    });
+  };
+
+  // Handler for emergency contact changes
+  const handleEmergencyContactChange = (index, field, value) => {
+    setFormData((prevData) => {
+      const updatedContacts = [...prevData.emergencyContacts];
+      updatedContacts[index] = { ...updatedContacts[index], [field]: value };
+      return {
+        ...prevData,
+        emergencyContacts: updatedContacts,
+      };
     });
   };
 
@@ -138,9 +182,9 @@ export default function ClientIntake() {
               <Tabs defaultValue="client-info" className="w-full">
                 <TabsList className="mb-6 flex flex-wrap gap-2">
                   <TabsTrigger value="client-info">Client Info</TabsTrigger>
-                  <TabsTrigger value="insurance">Insurance</TabsTrigger>
+                  <TabsTrigger value="insurance">Insurance Details</TabsTrigger>
                   <TabsTrigger value="health-history">
-                    Health History
+                    Past Health History
                   </TabsTrigger>
                   <TabsTrigger value="emergency">Emergency Contacts</TabsTrigger>
                   <TabsTrigger value="physician">Physician Info</TabsTrigger>
@@ -156,7 +200,18 @@ export default function ClientIntake() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <Label htmlFor="lastName">Last Name</Label>
+                          <Input
+                            id="lastName"
+                            placeholder="Enter last name"
+                            value={formData.clientInfo.lastName}
+                            onChange={(e) =>
+                              handleInputChange("clientInfo", "lastName", e.target.value)
+                            }
+                          />
+                        </div>
                         <div>
                           <Label htmlFor="firstName">First Name</Label>
                           <Input
@@ -169,30 +224,19 @@ export default function ClientIntake() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="lastName">Last Name</Label>
+                          <Label htmlFor="middleName">Middle Name</Label>
                           <Input
-                            id="lastName"
-                            placeholder="Enter last name"
-                            value={formData.clientInfo.lastName}
+                            id="middleName"
+                            placeholder="Enter middle name"
+                            value={formData.clientInfo.middleName}
                             onChange={(e) =>
-                              handleInputChange("clientInfo", "lastName", e.target.value)
+                              handleInputChange("clientInfo", "middleName", e.target.value)
                             }
                           />
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="dob">Date of Birth</Label>
-                        <Input
-                          id="dob"
-                          type="date"
-                          value={formData.clientInfo.dob}
-                          onChange={(e) =>
-                            handleInputChange("clientInfo", "dob", e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="address">Address</Label>
+                        <Label htmlFor="address">Current Address</Label>
                         <Textarea
                           id="address"
                           placeholder="Enter full address"
@@ -205,162 +249,268 @@ export default function ClientIntake() {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="phone">Phone Number</Label>
+                          <Label htmlFor="dob">Date of Birth</Label>
                           <Input
-                            id="phone"
-                            placeholder="Enter phone number"
-                            value={formData.clientInfo.phone}
+                            id="dob"
+                            type="date"
+                            value={formData.clientInfo.dob}
                             onChange={(e) =>
-                              handleInputChange("clientInfo", "phone", e.target.value)
+                              handleInputChange("clientInfo", "dob", e.target.value)
                             }
                           />
                         </div>
                         <div>
-                          <Label htmlFor="email">Email Address</Label>
+                          <Label htmlFor="sex">Sex</Label>
+                          <Select
+                            value={formData.clientInfo.sex}
+                            onValueChange={(value) =>
+                              handleInputChange("clientInfo", "sex", value)
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select sex" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="male">Male</SelectItem>
+                              <SelectItem value="female">Female</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="race">Race</Label>
+                          <Select
+                            value={formData.clientInfo.race}
+                            onValueChange={(value) =>
+                              handleInputChange("clientInfo", "race", value)
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select race" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="asian">Asian</SelectItem>
+                              <SelectItem value="black">Black or African American</SelectItem>
+                              <SelectItem value="white">White</SelectItem>
+                              <SelectItem value="hispanic">Hispanic or Latino</SelectItem>
+                              <SelectItem value="native_american">Native American or Alaska Native</SelectItem>
+                              <SelectItem value="pacific_islander">Native Hawaiian or Pacific Islander</SelectItem>
+                              <SelectItem value="two_or_more">Two or More Races</SelectItem>
+                              <SelectItem value="unknown">Unknown</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="ssn">SSN</Label>
                           <Input
-                            id="email"
-                            placeholder="Enter email"
-                            type="email"
-                            value={formData.clientInfo.email}
+                            id="ssn"
+                            placeholder="XXX-XX-XXXX" // Masking would be implemented here in a real app
+                            value={formData.clientInfo.ssn}
                             onChange={(e) =>
-                              handleInputChange("clientInfo", "email", e.target.value)
+                              handleInputChange("clientInfo", "ssn", e.target.value)
+                            }
+                            maxLength={11} // Example for basic length control
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="referralSource">Referral Source</Label>
+                        <Input
+                          id="referralSource"
+                          placeholder="e.g., Doctor, Friend, Advertisement"
+                          value={formData.clientInfo.referralSource}
+                          onChange={(e) =>
+                            handleInputChange("clientInfo", "referralSource", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="dateOfDischarge">Date of Discharge from a facility</Label>
+                        <Input
+                          id="dateOfDischarge"
+                          type="date"
+                          value={formData.clientInfo.dateOfDischarge}
+                          onChange={(e) =>
+                            handleInputChange("clientInfo", "dateOfDischarge", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="primaryDiagnosis">Primary Diagnosis</Label>
+                          <Input
+                            id="primaryDiagnosis"
+                            placeholder="Enter primary diagnosis"
+                            value={formData.clientInfo.primaryDiagnosis}
+                            onChange={(e) =>
+                              handleInputChange("clientInfo", "primaryDiagnosis", e.target.value)
+                            }
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="secondaryDiagnosis">Secondary Diagnosis</Label>
+                          <Input
+                            id="secondaryDiagnosis"
+                            placeholder="Enter secondary diagnosis (optional)"
+                            value={formData.clientInfo.secondaryDiagnosis}
+                            onChange={(e) =>
+                              handleInputChange("clientInfo", "secondaryDiagnosis", e.target.value)
                             }
                           />
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Insurance Tab Content */}
-                <TabsContent value="insurance">
-                  <Card className="shadow-card">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Shield className="w-5 h-5 text-primary" />
-                        Insurance Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div>
-                        <Label htmlFor="insuranceProvider">Insurance Provider</Label>
-                        <Input
-                          id="insuranceProvider"
-                          placeholder="Enter insurance provider"
-                          value={formData.insurance.provider}
-                          onChange={(e) =>
-                            handleInputChange("insurance", "provider", e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="policyNumber">Policy Number</Label>
-                        <Input
-                          id="policyNumber"
-                          placeholder="Enter policy number"
-                          value={formData.insurance.policyNumber}
-                          onChange={(e) =>
-                            handleInputChange("insurance", "policyNumber", e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="groupNumber">Group Number</Label>
-                        <Input
-                          id="groupNumber"
-                          placeholder="Enter group number (optional)"
-                          value={formData.insurance.groupNumber}
-                          onChange={(e) =>
-                            handleInputChange("insurance", "groupNumber", e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="insurancePhone">Insurance Phone Number</Label>
-                        <Input
-                          id="insurancePhone"
-                          placeholder="Enter insurance company phone"
-                          value={formData.insurance.insurancePhone}
-                          onChange={(e) =>
-                            handleInputChange("insurance", "insurancePhone", e.target.value)
-                          }
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Health History Tab Content */}
-                <TabsContent value="health-history">
-                  <Card className="shadow-card">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <History className="w-5 h-5 text-primary" />
-                        Health History
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
                       <div>
                         <Label htmlFor="allergies">Allergies</Label>
                         <Textarea
                           id="allergies"
                           placeholder="List any allergies"
                           rows={3}
-                          value={formData.healthHistory.allergies}
+                          value={formData.clientInfo.allergies}
                           onChange={(e) =>
-                            handleInputChange("healthHistory", "allergies", e.target.value)
+                            handleInputChange("clientInfo", "allergies", e.target.value)
                           }
                         />
                       </div>
                       <div>
-                        <Label htmlFor="medications">Current Medications</Label>
+                        <Label htmlFor="planOfCare">POC (Plan of Care)</Label>
                         <Textarea
-                          id="medications"
-                          placeholder="List current medications"
+                          id="planOfCare"
+                          placeholder="Enter plan of care details"
                           rows={3}
-                          value={formData.healthHistory.medications}
+                          value={formData.clientInfo.planOfCare}
                           onChange={(e) =>
-                            handleInputChange("healthHistory", "medications", e.target.value)
+                            handleInputChange("clientInfo", "planOfCare", e.target.value)
+                          }
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Insurance Details Tab Content */}
+                <TabsContent value="insurance">
+                  <Card className="shadow-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Shield className="w-5 h-5 text-primary" />
+                        Insurance Details
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div>
+                        <Label htmlFor="insuranceCompany">Insurance Company</Label>
+                        <Input
+                          id="insuranceCompany"
+                          placeholder="Enter insurance company"
+                          value={formData.insuranceDetails.company}
+                          onChange={(e) =>
+                            handleInputChange("insuranceDetails", "company", e.target.value)
                           }
                         />
                       </div>
                       <div>
-                        <Label htmlFor="medicalConditions">
-                          Pre-existing Medical Conditions
-                        </Label>
-                        <Textarea
-                          id="medicalConditions"
-                          placeholder="List any pre-existing conditions"
-                          rows={3}
-                          value={formData.healthHistory.medicalConditions}
+                        <Label htmlFor="memberNumber">Member #</Label>
+                        <Input
+                          id="memberNumber"
+                          placeholder="Enter member number"
+                          value={formData.insuranceDetails.memberNumber}
                           onChange={(e) =>
-                            handleInputChange("healthHistory", "medicalConditions", e.target.value)
+                            handleInputChange("insuranceDetails", "memberNumber", e.target.value)
                           }
                         />
                       </div>
                       <div>
-                        <Label htmlFor="pastSurgeries">Past Surgeries/Procedures</Label>
-                        <Textarea
-                          id="pastSurgeries"
-                          placeholder="List any past surgeries or procedures"
-                          rows={3}
-                          value={formData.healthHistory.pastSurgeries}
+                        <Label htmlFor="groupNumber">Group #</Label>
+                        <Input
+                          id="groupNumber"
+                          placeholder="Enter group number"
+                          value={formData.insuranceDetails.groupNumber}
                           onChange={(e) =>
-                            handleInputChange("healthHistory", "pastSurgeries", e.target.value)
+                            handleInputChange("insuranceDetails", "groupNumber", e.target.value)
                           }
                         />
                       </div>
                       <div>
-                        <Label htmlFor="familyHistory">Family Medical History</Label>
-                        <Textarea
-                          id="familyHistory"
-                          placeholder="Provide relevant family medical history"
-                          rows={3}
-                          value={formData.healthHistory.familyHistory}
+                        <Label htmlFor="insurancePhoneNumber">Phone #</Label>
+                        <Input
+                          id="insurancePhoneNumber"
+                          placeholder="Enter insurance company phone number"
+                          value={formData.insuranceDetails.phoneNumber}
                           onChange={(e) =>
-                            handleInputChange("healthHistory", "familyHistory", e.target.value)
+                            handleInputChange("insuranceDetails", "phoneNumber", e.target.value)
                           }
                         />
+                      </div>
+                      <div>
+                        <Label htmlFor="medicaidNumber">Medicaid #</Label>
+                        <Input
+                          id="medicaidNumber"
+                          placeholder="Enter Medicaid number (optional)"
+                          value={formData.insuranceDetails.medicaidNumber}
+                          onChange={(e) =>
+                            handleInputChange("insuranceDetails", "medicaidNumber", e.target.value)
+                          }
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Past Health History Tab Content */}
+                <TabsContent value="health-history">
+                  <Card className="shadow-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <History className="w-5 h-5 text-primary" />
+                        Past Health History
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div>
+                        <Label className="mb-2 block">Past Surgeries</Label>
+                        {formData.pastHealthHistory.surgeries.map((surgery, index) => (
+                          <div key={index} className="flex items-end gap-4 mb-4">
+                            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor={`surgeryName-${index}`}>Surgery Name</Label>
+                                <Input
+                                  id={`surgeryName-${index}`}
+                                  placeholder="e.g., Appendectomy"
+                                  value={surgery.name}
+                                  onChange={(e) => handleSurgeryChange(index, "name", e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor={`surgeryDate-${index}`}>Date</Label>
+                                <Input
+                                  id={`surgeryDate-${index}`}
+                                  type="date"
+                                  value={surgery.date}
+                                  onChange={(e) => handleSurgeryChange(index, "date", e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => handleRemoveSurgery(index)}
+                              className="shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleAddSurgery}
+                          className="mt-4"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Surgery
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -376,75 +526,69 @@ export default function ClientIntake() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                      {/* Emergency Contact 1 */}
-                      <div>
-                        <Label htmlFor="emergencyName1">Contact 1 Name</Label>
-                        <Input
-                          id="emergencyName1"
-                          placeholder="Enter full name"
-                          value={formData.emergencyContacts[0].name}
-                          onChange={(e) =>
-                            handleInputChange("emergencyContacts", "name", e.target.value, 0)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="emergencyRelationship1">Relationship</Label>
-                        <Input
-                          id="emergencyRelationship1"
-                          placeholder="e.g., Parent, Spouse"
-                          value={formData.emergencyContacts[0].relationship}
-                          onChange={(e) =>
-                            handleInputChange("emergencyContacts", "relationship", e.target.value, 0)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="emergencyPhone1">Contact 1 Phone Number</Label>
-                        <Input
-                          id="emergencyPhone1"
-                          placeholder="Enter phone number"
-                          value={formData.emergencyContacts[0].phone}
-                          onChange={(e) =>
-                            handleInputChange("emergencyContacts", "phone", e.target.value, 0)
-                          }
-                        />
-                      </div>
-                      <Separator />
-                      {/* Emergency Contact 2 */}
-                      <div>
-                        <Label htmlFor="emergencyName2">Contact 2 Name (Optional)</Label>
-                        <Input
-                          id="emergencyName2"
-                          placeholder="Enter full name"
-                          value={formData.emergencyContacts[1].name}
-                          onChange={(e) =>
-                            handleInputChange("emergencyContacts", "name", e.target.value, 1)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="emergencyRelationship2">Relationship (Optional)</Label>
-                        <Input
-                          id="emergencyRelationship2"
-                          placeholder="e.g., Sibling, Friend"
-                          value={formData.emergencyContacts[1].relationship}
-                          onChange={(e) =>
-                            handleInputChange("emergencyContacts", "relationship", e.target.value, 1)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="emergencyPhone2">Contact 2 Phone Number (Optional)</Label>
-                        <Input
-                          id="emergencyPhone2"
-                          placeholder="Enter phone number"
-                          value={formData.emergencyContacts[1].phone}
-                          onChange={(e) =>
-                            handleInputChange("emergencyContacts", "phone", e.target.value, 1)
-                          }
-                        />
-                      </div>
+                      {formData.emergencyContacts.map((contact, index) => (
+                        <div key={index}>
+                          <h3 className="text-lg font-semibold mb-4">Contact {index + 1}</h3>
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor={`emergencyName-${index}`}>Name</Label>
+                              <Input
+                                id={`emergencyName-${index}`}
+                                placeholder="Enter full name"
+                                value={contact.name}
+                                onChange={(e) => handleEmergencyContactChange(index, "name", e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`emergencyRelationship-${index}`}>Relationship</Label>
+                              <Input
+                                id={`emergencyRelationship-${index}`}
+                                placeholder="e.g., Parent, Spouse"
+                                value={contact.relationship}
+                                onChange={(e) => handleEmergencyContactChange(index, "relationship", e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`emergencyHomePhone-${index}`}>Home Phone</Label>
+                              <Input
+                                id={`emergencyHomePhone-${index}`}
+                                placeholder="Enter home phone number"
+                                value={contact.homePhone}
+                                onChange={(e) => handleEmergencyContactChange(index, "homePhone", e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`emergencyWorkPhone-${index}`}>Work Phone</Label>
+                              <Input
+                                id={`emergencyWorkPhone-${index}`}
+                                placeholder="Enter work phone number"
+                                value={contact.workPhone}
+                                onChange={(e) => handleEmergencyContactChange(index, "workPhone", e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`emergencyCellPhone-${index}`}>Cell Phone</Label>
+                              <Input
+                                id={`emergencyCellPhone-${index}`}
+                                placeholder="Enter cell phone number"
+                                value={contact.cellPhone}
+                                onChange={(e) => handleEmergencyContactChange(index, "cellPhone", e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`emergencyAddress-${index}`}>Address</Label>
+                              <Textarea
+                                id={`emergencyAddress-${index}`}
+                                placeholder="Enter contact's address"
+                                rows={2}
+                                value={contact.address}
+                                onChange={(e) => handleEmergencyContactChange(index, "address", e.target.value)}
+                              />
+                            </div>
+                          </div>
+                          {index === 0 && <Separator className="my-6" />}
+                        </div>
+                      ))}
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -460,35 +604,35 @@ export default function ClientIntake() {
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div>
-                        <Label htmlFor="physicianName">Primary Physician Name</Label>
+                        <Label htmlFor="primaryPhysicianName">Primary Physician Name</Label>
                         <Input
-                          id="physicianName"
+                          id="primaryPhysicianName"
                           placeholder="Enter physician's full name"
-                          value={formData.physicianInfo.name}
+                          value={formData.physicianInfo.primaryPhysicianName}
                           onChange={(e) =>
-                            handleInputChange("physicianInfo", "name", e.target.value)
+                            handleInputChange("physicianInfo", "primaryPhysicianName", e.target.value)
                           }
                         />
                       </div>
                       <div>
-                        <Label htmlFor="physicianSpecialty">Specialty</Label>
-                        <Input
-                          id="physicianSpecialty"
-                          placeholder="e.g., General Practitioner, Cardiologist"
-                          value={formData.physicianInfo.specialty}
-                          onChange={(e) =>
-                            handleInputChange("physicianInfo", "specialty", e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="physicianPhone">Physician Phone Number</Label>
+                        <Label htmlFor="physicianPhone">Physician Phone #</Label>
                         <Input
                           id="physicianPhone"
                           placeholder="Enter physician's phone number"
-                          value={formData.physicianInfo.phone}
+                          value={formData.physicianInfo.physicianPhone}
                           onChange={(e) =>
-                            handleInputChange("physicianInfo", "phone", e.target.value)
+                            handleInputChange("physicianInfo", "physicianPhone", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="npiNumber">NPI #</Label>
+                        <Input
+                          id="npiNumber"
+                          placeholder="Enter NPI number"
+                          value={formData.physicianInfo.npiNumber}
+                          onChange={(e) =>
+                            handleInputChange("physicianInfo", "npiNumber", e.target.value)
                           }
                         />
                       </div>
@@ -498,9 +642,9 @@ export default function ClientIntake() {
                           id="physicianAddress"
                           placeholder="Enter physician's address"
                           rows={3}
-                          value={formData.physicianInfo.address}
+                          value={formData.physicianInfo.physicianAddress}
                           onChange={(e) =>
-                            handleInputChange("physicianInfo", "address", e.target.value)
+                            handleInputChange("physicianInfo", "physicianAddress", e.target.value)
                           }
                         />
                       </div>
