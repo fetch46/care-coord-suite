@@ -672,7 +672,7 @@ export default function ClientIntake() {
                       className="min-w-40 bg-gradient-primary text-white hover:opacity-90"
                     >
                       <Send className="w-4 h-4 mr-2" />
-                      Submit Options
+                      Submit
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
