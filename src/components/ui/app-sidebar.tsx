@@ -8,6 +8,7 @@ import {
   Bell,
   UserCheck,
   Activity,
+  UserPlus,
   ChevronDown,
   Heart
 } from "lucide-react"
@@ -29,6 +30,7 @@ import {
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Patients", url: "/patients", icon: Users },
+  { title: "Client Intake", url: "/client-intake", icon: UserPlus },
   { title: "Scheduling", url: "/scheduling", icon: Calendar },
   { title: "Staff", url: "/staff", icon: UserCheck },
   { title: "Assessments", url: "/assessments", icon: FileText },
