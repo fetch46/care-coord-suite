@@ -115,8 +115,7 @@ export default function Patients() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen"> 
-        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
+      <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
       {/*<div className="min-h-screen flex w-full bg-background">*/}
         <AppSidebar />
         <SidebarInset>
