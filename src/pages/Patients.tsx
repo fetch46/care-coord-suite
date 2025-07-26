@@ -98,7 +98,7 @@ export default function Patients() {
   if (loading) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/} 
+        <div className="min-h-screen flex w-full bg-background">
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
@@ -113,19 +113,19 @@ export default function Patients() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
+      <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-none w-full space-y-8">
+          <main className="flex-1 p-4 sm:p-6 w-full">
+            <div className="container mx-auto max-w-7xl space-y-6 sm:space-y-8">
               {/* Header */}
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">Patients</h1>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Patients</h1>
                   <p className="text-muted-foreground mt-1">Manage patient information and care details</p>
                 </div>
-                <Button className="bg-gradient-primary text-white hover:opacity-90">
+                <Button className="bg-gradient-primary text-white hover:opacity-90 w-full sm:w-auto">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Patient
                 </Button>
@@ -133,8 +133,8 @@ export default function Patients() {
 
               {/* Search and Filter */}
               <Card>
-                <CardContent className="p-12">
-                  <div className="flex gap-4">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row gap-4">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
@@ -144,7 +144,7 @@ export default function Patients() {
                         className="pl-10"
                       />
                     </div>
-                    <Button variant="outline">
+                    <Button variant="outline" className="w-full sm:w-auto">
                       <Filter className="w-4 h-4 mr-2" />
                       Filter
                     </Button>
@@ -154,17 +154,17 @@ export default function Patients() {
 
               {/* Patients Table */}
               <Card>
-                <CardContent className="p-0">
-                  <Table>
+                <CardContent className="p-0 overflow-x-auto">
+                  <Table className="min-w-[800px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Patient</TableHead>
-                        <TableHead>Age/Gender</TableHead>
-                        <TableHead>Room</TableHead>
-                        <TableHead>Care Level</TableHead>
-                        <TableHead>Allergies</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Actions</TableHead>
+                        <TableHead className="min-w-[200px]">Patient</TableHead>
+                        <TableHead className="min-w-[100px]">Age/Gender</TableHead>
+                        <TableHead className="min-w-[80px]">Room</TableHead>
+                        <TableHead className="min-w-[100px]">Care Level</TableHead>
+                        <TableHead className="min-w-[150px]">Allergies</TableHead>
+                        <TableHead className="min-w-[80px]">Status</TableHead>
+                        <TableHead className="min-w-[100px]">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
