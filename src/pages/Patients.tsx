@@ -98,7 +98,9 @@ export default function Patients() {
   if (loading) {
     return (
       <SidebarProvider>
-        <div className="min-h-screen flex w-full bg-background">
+        <div className="flex h-screen"> 
+        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
+        {/* <div className="min-h-screen flex w-full bg-background"> */}
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
@@ -113,7 +115,9 @@ export default function Patients() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="flex h-screen"> 
+        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
+      {/*<div className="min-h-screen flex w-full bg-background">*/}
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
