@@ -32,10 +32,10 @@ const navigationItems = [
   { title: "Patients", url: "/patients", icon: Users },
   { title: "Client Intake", url: "/client-intake", icon: UserPlus },
   { title: "Scheduling", url: "/scheduling", icon: Calendar },
-  { title: "Timesheet", url: "/timesheet", icon: FileText },
   { title: "Staff", url: "/staff", icon: UserCheck },
-  { title: "Assessments", url: "/assessments", icon: Activity },
-  { title: "Reports", url: "/reports", icon: Bell },
+  { title: "Assessments", url: "/assessments", icon: FileText },
+  { title: "Reports", url: "/reports", icon: Activity },
+  { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Settings", url: "/settings", icon: Settings },
 ]
 

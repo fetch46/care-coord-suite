@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/ui/app-sidebar"
-import { AppHeader } from "@/components/ui/app-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -126,68 +123,60 @@ export default function Timesheet() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <AppSidebar />
-        <SidebarInset>
-          <AppHeader />
-          <main className="flex-1 p-4 sm:p-6 w-full">
-            <div className="container mx-auto max-w-7xl">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
+    <div className="container mx-auto p-6 max-w-4xl">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Header */}
         <Card>
-          <CardHeader className="text-center bg-primary text-primary-foreground p-4 sm:p-6">
-            <CardTitle className="text-xl sm:text-2xl font-bold">American Care Team</CardTitle>
+          <CardHeader className="text-center bg-primary text-primary-foreground">
+            <CardTitle className="text-2xl font-bold">American Care Team</CardTitle>
             <div className="space-y-1">
-              <p className="text-base sm:text-lg font-semibold">Provider Timesheet For Home Health Care</p>
-              <p className="text-xs sm:text-sm">240-581-2918</p>
-              <p className="text-xs sm:text-sm">1503 East North Ave, Baltimore MD 21213</p>
-              <p className="text-xs sm:text-sm">www.AmericanCareTeam.com</p>
+              <p className="text-lg font-semibold">Provider Timesheet For Home Health Care</p>
+              <p className="text-sm">240-581-2918</p>
+              <p className="text-sm">1503 East North Ave, Baltimore MD 21213</p>
+              <p className="text-sm">www.AmericanCareTeam.com</p>
             </div>
           </CardHeader>
         </Card>
 
         {/* Section 1: Provider and Client Information */}
         <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Section 1: Provider and Client Information</CardTitle>
-            <p className="text-xs sm:text-sm text-muted-foreground italic">
+          <CardHeader>
+            <CardTitle>Section 1: Provider and Client Information</CardTitle>
+            <p className="text-sm text-muted-foreground italic">
               Please use different time sheet for each patient.
             </p>
           </CardHeader>
-          <CardContent className="space-y-4 p-4 sm:p-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="caregiverName" className="text-sm font-medium">Name of Care Giver</Label>
-                <Input {...register("caregiverName")} id="caregiverName" className="mt-1" />
-              </div>
-              <div>
-                <Label htmlFor="clientName" className="text-sm font-medium">Client's Name</Label>
-                <Input {...register("clientName")} id="clientName" className="mt-1" />
-              </div>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="caregiverName">Name of Care Giver</Label>
+              <Input {...register("caregiverName")} id="caregiverName" />
+            </div>
+            <div>
+              <Label htmlFor="clientName">Client's Name</Label>
+              <Input {...register("clientName")} id="clientName" />
             </div>
           </CardContent>
         </Card>
 
         {/* Section 2: Daily Time Log */}
         <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Section 2: Daily Time Log</CardTitle>
+          <CardHeader>
+            <CardTitle>Section 2: Daily Time Log</CardTitle>
           </CardHeader>
-          <CardContent className="p-2 sm:p-6">
-            <div className="overflow-x-auto -mx-2 sm:mx-0">
-              <table className="w-full min-w-[800px] border-collapse border border-border text-sm">
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-border">
                 <thead>
                   <tr className="bg-muted">
-                    <th className="border border-border p-2 text-left min-w-[100px]">Date</th>
-                    <th className="border border-border p-2 text-left min-w-[80px]">Days of Week</th>
-                    <th className="border border-border p-2 text-left min-w-[80px]">Time In</th>
-                    <th className="border border-border p-2 text-left min-w-[80px]">Time Out</th>
-                    <th className="border border-border p-2 text-left min-w-[70px]">Break</th>
-                    <th className="border border-border p-2 text-left min-w-[80px]">Sleep In</th>
-                    <th className="border border-border p-2 text-left min-w-[80px]">Total Hours</th>
-                    <th className="border border-border p-2 text-left min-w-[60px]">Miles</th>
-                    <th className="border border-border p-2 text-left min-w-[80px]">Client Initial</th>
+                    <th className="border border-border p-2 text-left">Date</th>
+                    <th className="border border-border p-2 text-left">Days of Week</th>
+                    <th className="border border-border p-2 text-left">Time In</th>
+                    <th className="border border-border p-2 text-left">Time Out</th>
+                    <th className="border border-border p-2 text-left">Break</th>
+                    <th className="border border-border p-2 text-left">Sleep In</th>
+                    <th className="border border-border p-2 text-left">Total Hours</th>
+                    <th className="border border-border p-2 text-left">Miles</th>
+                    <th className="border border-border p-2 text-left">Client Initial</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -197,55 +186,55 @@ export default function Timesheet() {
                         <Input 
                           {...register(`dailyLogs.${day}.date`)}
                           type="date"
-                          className="h-8 text-xs"
+                          className="h-8"
                         />
                       </td>
-                      <td className="border border-border p-2 font-medium text-xs sm:text-sm">{day}</td>
+                      <td className="border border-border p-2 font-medium">{day}</td>
                       <td className="border border-border p-1">
                         <Input 
                           {...register(`dailyLogs.${day}.timeIn`)}
                           type="time"
-                          className="h-8 text-xs"
+                          className="h-8"
                         />
                       </td>
                       <td className="border border-border p-1">
                         <Input 
                           {...register(`dailyLogs.${day}.timeOut`)}
                           type="time"
-                          className="h-8 text-xs"
+                          className="h-8"
                         />
                       </td>
                       <td className="border border-border p-1">
                         <Input 
                           {...register(`dailyLogs.${day}.break`)}
-                          className="h-8 text-xs"
+                          className="h-8"
                           placeholder="mins"
                         />
                       </td>
                       <td className="border border-border p-1">
                         <Input 
                           {...register(`dailyLogs.${day}.sleepIn`)}
-                          className="h-8 text-xs"
+                          className="h-8"
                           placeholder="hrs"
                         />
                       </td>
                       <td className="border border-border p-1">
                         <Input 
                           {...register(`dailyLogs.${day}.totalHours`)}
-                          className="h-8 text-xs"
+                          className="h-8"
                           placeholder="hrs"
                         />
                       </td>
                       <td className="border border-border p-1">
                         <Input 
                           {...register(`dailyLogs.${day}.miles`)}
-                          className="h-8 text-xs"
+                          className="h-8"
                         />
                       </td>
                       <td className="border border-border p-1">
                         <Input 
                           {...register(`dailyLogs.${day}.clientInitial`)}
-                          className="h-8 text-xs"
+                          className="h-8"
                           maxLength={3}
                         />
                       </td>
@@ -259,21 +248,21 @@ export default function Timesheet() {
 
         {/* Section 3: Care Plan Activities */}
         <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Section 3: Care Plan Activities</CardTitle>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+          <CardHeader>
+            <CardTitle>Section 3: Care Plan Activities</CardTitle>
+            <p className="text-sm text-muted-foreground">
               For each shift, please check which items you worked on with the client to reflect care plan
             </p>
           </CardHeader>
-          <CardContent className="space-y-6 p-4 sm:p-6">
+          <CardContent className="space-y-6">
             <div>
               <Label className="text-base font-semibold">Total # of Hours: {calculateTotalHours().toFixed(2)}</Label>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-3">
+            <div className="grid md:grid-cols-3 gap-6">
               {/* Personal Care */}
               <div>
-                <h4 className="font-semibold mb-3 text-sm sm:text-base">Personal Care</h4>
+                <h4 className="font-semibold mb-3">Personal Care</h4>
                 <div className="space-y-2">
                   {personalCareItems.map((item) => (
                     <div key={item} className="flex items-center space-x-2">
@@ -290,7 +279,7 @@ export default function Timesheet() {
 
               {/* Home Duties */}
               <div>
-                <h4 className="font-semibold mb-3 text-sm sm:text-base">Home Duties</h4>
+                <h4 className="font-semibold mb-3">Home Duties</h4>
                 <div className="space-y-2">
                   {homeDutiesItems.map((item) => (
                     <div key={item} className="flex items-center space-x-2">
@@ -307,7 +296,7 @@ export default function Timesheet() {
 
               {/* Other Activities */}
               <div>
-                <h4 className="font-semibold mb-3 text-sm sm:text-base">Other Activities/Duties</h4>
+                <h4 className="font-semibold mb-3">Other Activities/Duties</h4>
                 <div className="space-y-2">
                   {otherActivitiesItems.map((item) => (
                     <div key={item} className="flex items-center space-x-2">
@@ -327,23 +316,22 @@ export default function Timesheet() {
 
         {/* Section 4: Additional Comments and Agreements */}
         <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Section 4: Additional Comments and Agreements</CardTitle>
+          <CardHeader>
+            <CardTitle>Section 4: Additional Comments and Agreements</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 p-4 sm:p-6">
+          <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="additionalComments" className="text-sm font-medium">Additional Comments/or Notes About the Patient</Label>
+              <Label htmlFor="additionalComments">Additional Comments/or Notes About the Patient</Label>
               <Textarea 
                 {...register("additionalComments")}
                 id="additionalComments"
                 rows={4}
-                className="mt-1"
               />
             </div>
 
             <Separator />
 
-            <div className="space-y-3 text-xs sm:text-sm">
+            <div className="space-y-3 text-sm">
               <p className="font-semibold">EMPLOYEE AGREEMENT:</p>
               <p>I agree not to accept employment with the Client for the term of employment with American Care Team, LLC and for one (1) year after the termination of my employment with American Care Team, LLC.</p>
               <p>I declare that I have sustained no injury on this assigned job.</p>
@@ -355,22 +343,22 @@ export default function Timesheet() {
 
         {/* Section 5: Availability and Signatures */}
         <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Section 5: Availability and Signatures</CardTitle>
-            <div className="text-xs sm:text-sm text-muted-foreground space-y-2">
+          <CardHeader>
+            <CardTitle>Section 5: Availability and Signatures</CardTitle>
+            <div className="text-sm text-muted-foreground space-y-2">
               <p>I understand I must indicate my availability below for further assignment prior to submitting this time sheet. This information is necessary for our records and also informs us of your availability for future assignments. Failure to do so results in our assumption of your voluntary termination from American Care Team, LLC and may impact your eligibility for unemployment.</p>
               <p className="font-semibold">All completed time sheets must be returned by Mondays at 12:00 PM.</p>
             </div>
           </CardHeader>
-          <CardContent className="space-y-6 p-4 sm:p-6">
+          <CardContent className="space-y-6">
             {/* Availability */}
             <div>
-              <h4 className="font-semibold mb-3 text-sm sm:text-base">Availability</h4>
+              <h4 className="font-semibold mb-3">Availability</h4>
               <div className="space-y-3">
                 {daysOfWeek.map((day) => (
-                  <div key={day} className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                    <div className="w-full sm:w-20 font-medium text-sm">{day}:</div>
-                    <div className="flex flex-wrap gap-2 sm:gap-4">
+                  <div key={day} className="flex items-center space-x-4">
+                    <div className="w-20 font-medium">{day}:</div>
+                    <div className="flex space-x-4">
                       {shifts.map((shift) => (
                         <div key={shift} className="flex items-center space-x-1">
                           <Checkbox
@@ -390,41 +378,37 @@ export default function Timesheet() {
             <Separator />
 
             {/* Signatures */}
-            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
+            <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="employeeSignature" className="text-sm font-medium">Employee's Signature</Label>
-                  <Input {...register("employeeSignature")} id="employeeSignature" className="mt-1" />
+                  <Label htmlFor="employeeSignature">Employee's Signature</Label>
+                  <Input {...register("employeeSignature")} id="employeeSignature" />
                 </div>
                 <div>
-                  <Label htmlFor="employeeDate" className="text-sm font-medium">Date</Label>
-                  <Input {...register("employeeDate")} id="employeeDate" type="date" className="mt-1" />
+                  <Label htmlFor="employeeDate">Date</Label>
+                  <Input {...register("employeeDate")} id="employeeDate" type="date" />
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="clientSignature" className="text-sm font-medium">Client's Signature</Label>
-                  <Input {...register("clientSignature")} id="clientSignature" className="mt-1" />
+                  <Label htmlFor="clientSignature">Client's Signature</Label>
+                  <Input {...register("clientSignature")} id="clientSignature" />
                 </div>
                 <div>
-                  <Label htmlFor="clientDate" className="text-sm font-medium">Date</Label>
-                  <Input {...register("clientDate")} id="clientDate" type="date" className="mt-1" />
+                  <Label htmlFor="clientDate">Date</Label>
+                  <Input {...register("clientDate")} id="clientDate" type="date" />
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-              <Button type="submit" size="lg" className="px-8 w-full sm:w-auto">
+            <div className="flex justify-center pt-4">
+              <Button type="submit" size="lg" className="px-8">
                 Submit Timesheet
               </Button>
             </div>
           </CardContent>
         </Card>
-              </form>
-            </div>
-          </main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+      </form>
+    </div>
   );
 }
