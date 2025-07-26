@@ -78,7 +78,7 @@ export default function Staff() {
   if (loading) {
     return (
       <SidebarProvider>
-        <div className="min-h-screen flex w-full bg-background">
+        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
@@ -93,19 +93,19 @@ export default function Staff() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 p-4 sm:p-6 w-full">
-            <div className="container mx-auto max-w-7xl space-y-6 sm:space-y-8">
+          <main className="flex-1 overflow-auto p-6">
+            <div className="max-w-none w-full space-y-8">
               {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+              <div className="flex justify-between items-center">
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Staff Management</h1>
+                  <h1 className="text-3xl font-bold text-foreground">Staff Management</h1>
                   <p className="text-muted-foreground mt-1">Manage caregivers and healthcare staff</p>
                 </div>
-                <Button className="bg-gradient-primary text-white hover:opacity-90 w-full sm:w-auto">
+                <Button className="bg-gradient-primary text-white hover:opacity-90">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Staff Member
                 </Button>
@@ -113,8 +113,8 @@ export default function Staff() {
 
               {/* Search and Filter */}
               <Card>
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row gap-4">
+                <CardContent className="p-6">
+                  <div className="flex gap-4">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
@@ -124,7 +124,7 @@ export default function Staff() {
                         className="pl-10"
                       />
                     </div>
-                    <Button variant="outline" className="w-full sm:w-auto">
+                    <Button variant="outline">
                       <Filter className="w-4 h-4 mr-2" />
                       Filter
                     </Button>
@@ -133,10 +133,10 @@ export default function Staff() {
               </Card>
 
               {/* Staff Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredCaregivers.map((caregiver) => (
                   <Card key={caregiver.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-4 sm:p-6">
+                    <CardContent className="p-6">
                       <div className="flex flex-col items-center text-center space-y-4">
                         <Avatar className="w-16 h-16">
                           <AvatarImage src={caregiver.profile_image_url} />
