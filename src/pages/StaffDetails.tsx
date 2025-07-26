@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Phone, Mail, Clock, MapPin, Calendar, User, FileText, Users } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { useParams } from "wouter";
+import { Link } from "wouter";
+import { ArrowLeft, Phone, Mail, Clock, MapPin, Calendar, User, FileText, Users, Plus } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -11,114 +13,156 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CaregiverAssessments } from "@/components/assessments/caregiver-assessments";
-
-interface Caregiver {
-  id: string;
-  first_name: string;
-  last_name: string;
-  role: string;
-  specialization: string;
-  shift: string;
-  status: string;
-  phone: string;
-  email: string;
-  profile_image_url?: string;
-  created_at: string;
-}
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
+import { Caregiver } from "@shared/schema";
 
 interface PatientAssignment {
   id: string;
-  patient_id: string;
-  assignment_date: string;
-  is_primary: boolean;
+  patientId: string;
+  assignmentDate: string;
+  isPrimary: boolean;
   notes?: string;
-  patients: {
-    first_name: string;
-    last_name: string;
-    room_number: string;
-    care_level: string;
+  patient: {
+    firstName: string;
+    lastName: string;
+    roomNumber: string;
+    careLevel: string;
   };
 }
 
+interface AvailabilityData {
+  caregiverId: string;
+  dayOfWeek: string;
+  shift: string;
+  isAvailable: boolean;
+}
+
+interface TimesheetSubmission {
+  id: string;
+  date: string;
+  patientName: string;
+  checkIn: string;
+  checkOut: string;
+  status: string;
+}
+
+const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const shifts = ["7-3", "3-11", "11-7"];
+
 export default function StaffDetails() {
   const { id } = useParams();
-  const [caregiver, setCaregiver] = useState<Caregiver | null>(null);
-  const [assignments, setAssignments] = useState<PatientAssignment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [availabilityDialogOpen, setAvailabilityDialogOpen] = useState(false);
+  const [selectedAvailability, setSelectedAvailability] = useState<{[key: string]: string[]}>({});
 
+  // Fetch caregiver details
+  const { data: caregiver, isLoading: caregiverLoading } = useQuery({
+    queryKey: ["/api/caregivers", id],
+    queryFn: () => apiRequest(`/api/caregivers/${id}`),
+    enabled: !!id,
+  });
+
+  // Fetch patient assignments
+  const { data: assignments = [], isLoading: assignmentsLoading } = useQuery({
+    queryKey: ["/api/caregivers", id, "assignments"],
+    queryFn: () => apiRequest(`/api/caregivers/${id}/assignments`),
+    enabled: !!id,
+  });
+
+  // Fetch availability
+  const { data: availability = [], isLoading: availabilityLoading } = useQuery({
+    queryKey: ["/api/caregivers", id, "availability"],
+    queryFn: () => apiRequest(`/api/caregivers/${id}/availability`),
+    enabled: !!id,
+  });
+
+  // Fetch timesheet submissions
+  const { data: timesheets = [], isLoading: timesheetsLoading } = useQuery({
+    queryKey: ["/api/caregivers", id, "timesheets"],
+    queryFn: () => apiRequest(`/api/caregivers/${id}/timesheets`),
+    enabled: !!id,
+  });
+
+  // Save availability mutation
+  const saveAvailability = useMutation({
+    mutationFn: (availabilityData: AvailabilityData[]) => 
+      apiRequest(`/api/caregivers/${id}/availability`, {
+        method: "POST",
+        body: JSON.stringify({ availability: availabilityData }),
+      }),
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Availability updated successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/caregivers", id, "availability"] });
+      setAvailabilityDialogOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update availability",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAvailabilityChange = (day: string, shift: string) => {
+    setSelectedAvailability(prev => {
+      const dayShifts = prev[day] || [];
+      const newShifts = dayShifts.includes(shift)
+        ? dayShifts.filter(s => s !== shift)
+        : [...dayShifts, shift];
+      
+      return { ...prev, [day]: newShifts };
+    });
+  };
+
+  const handleSaveAvailability = () => {
+    const availabilityData: AvailabilityData[] = [];
+    
+    daysOfWeek.forEach(day => {
+      shifts.forEach(shift => {
+        const isAvailable = selectedAvailability[day]?.includes(shift) || false;
+        availabilityData.push({
+          caregiverId: id!,
+          dayOfWeek: day,
+          shift,
+          isAvailable,
+        });
+      });
+    });
+
+    saveAvailability.mutate(availabilityData);
+  };
+
+  // Initialize availability state
   useEffect(() => {
-    if (id) {
-      fetchCaregiverDetails();
-      fetchPatientAssignments();
+    if (availability.length > 0) {
+      const availMap: {[key: string]: string[]} = {};
+      availability.forEach((item: any) => {
+        if (item.isAvailable) {
+          if (!availMap[item.dayOfWeek]) {
+            availMap[item.dayOfWeek] = [];
+          }
+          availMap[item.dayOfWeek].push(item.shift);
+        }
+      });
+      setSelectedAvailability(availMap);
     }
-  }, [id]);
+  }, [availability]);
 
-  const fetchCaregiverDetails = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("caregivers")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) throw error;
-      setCaregiver(data);
-    } catch (error) {
-      console.error("Error fetching caregiver details:", error);
-    }
-  };
-
-  const fetchPatientAssignments = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("patient_caregivers")
-        .select(`
-          *,
-          patients (
-            first_name,
-            last_name,
-            room_number,
-            care_level
-          )
-        `)
-        .eq("caregiver_id", id)
-        .order("assignment_date", { ascending: false });
-
-      if (error) throw error;
-      setAssignments(data || []);
-    } catch (error) {
-      console.error("Error fetching patient assignments:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case "Doctor": return "bg-blue-100 text-blue-800 border-blue-200";
-      case "Nurse": return "bg-green-100 text-green-800 border-green-200";
-      case "Therapist": return "bg-purple-100 text-purple-800 border-purple-200";
-      case "Administrator": return "bg-orange-100 text-orange-800 border-orange-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getShiftColor = (shift: string) => {
-    switch (shift) {
-      case "Day": return "bg-yellow-100 text-yellow-800";
-      case "Night": return "bg-indigo-100 text-indigo-800";
-      case "Rotating": return "bg-teal-100 text-teal-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  if (loading) {
+  if (caregiverLoading) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen w-full">
+        <div className="min-h-screen flex w-full bg-background">
           <AppSidebar />
-          <SidebarInset className="w-full">
+          <SidebarInset>
             <AppHeader />
             <div className="flex items-center justify-center h-full">
               <div className="text-center">Loading staff details...</div>
@@ -132,9 +176,9 @@ export default function StaffDetails() {
   if (!caregiver) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen w-full">
+        <div className="min-h-screen flex w-full bg-background">
           <AppSidebar />
-          <SidebarInset className="w-full">
+          <SidebarInset>
             <AppHeader />
             <div className="flex items-center justify-center h-full">
               <div className="text-center">Staff member not found</div>
@@ -147,110 +191,125 @@ export default function StaffDetails() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full">
+      <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
-        <SidebarInset className="w-full">
+        <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-none w-full space-y-8">
+          <main className="flex-1 p-4 sm:p-6 w-full">
+            <div className="w-full space-y-6">
               {/* Header */}
               <div className="flex items-center gap-4">
-                <Link to="/staff">
-                  <Button variant="ghost" size="sm">
+                <Link href="/staff">
+                  <Button variant="outline" size="sm">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Staff
                   </Button>
                 </Link>
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground">
-                    {caregiver.first_name} {caregiver.last_name}
-                  </h1>
-                  <p className="text-muted-foreground mt-1">Staff member details</p>
-                </div>
+                <h1 className="text-2xl font-bold">Staff Details</h1>
               </div>
 
-              {/* Staff Overview Card */}
+              {/* Staff Profile Card */}
               <Card>
                 <CardContent className="p-6">
-                  <div className="flex flex-col lg:flex-row gap-6">
-                    <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-6">
+                    <div className="flex-shrink-0">
                       <Avatar className="w-24 h-24">
-                        <AvatarImage src={caregiver.profile_image_url} />
-                        <AvatarFallback className="bg-gradient-teal text-white text-2xl">
-                          {caregiver.first_name[0]}{caregiver.last_name[0]}
+                        <AvatarImage src={caregiver.profileImageUrl} />
+                        <AvatarFallback className="text-xl">
+                          {caregiver.firstName?.[0]}{caregiver.lastName?.[0]}
                         </AvatarFallback>
                       </Avatar>
+                    </div>
+                    
+                    <div className="flex-1 space-y-4">
                       <div>
                         <h2 className="text-2xl font-bold">
-                          {caregiver.first_name} {caregiver.last_name}
+                          {caregiver.firstName} {caregiver.lastName}
                         </h2>
-                        <Badge className={getRoleColor(caregiver.role)}>
-                          {caregiver.role}
-                        </Badge>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          <Badge variant="secondary">{caregiver.role}</Badge>
+                          <Badge variant="outline">{caregiver.specialization}</Badge>
+                          <Badge variant="outline">{caregiver.shift}</Badge>
+                          <Badge 
+                            variant={caregiver.status === "Active" ? "default" : "destructive"}
+                          >
+                            {caregiver.status}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-muted-foreground" />
+                          <span>{caregiver.phone}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-muted-foreground" />
+                          <span>{caregiver.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span>Shift: {caregiver.shift}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                          <span>Timesheets: {timesheets.length}</span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                          <User className="w-5 h-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Specialization</p>
-                            <p className="font-medium">{caregiver.specialization || "General"}</p>
+                    {/* Availability Button */}
+                    <div className="flex-shrink-0">
+                      <Dialog open={availabilityDialogOpen} onOpenChange={setAvailabilityDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button className="w-full sm:w-auto">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Set Availability
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Set Staff Availability</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-6">
+                            <div className="grid gap-4">
+                              {daysOfWeek.map(day => (
+                                <div key={day} className="flex items-center justify-between p-4 border rounded-lg">
+                                  <Label className="font-medium">{day}</Label>
+                                  <div className="flex gap-2">
+                                    {shifts.map(shift => (
+                                      <div key={shift} className="flex items-center space-x-2">
+                                        <Checkbox
+                                          id={`${day}-${shift}`}
+                                          checked={selectedAvailability[day]?.includes(shift) || false}
+                                          onCheckedChange={() => handleAvailabilityChange(day, shift)}
+                                        />
+                                        <Label htmlFor={`${day}-${shift}`} className="text-sm">
+                                          {shift}
+                                        </Label>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="flex justify-end gap-2">
+                              <Button 
+                                variant="outline" 
+                                onClick={() => setAvailabilityDialogOpen(false)}
+                              >
+                                Cancel
+                              </Button>
+                              <Button 
+                                onClick={handleSaveAvailability}
+                                disabled={saveAvailability.isPending}
+                              >
+                                {saveAvailability.isPending ? "Saving..." : "Save Availability"}
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <Clock className="w-5 h-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Shift</p>
-                            <Badge variant="secondary" className={getShiftColor(caregiver.shift)}>
-                              {caregiver.shift} Shift
-                            </Badge>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <Calendar className="w-5 h-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Start Date</p>
-                            <p className="font-medium">
-                              {new Date(caregiver.created_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="flex items-center gap-3">
-                          <Phone className="w-5 h-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Phone</p>
-                            <p className="font-medium">{caregiver.phone || "Not provided"}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <Mail className="w-5 h-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Email</p>
-                            <p className="font-medium">{caregiver.email || "Not provided"}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Status</p>
-                            <Badge 
-                              variant={caregiver.status === "Active" ? "default" : "secondary"}
-                              className={caregiver.status === "Active" ? "bg-green-100 text-green-800" : ""}
-                            >
-                              {caregiver.status}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </CardContent>
@@ -259,101 +318,171 @@ export default function StaffDetails() {
               {/* Tabs */}
               <Tabs defaultValue="assignments" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="assignments">Patient Assignments</TabsTrigger>
-                  <TabsTrigger value="assessments">Assessments</TabsTrigger>
-                  <TabsTrigger value="schedule">Schedule</TabsTrigger>
-                  <TabsTrigger value="performance">Performance</TabsTrigger>
+                  <TabsTrigger value="assignments" className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    <span className="hidden sm:inline">Assignments</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="availability" className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span className="hidden sm:inline">Availability</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="timesheets" className="flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    <span className="hidden sm:inline">Timesheets</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="assessments" className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">Assessments</span>
+                  </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="assignments" className="space-y-4">
+                {/* Patient Assignments Tab */}
+                <TabsContent value="assignments">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Users className="w-5 h-5" />
-                        Current Patient Assignments
-                      </CardTitle>
+                      <CardTitle>Patient Assignments</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {assignments.length > 0 ? (
+                      {assignmentsLoading ? (
+                        <div className="text-center py-4">Loading assignments...</div>
+                      ) : assignments.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground">
+                          No patient assignments found
+                        </div>
+                      ) : (
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead>Patient Name</TableHead>
+                              <TableHead>Patient</TableHead>
                               <TableHead>Room</TableHead>
                               <TableHead>Care Level</TableHead>
                               <TableHead>Assignment Date</TableHead>
                               <TableHead>Primary</TableHead>
-                              <TableHead>Notes</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {assignments.map((assignment) => (
+                            {assignments.map((assignment: PatientAssignment) => (
                               <TableRow key={assignment.id}>
                                 <TableCell className="font-medium">
-                                  <Link 
-                                    to={`/patients/${assignment.patient_id}`}
-                                    className="text-primary hover:underline"
-                                  >
-                                    {assignment.patients.first_name} {assignment.patients.last_name}
-                                  </Link>
+                                  {assignment.patient.firstName} {assignment.patient.lastName}
                                 </TableCell>
-                                <TableCell>{assignment.patients.room_number || "N/A"}</TableCell>
+                                <TableCell>{assignment.patient.roomNumber}</TableCell>
                                 <TableCell>
-                                  <Badge variant="outline">
-                                    {assignment.patients.care_level || "Standard"}
-                                  </Badge>
+                                  <Badge variant="outline">{assignment.patient.careLevel}</Badge>
                                 </TableCell>
                                 <TableCell>
-                                  {new Date(assignment.assignment_date).toLocaleDateString()}
+                                  {new Date(assignment.assignmentDate).toLocaleDateString()}
                                 </TableCell>
                                 <TableCell>
-                                  {assignment.is_primary ? (
-                                    <Badge className="bg-blue-100 text-blue-800">Primary</Badge>
+                                  {assignment.isPrimary ? (
+                                    <Badge variant="default">Primary</Badge>
                                   ) : (
-                                    <Badge variant="secondary">Assistant</Badge>
+                                    <Badge variant="secondary">Secondary</Badge>
                                   )}
-                                </TableCell>
-                                <TableCell className="max-w-xs truncate">
-                                  {assignment.notes || "No notes"}
                                 </TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
                         </Table>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Availability Tab */}
+                <TabsContent value="availability">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Weekly Availability</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {availabilityLoading ? (
+                        <div className="text-center py-4">Loading availability...</div>
                       ) : (
-                        <div className="text-center py-8 text-muted-foreground">
-                          No patient assignments found
+                        <div className="space-y-4">
+                          {daysOfWeek.map(day => {
+                            const dayAvailability = availability.filter((item: any) => 
+                              item.dayOfWeek === day && item.isAvailable
+                            );
+                            return (
+                              <div key={day} className="flex items-center justify-between p-4 border rounded-lg">
+                                <Label className="font-medium">{day}</Label>
+                                <div className="flex gap-2">
+                                  {dayAvailability.length > 0 ? (
+                                    dayAvailability.map((item: any) => (
+                                      <Badge key={item.shift} variant="default">
+                                        {item.shift}
+                                      </Badge>
+                                    ))
+                                  ) : (
+                                    <span className="text-muted-foreground text-sm">Not available</span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </CardContent>
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="assessments" className="space-y-4">
-                  <CaregiverAssessments caregiverId={id!} />
-                </TabsContent>
-
-                <TabsContent value="schedule" className="space-y-4">
+                {/* Timesheets Tab */}
+                <TabsContent value="timesheets">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Work Schedule</CardTitle>
+                      <CardTitle>Submitted Timesheets</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center py-8 text-muted-foreground">
-                        Schedule management coming soon
-                      </div>
+                      {timesheetsLoading ? (
+                        <div className="text-center py-4">Loading timesheets...</div>
+                      ) : timesheets.length === 0 ? (
+                        <div className="text-center py-4 text-muted-foreground">
+                          No timesheets submitted yet
+                        </div>
+                      ) : (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Patient</TableHead>
+                              <TableHead>Check In</TableHead>
+                              <TableHead>Check Out</TableHead>
+                              <TableHead>Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {timesheets.map((timesheet: TimesheetSubmission) => (
+                              <TableRow key={timesheet.id}>
+                                <TableCell>
+                                  {new Date(timesheet.date).toLocaleDateString()}
+                                </TableCell>
+                                <TableCell>{timesheet.patientName}</TableCell>
+                                <TableCell>{timesheet.checkIn}</TableCell>
+                                <TableCell>{timesheet.checkOut}</TableCell>
+                                <TableCell>
+                                  <Badge variant={timesheet.status === "Approved" ? "default" : "secondary"}>
+                                    {timesheet.status}
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="performance" className="space-y-4">
+                {/* Assessments Tab */}
+                <TabsContent value="assessments">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Performance Metrics</CardTitle>
+                      <CardTitle>Performance Assessments</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center py-8 text-muted-foreground">
-                        Performance tracking coming soon
+                      <div className="text-center py-4 text-muted-foreground">
+                        Assessment functionality coming soon
                       </div>
                     </CardContent>
                   </Card>
