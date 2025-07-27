@@ -58,7 +58,10 @@ const navigationItems = [
   url: "/reports", 
   icon: Activity,
   submenu: [
+    { title: "Patient Reports", url: "/patient-reports", icon: Users }
     { title: "Timesheet Reports", url: "/timesheet-reports", icon: Activity }
+    { title: "Staff Reports", url: "/staff-reports", Users: Activity }
+
   ]
 },
   { title: "Notifications", url: "/notifications", icon: Bell },
