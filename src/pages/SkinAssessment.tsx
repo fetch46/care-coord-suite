@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 
 /* -------------------- Body-annotation dots -------------------- */
-interface Dot { id: string; x: number; y: number; }
+interface Dot { id: string; x: number; y: number; view: "front" | "back"; }
 
 /* -------------------- Pressure-sore checklist ----------------- */
 const HOT_SPOTS = [
@@ -44,20 +44,21 @@ export default function SkinAssessmentForm() {
 
   /* ---- Body diagram dots ---- */
   const [dots, setDots] = useState<Dot[]>([]);
+  const [bodyView, setBodyView] = useState<"front" | "back">("front");
   const svgRef = useRef<SVGSVGElement>(null);
 
   /* ---- LocalStorage persist ---- */
   useEffect(() => {
     const saved = localStorage.getItem("skinAssessment");
     if (saved) {
-      const { date, patientName, physician, room, records, dots: d } = JSON.parse(saved);
+      const { date, patientName, physician, room, records, dots: d, bodyView: bv } = JSON.parse(saved);
       setDate(date); setPatientName(patientName); setPhysician(physician); setRoom(room);
-      setRecords(records); setDots(d || []);
+      setRecords(records); setDots(d || []); setBodyView(bv || "front");
     }
   }, []);
   useEffect(() => {
-    localStorage.setItem("skinAssessment", JSON.stringify({ date, patientName, physician, room, records, dots }));
-  }, [date, patientName, physician, room, records, dots]);
+    localStorage.setItem("skinAssessment", JSON.stringify({ date, patientName, physician, room, records, dots, bodyView }));
+  }, [date, patientName, physician, room, records, dots, bodyView]);
 
   const updateRecord = (area: HotSpot, patch: Partial<HotSpotRecord>) =>
     setRecords((prev) => prev.map((r) => (r.area === area ? { ...r, ...patch } : r)));
@@ -68,9 +69,48 @@ export default function SkinAssessmentForm() {
     const rect = svgRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setDots((prev) => [...prev, { id: `${Date.now()}`, x, y }]);
+    setDots((prev) => [...prev, { id: `${Date.now()}`, x, y, view: bodyView }]);
   };
   const removeDot = (id: string) => setDots((prev) => prev.filter((d) => d.id !== id));
+
+  const renderFrontView = () => (
+    <g stroke="#333" strokeWidth="1.5" fill="#f7f7f7">
+      {/* Head */}
+      <ellipse cx="100" cy="45" rx="35" ry="40" />
+      {/* Neck */}
+      <rect x="85" y="80" width="30" height="20" rx="10" />
+      {/* Torso */}
+      <path d="M65 100 L65 190 C65 210 75 230 100 230 C125 230 135 210 135 190 L135 100 Z" />
+      {/* Left arm */}
+      <path d="M65 110 C45 120 25 140 25 190 C25 240 45 260 65 270" />
+      {/* Right arm */}
+      <path d="M135 110 C155 120 175 140 175 190 C175 240 155 260 135 270" />
+      {/* Left leg */}
+      <path d="M75 230 C70 270 70 390 75 490" />
+      {/* Right leg */}
+      <path d="M125 230 C130 270 130 390 125 490" />
+    </g>
+  );
+
+  const renderBackView = () => (
+    <g stroke="#333" strokeWidth="1.5" fill="#f7f7f7">
+      {/* Head (back) */}
+      <ellipse cx="100" cy="45" rx="35" ry="40" />
+      {/* Neck (back) */}
+      <rect x="85" y="80" width="30" height="20" rx="10" />
+      {/* Torso (back) - Simplified for example */}
+      <path d="M65 100 L65 190 C65 210 75 230 100 230 C125 230 135 210 135 190 L135 100 Z" />
+      {/* Shoulders - more pronounced from back */}
+      <path d="M65 100 C50 110 40 125 45 140 M135 100 C150 110 160 125 155 140" />
+      {/* Buttocks area */}
+      <path d="M75 230 C65 250 65 270 75 290 C85 310 115 310 125 290 C135 270 135 250 125 230" />
+      {/* Arms and Legs (similar but from back perspective) */}
+      <path d="M65 110 C45 120 25 140 25 190 C25 240 45 260 65 270" />
+      <path d="M135 110 C155 120 175 140 175 190 C175 240 155 260 135 270" />
+      <path d="M75 230 C70 270 70 390 75 490" />
+      <path d="M125 230 C130 270 130 390 125 490" />
+    </g>
+  );
 
   return (
     <SidebarProvider>
@@ -96,32 +136,30 @@ export default function SkinAssessmentForm() {
               <Card className="h-fit">
                 <CardHeader><CardTitle>Body Diagram – Click/Tap to Annotate</CardTitle></CardHeader>
                 <CardContent className="relative w-full max-w-sm mx-auto">
+                  <div className="mb-4 flex justify-center space-x-4">
+                    <Button
+                      variant={bodyView === "front" ? "default" : "outline"}
+                      onClick={() => setBodyView("front")}
+                    >
+                      Front View
+                    </Button>
+                    <Button
+                      variant={bodyView === "back" ? "default" : "outline"}
+                      onClick={() => setBodyView("back")}
+                    >
+                      Back View
+                    </Button>
+                  </div>
                   <svg
                     ref={svgRef}
                     viewBox="0 0 200 500"
                     className="w-full h-auto cursor-crosshair border"
                     onClick={handleSvgClick}
                   >
-                    {/* Human body outline (front view) */}
-                    <g stroke="#333" strokeWidth="1.5" fill="#f7f7f7">
-                      {/* Head */}
-                      <ellipse cx="100" cy="45" rx="35" ry="40" />
-                      {/* Neck */}
-                      <rect x="85" y="80" width="30" height="20" rx="10" />
-                      {/* Torso */}
-                      <path d="M65 100 L65 190 C65 210 75 230 100 230 C125 230 135 210 135 190 L135 100 Z" />
-                      {/* Left arm */}
-                      <path d="M65 110 C45 120 25 140 25 190 C25 240 45 260 65 270" />
-                      {/* Right arm */}
-                      <path d="M135 110 C155 120 175 140 175 190 C175 240 155 260 135 270" />
-                      {/* Left leg */}
-                      <path d="M75 230 C70 270 70 390 75 490" />
-                      {/* Right leg */}
-                      <path d="M125 230 C130 270 130 390 125 490" />
-                    </g>
+                    {bodyView === "front" ? renderFrontView() : renderBackView()}
 
                     {/* Annotation dots */}
-                    {dots.map((dot) => (
+                    {dots.filter(dot => dot.view === bodyView).map((dot) => (
                       <g key={dot.id}>
                         <circle cx={`${dot.x}%`} cy={`${dot.y}%`} r="4" fill="red" />
                         <circle cx={`${dot.x}%`} cy={`${dot.y}%`} r="10" fill="transparent" onClick={(e) => { e.stopPropagation(); removeDot(dot.id); }} className="cursor-pointer" />
