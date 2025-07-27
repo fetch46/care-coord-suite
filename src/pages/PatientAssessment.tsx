@@ -174,79 +174,82 @@ export default function PatientAssessment() {
                   </CardContent>
                 </Card>
 
-                {/* Respiratory */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Respiratory Status</CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>Shortness of Breath</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select frequency" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {["Never","Walking >20ft","Moderate exertion","Minimal exertion","At rest"].map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Respiratory Treatments</Label>
-                      <div className="grid grid-cols-2 gap-2 mt-1">
-                        {["Oxygen","Nebulizer","Ventilator","CPAP/BIPAP"].map((t) => (
-                          <label key={t} className="flex items-center space-x-2">
-                            <Checkbox id={t} />
-                            <span>{t}</span>
-                          </label>
-                        ))}
+                {/* Combined Respiratory and Pain Assessment */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Respiratory */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Respiratory Status</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Shortness of Breath</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select frequency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["Never","Walking >20ft","Moderate exertion","Minimal exertion","At rest"].map((opt) => (
+                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Pain Assessment */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Pain Assessment</CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>Pain Frequency</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select frequency" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {["No pain","Less than daily","Daily","Constant"].map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                      <div>
+                        <Label>Respiratory Treatments</Label>
+                        <div className="grid grid-cols-2 gap-2 mt-1">
+                          {["Oxygen","Nebulizer","Ventilator","CPAP/BIPAP"].map((t) => (
+                            <label key={t} className="flex items-center space-x-2">
+                              <Checkbox id={t} />
+                              <span>{t}</span>
+                            </label>
                           ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Pain Location</Label>
-                      <Input placeholder="Where is the pain?" />
-                    </div>
-                    <div>
-                      <Label>Pain Intensity</Label>
-                      <RadioGroup defaultValue="mild" className="flex gap-4 mt-1">
-                        {["Mild","Moderate","Severe"].map((level) => (
-                          <div key={level} className="flex items-center space-x-2">
-                            <RadioGroupItem value={level.toLowerCase()} id={`pain-${level.toLowerCase()}`} />
-                            <Label htmlFor={`pain-${level.toLowerCase()}`}>{level}</Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    </div>
-                    <div>
-                      <Label>Current Treatment</Label>
-                      <Input placeholder="Current pain management" />
-                    </div>
-                  </CardContent>
-                </Card>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Pain Assessment */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Pain Assessment</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Pain Frequency</Label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select frequency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["No pain","Less than daily","Daily","Constant"].map((opt) => (
+                              <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Pain Location</Label>
+                        <Input placeholder="Where is the pain?" />
+                      </div>
+                      <div>
+                        <Label>Pain Intensity</Label>
+                        <RadioGroup defaultValue="mild" className="flex gap-4 mt-1">
+                          {["Mild","Moderate","Severe"].map((level) => (
+                            <div key={level} className="flex items-center space-x-2">
+                              <RadioGroupItem value={level.toLowerCase()} id={`pain-${level.toLowerCase()}`} />
+                              <Label htmlFor={`pain-${level.toLowerCase()}`}>{level}</Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </div>
+                      <div>
+                        <Label>Current Treatment</Label>
+                        <Input placeholder="Current pain management" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
                 {/* Signatures */}
                 <Card>
