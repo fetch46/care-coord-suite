@@ -62,7 +62,6 @@ const navigationItems = [
     { title: "Timesheet Reports", url: "/timesheet-reports", icon: FileText }
   ]
 },
-  
   { 
   title: "Reports", 
   url: "/reports", 
