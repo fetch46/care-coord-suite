@@ -18,29 +18,26 @@ import { Clock, User, FileText, CheckSquare, PenTool } from "lucide-react";
 
 interface TimesheetData {
   caregiverId: string;
-  clientId: string;
-  weekEnding: string;
-  dailyLogs: {
-    [key: string]: {
-      date: string;
-      timeIn: string;
-      timeOut: string;
-      breakMinutes: string;
-      sleepIn: boolean;
-      totalHours: string;
-      miles: string;
-    };
+  patientId: string;
+  timeLog: {
+    date: string;
+    timeIn: string;
+    timeOut: string;
+    break: string;
+    sleepIn: boolean;
+    totalHours: string;
+    miles: string;
   };
   duties: {
-    [task: string]: {
-      [day: string]: boolean;
+    [category: string]: {
+      [task: string]: boolean;
     };
   };
   additionalComments: string;
   employeeSignature: string;
   employeeDate: string;
-  clientSignature: string;
-  clientDate: string;
+  patientSignature: string;
+  patientDate: string;
 }
 
 interface Caregiver {
@@ -55,10 +52,8 @@ interface Patient {
   first_name: string;
   last_name: string;
   room_number: string;
+  allergies?: string;
 }
-
-const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const dayAbbreviations = ["S", "M", "T", "W", "T", "F", "S"];
 
 const personalCareTasks = [
   "Dressed/Undressed", "Bed Bath", "Oral Hygiene", "Shampoo", "Eating",
@@ -80,11 +75,22 @@ const activitiesTasks = [
 export default function DigitalTimesheet() {
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<TimesheetData>();
   const { toast } = useToast();
-  
+
   const [caregivers, setCaregivers] = useState<Caregiver[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
-  const [duties, setDuties] = useState<{[task: string]: {[day: string]: boolean}}>({});
+
+  // Duties grouped by category and task
+  const [duties, setDuties] = useState<{
+    personalCare: { [task: string]: boolean },
+    homeManagement: { [task: string]: boolean },
+    activities: { [task: string]: boolean }
+  }>({
+    personalCare: {},
+    homeManagement: {},
+    activities: {}
+  });
 
   useEffect(() => {
     fetchData();
@@ -95,7 +101,7 @@ export default function DigitalTimesheet() {
     try {
       const [caregiversResponse, patientsResponse] = await Promise.all([
         supabase.from("caregivers").select("id, first_name, last_name, role").eq("status", "Active"),
-        supabase.from("patients").select("id, first_name, last_name, room_number").eq("status", "Active")
+        supabase.from("patients").select("id, first_name, last_name, room_number, allergies").eq("status", "Active")
       ]);
 
       if (caregiversResponse.error) throw caregiversResponse.error;
@@ -116,56 +122,43 @@ export default function DigitalTimesheet() {
   };
 
   const initializeDuties = () => {
-    const allTasks = [...personalCareTasks, ...homeManagementTasks, ...activitiesTasks];
-    const initialDuties: {[task: string]: {[day: string]: boolean}} = {};
-    
-    allTasks.forEach(task => {
-      initialDuties[task] = {};
-      dayAbbreviations.forEach(day => {
-        initialDuties[task][day] = false;
-      });
+    setDuties({
+      personalCare: personalCareTasks.reduce((acc, task) => ({ ...acc, [task]: false }), {}),
+      homeManagement: homeManagementTasks.reduce((acc, task) => ({ ...acc, [task]: false }), {}),
+      activities: activitiesTasks.reduce((acc, task) => ({ ...acc, [task]: false }), {}),
     });
-    
-    setDuties(initialDuties);
   };
 
-  const handleDutyChange = (task: string, day: string, checked: boolean) => {
+  const handleDutyChange = (category: keyof typeof duties, task: string, checked: boolean) => {
     setDuties(prev => ({
       ...prev,
-      [task]: {
-        ...prev[task],
-        [day]: checked
+      [category]: {
+        ...prev[category],
+        [task]: checked
       }
     }));
   };
 
   const calculateTotalHours = (timeIn: string, timeOut: string, breakMinutes: string) => {
     if (!timeIn || !timeOut) return "0.00";
-    
     const start = new Date(`2000-01-01T${timeIn}`);
     const end = new Date(`2000-01-01T${timeOut}`);
     let diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    
     if (diff < 0) diff += 24; // Handle overnight shifts
-    
     const breakHours = parseFloat(breakMinutes || "0") / 60;
     const totalHours = Math.max(0, diff - breakHours);
-    
     return totalHours.toFixed(2);
   };
 
   const onSubmit = async (data: TimesheetData) => {
     try {
-      // In a real application, you would save this to a timesheets table
       const timesheetData = {
         ...data,
         duties,
         submitted_at: new Date().toISOString(),
         status: 'submitted'
       };
-      
       console.log("Timesheet submission:", timesheetData);
-      
       toast({
         title: "Success",
         description: "Timesheet submitted successfully",
@@ -180,38 +173,11 @@ export default function DigitalTimesheet() {
     }
   };
 
-  const TaskGrid = ({ tasks, title }: { tasks: string[], title: string }) => (
-    <div className="space-y-4">
-      <h4 className="font-semibold text-lg">{title}</h4>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="text-left p-2 border-b font-medium">Task</th>
-              {dayAbbreviations.map(day => (
-                <th key={day} className="text-center p-2 border-b font-medium w-12">{day}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {tasks.map(task => (
-              <tr key={task} className="border-b">
-                <td className="p-2 text-sm">{task}</td>
-                {dayAbbreviations.map(day => (
-                  <td key={day} className="text-center p-2">
-                    <Checkbox
-                      checked={duties[task]?.[day] || false}
-                      onCheckedChange={(checked) => handleDutyChange(task, day, !!checked)}
-                    />
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  // For displaying the day of the week with the selected date
+  const timeLogDate = watch("timeLog.date");
+  const dayOfWeek = timeLogDate
+    ? new Date(timeLogDate).toLocaleDateString(undefined, { weekday: "long" })
+    : "";
 
   if (loading) {
     return (
@@ -237,10 +203,19 @@ export default function DigitalTimesheet() {
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
             <div className="w-full space-y-8">
-              {/* <div className="w-full max-w-6xl mx-auto space-y-8"> ----Andrew */}
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                 {/* Header */}
-                
+                <Card className="bg-primary text-primary-foreground">
+                  <CardHeader className="text-center">
+                    <CardTitle className="text-2xl font-bold">American Care Team</CardTitle>
+                    <div className="space-y-1">
+                      <p className="text-lg font-semibold">Provider Timesheet For Home Health Care</p>
+                      <p className="text-sm">240-581-2918</p>
+                      <p className="text-sm">1503 East North Ave, Baltimore MD 21213</p>
+                      <p className="text-sm">www.AmericanCareTeam.com</p>
+                    </div>
+                  </CardHeader>
+                </Card>
 
                 {/* Important Notice */}
                 <Card className="border-orange-200 bg-orange-50">
@@ -251,12 +226,12 @@ export default function DigitalTimesheet() {
                   </CardContent>
                 </Card>
 
-                {/* Caregiver Info Section */}
+                {/* Caregiver & Patient Selection */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <User className="w-5 h-5" />
-                      Provider and Client Information
+                      Provider and Patient Information
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -277,10 +252,14 @@ export default function DigitalTimesheet() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="clientId">Client</Label>
-                        <Select onValueChange={(value) => setValue("clientId", value)}>
+                        <Label htmlFor="patientId">Patient</Label>
+                        <Select onValueChange={(value) => {
+                          setValue("patientId", value);
+                          const patient = patients.find(p => p.id === value);
+                          setSelectedPatient(patient || null);
+                        }}>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select client" />
+                            <SelectValue placeholder="Select patient" />
                           </SelectTrigger>
                           <SelectContent>
                             {patients.map((patient) => (
@@ -290,105 +269,97 @@ export default function DigitalTimesheet() {
                             ))}
                           </SelectContent>
                         </Select>
+                        {selectedPatient?.allergies && (
+                          <div className="mt-2 text-sm text-red-600">
+                            <strong>Allergies:</strong> {selectedPatient.allergies}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="weekEnding">Week Ending</Label>
-                      <Input
-                        type="date"
-                        {...register("weekEnding", { required: "Week ending date is required" })}
-                      />
-                      {errors.weekEnding && (
-                        <p className="text-sm text-red-600 mt-1">{errors.weekEnding.message}</p>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Daily Log Table */}
+                {/* Time Log */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Clock className="w-5 h-5" />
-                      Daily Time Log
+                      Time Log
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse border border-border">
-                        <thead>
-                          <tr className="bg-muted">
-                            <th className="border border-border p-2 text-left">Date</th>
-                            <th className="border border-border p-2 text-left">Day</th>
-                            <th className="border border-border p-2 text-left">Time In</th>
-                            <th className="border border-border p-2 text-left">Time Out</th>
-                            <th className="border border-border p-2 text-left">Break (mins)</th>
-                            <th className="border border-border p-2 text-left">Sleep In?</th>
-                            <th className="border border-border p-2 text-left">Total Hours</th>
-                            <th className="border border-border p-2 text-left">Miles</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {daysOfWeek.map((day, index) => {
-                            const timeIn = watch(`dailyLogs.${day}.timeIn`);
-                            const timeOut = watch(`dailyLogs.${day}.timeOut`);
-                            const breakMinutes = watch(`dailyLogs.${day}.breakMinutes`);
-                            const totalHours = calculateTotalHours(timeIn, timeOut, breakMinutes);
-                            
-                            return (
-                              <tr key={day}>
-                                <td className="border border-border p-1">
-                                  <Input 
-                                    type="date"
-                                    {...register(`dailyLogs.${day}.date`)}
-                                    className="h-8"
-                                  />
-                                </td>
-                                <td className="border border-border p-2 font-medium">{day}</td>
-                                <td className="border border-border p-1">
-                                  <Input 
-                                    type="time"
-                                    {...register(`dailyLogs.${day}.timeIn`)}
-                                    className="h-8"
-                                  />
-                                </td>
-                                <td className="border border-border p-1">
-                                  <Input 
-                                    type="time"
-                                    {...register(`dailyLogs.${day}.timeOut`)}
-                                    className="h-8"
-                                  />
-                                </td>
-                                <td className="border border-border p-1">
-                                  <Input 
-                                    type="number"
-                                    {...register(`dailyLogs.${day}.breakMinutes`)}
-                                    className="h-8"
-                                    placeholder="0"
-                                  />
-                                </td>
-                                <td className="border border-border p-2 text-center">
-                                  <Switch
-                                    onCheckedChange={(checked) => setValue(`dailyLogs.${day}.sleepIn`, checked)}
-                                  />
-                                </td>
-                                <td className="border border-border p-2 text-center font-medium">
-                                  {totalHours}
-                                </td>
-                                <td className="border border-border p-1">
-                                  <Input 
-                                    type="number"
-                                    step="0.1"
-                                    {...register(`dailyLogs.${day}.miles`)}
-                                    className="h-8"
-                                    placeholder="0"
-                                  />
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <Label htmlFor="timeLog.date">Date</Label>
+                        <Input
+                          type="date"
+                          {...register("timeLog.date", { required: "Date is required" })}
+                        />
+                        {dayOfWeek && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {dayOfWeek}
+                          </div>
+                        )}
+                        {errors?.timeLog?.date && (
+                          <p className="text-sm text-red-600 mt-1">{errors.timeLog.date.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="timeLog.timeIn">Time In</Label>
+                        <Input
+                          type="time"
+                          {...register("timeLog.timeIn", { required: "Time In is required" })}
+                        />
+                        {errors?.timeLog?.timeIn && (
+                          <p className="text-sm text-red-600 mt-1">{errors.timeLog.timeIn.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="timeLog.timeOut">Time Out</Label>
+                        <Input
+                          type="time"
+                          {...register("timeLog.timeOut", { required: "Time Out is required" })}
+                        />
+                        {errors?.timeLog?.timeOut && (
+                          <p className="text-sm text-red-600 mt-1">{errors.timeLog.timeOut.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="timeLog.break">Break (mins)</Label>
+                        <Input
+                          type="number"
+                          {...register("timeLog.break", { required: "Break is required" })}
+                          placeholder="0"
+                        />
+                        {errors?.timeLog?.break && (
+                          <p className="text-sm text-red-600 mt-1">{errors.timeLog.break.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="timeLog.sleepIn">Sleep In?</Label>
+                        <Switch
+                          onCheckedChange={(checked) => setValue("timeLog.sleepIn", checked)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Total Hours</Label>
+                        <div className="font-medium">
+                          {calculateTotalHours(
+                            watch("timeLog.timeIn"),
+                            watch("timeLog.timeOut"),
+                            watch("timeLog.break")
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="timeLog.miles">Miles</Label>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          {...register("timeLog.miles")}
+                          placeholder="0"
+                        />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -401,13 +372,67 @@ export default function DigitalTimesheet() {
                       Care Plan Activities
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      For each shift, please check which items you worked on with the client
+                      For this shift, please check which items you worked on with the patient
                     </p>
                   </CardHeader>
                   <CardContent className="space-y-8">
-                    <TaskGrid tasks={personalCareTasks} title="Personal Care Tasks" />
-                    <TaskGrid tasks={homeManagementTasks} title="Home Management Tasks" />
-                    <TaskGrid tasks={activitiesTasks} title="Activities" />
+                    {/* Personal Care Tasks */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Personal Care Tasks</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {personalCareTasks.map(task => (
+                            <div key={task} className="flex items-center">
+                              <Checkbox
+                                checked={duties.personalCare[task] || false}
+                                onCheckedChange={(checked) => handleDutyChange("personalCare", task, !!checked)}
+                              />
+                              <Label className="ml-2">{task}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                    {/* Home Management Tasks */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Home Management Tasks</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {homeManagementTasks.map(task => (
+                            <div key={task} className="flex items-center">
+                              <Checkbox
+                                checked={duties.homeManagement[task] || false}
+                                onCheckedChange={(checked) => handleDutyChange("homeManagement", task, !!checked)}
+                              />
+                              <Label className="ml-2">{task}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                    {/* Activities */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Activities</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {activitiesTasks.map(task => (
+                            <div key={task} className="flex items-center">
+                              <Checkbox
+                                checked={duties.activities[task] || false}
+                                onCheckedChange={(checked) => handleDutyChange("activities", task, !!checked)}
+                              />
+                              <Label className="ml-2">{task}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
                   </CardContent>
                 </Card>
 
@@ -421,7 +446,7 @@ export default function DigitalTimesheet() {
                   </CardHeader>
                   <CardContent>
                     <Label htmlFor="additionalComments">Additional Comments or Notes About the Patient</Label>
-                    <Textarea 
+                    <Textarea
                       {...register("additionalComments")}
                       rows={4}
                       placeholder="Enter any additional comments or observations about the patient's care..."
@@ -435,10 +460,10 @@ export default function DigitalTimesheet() {
                     <CardTitle>Employee Agreement</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
-                    <p>I agree not to accept employment with the Client for the term of employment with American Care Team, LLC and for one (1) year after the termination of my employment with American Care Team, LLC.</p>
+                    <p>I agree not to accept employment with the Patient for the term of employment with American Care Team, LLC and for one (1) year after the termination of my employment with America[...]
                     <p>I declare that I have sustained no injury on this assigned job.</p>
-                    <p>By signing this time sheet, I certify that all services have been provided in accordance with the Client's healthcare assessment and I have delivered all service hours shown on the time sheet.</p>
-                    <p className="font-semibold">In order to be paid, I understand this time sheet must be completed and signed by both me and the client.</p>
+                    <p>By signing this time sheet, I certify that all services have been provided in accordance with the Patient's healthcare assessment and I have delivered all service hours shown on [...]
+                    <p className="font-semibold">In order to be paid, I understand this time sheet must be completed and signed by both me and the patient.</p>
                     <p className="font-semibold text-red-600">All completed time sheets must be returned by Mondays at 12:00 PM.</p>
                   </CardContent>
                 </Card>
@@ -463,26 +488,25 @@ export default function DigitalTimesheet() {
                         </div>
                         <div>
                           <Label htmlFor="employeeDate">Date</Label>
-                          <Input 
+                          <Input
                             type="date"
                             {...register("employeeDate", { required: "Employee date is required" })}
                           />
                         </div>
                       </div>
-                      
                       <div className="space-y-4">
-                        <h4 className="font-semibold">Client Signature</h4>
+                        <h4 className="font-semibold">Patient Signature</h4>
                         <div>
-                          <Label htmlFor="clientSignature">Digital Signature</Label>
+                          <Label htmlFor="patientSignature">Digital Signature</Label>
                           <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-32 flex items-center justify-center bg-gray-50">
                             <p className="text-gray-500 text-sm">Click to sign digitally</p>
                           </div>
                         </div>
                         <div>
-                          <Label htmlFor="clientDate">Date</Label>
-                          <Input 
+                          <Label htmlFor="patientDate">Date</Label>
+                          <Input
                             type="date"
-                            {...register("clientDate", { required: "Client date is required" })}
+                            {...register("patientDate", { required: "Patient date is required" })}
                           />
                         </div>
                       </div>
