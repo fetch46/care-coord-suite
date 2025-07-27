@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -19,6 +20,48 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
+// --- Reusable Components ---
+
+// Component for a group of checkboxes
+function FormCheckboxGroup({ label, options, selectedValues, onValueChange }) {
+  return (
+    <div>
+      <Label>{label}</Label>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+        {options.map((option) => (
+          <label key={option.id} className="flex items-center space-x-2">
+            <Checkbox
+              id={option.id}
+              checked={selectedValues.includes(option.id)}
+              onCheckedChange={(checked) => onValueChange(option.id, checked)}
+            />
+            <span>{option.label}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Component for a group of radio buttons
+function FormRadioGroup({ label, options, selectedValue, onValueChange, className = "" }) {
+  return (
+    <div>
+      <Label>{label}</Label>
+      <RadioGroup value={selectedValue} onValueChange={onValueChange} className={`mt-1 ${className}`}>
+        {options.map((option) => (
+          <label key={option.id} className="flex items-center space-x-2">
+            <RadioGroupItem value={option.id} />
+            <span>{option.label}</span>
+          </label>
+        ))}
+      </RadioGroup>
+    </div>
+  );
+}
+
+// --- Static Data Definitions ---
+
 const patients = [
   { id: "1", name: "John Doe", mrn: "MRN12345" },
   { id: "2", name: "Jane Smith", mrn: "MRN67890" },
@@ -34,7 +77,536 @@ const assessmentTypes = [
   "Change of Condition",
 ];
 
+const dietOptions = [
+  { id: "regular", label: "Regular" },
+  { id: "low-salt", label: "Low Salt" },
+  { id: "puree-chopped", label: "Puree/Chopped" },
+  { id: "diabetic-no-concentrated-sweets", label: "Diabetic/No Concentrated Sweets" },
+  { id: "renal", label: "Renal" },
+  { id: "other", label: "Other" },
+];
+
+const respiratoryFindingsOptions = [
+  { id: "normal-limits", label: "Within Normal Limits" },
+  { id: "cough", label: "Cough" },
+  { id: "wheezing", label: "Wheezing" },
+  { id: "other", label: "Other" },
+];
+
+const shortnessOfBreathOptions = [
+  { id: "never", label: "Never short of breath" },
+  { id: "walking-stairs", label: "When walking >20 ft or climbing stairs" },
+  { id: "moderate-exertion", label: "With moderate exertion (dressing, commode, walking <20 ft)" },
+  { id: "minimal-exertion", label: "With minimal exertion (eating, talking)" },
+  { id: "at-rest", label: "At rest" },
+];
+
+const respiratoryTreatmentOptions = [
+  { id: "oxygen", label: "Oxygen (intermittent or continuous)" },
+  { id: "aerosol-nebulizer", label: "Aerosol or nebulizer treatments" },
+  { id: "ventilator", label: "Ventilator (intermittent or continuous)" },
+  { id: "cpap-bipap", label: "CPAP or BIPAP" },
+  { id: "none", label: "None" },
+];
+
+const painFrequencyOptions = [
+  { id: "no-pain", label: "No pain or pain does not interfere with movement" },
+  { id: "less-often-daily", label: "Less often than daily" },
+  { id: "daily-not-constant", label: "Daily, but not constant" },
+  { id: "all-the-time", label: "All the time" },
+];
+
+const painIntensityOptions = [
+  { id: "high", label: "High" },
+  { id: "medium", label: "Medium" },
+  { id: "low", label: "Low" },
+];
+
+const genitourinaryOptions = [
+  { id: "pain-burning", label: "Pain/Burning" },
+  { id: "discharge", label: "Discharge" },
+  { id: "distention-retention", label: "Distention/Retention" },
+  { id: "hesitancy", label: "Hesitancy" },
+  { id: "hematuria", label: "Hematuria" },
+];
+
+const rhythmOptions = [
+  { id: "regular", label: "Regular" },
+  { id: "irregular", label: "Irregular" },
+];
+
+const edemaOptions = [
+  { id: "rue-non-pitting", label: "RUE: Non-pitting" },
+  { id: "rue-pitting", label: "RUE: Pitting" },
+  { id: "lue-non-pitting", label: "LUE: Non-pitting" },
+  { id: "lue-pitting", label: "LUE: Pitting" },
+  { id: "rle-non-pitting", label: "RLE: Non-pitting" },
+  { id: "rle-pitting", label: "RLE: Pitting" },
+  { id: "lle-non-pitting", label: "LLE: Non-pitting" },
+  { id: "lle-pitting", label: "LLE: Pitting" },
+];
+
+const gastrointestinalOptions = [
+  { id: "diarrhea", label: "Diarrhea" },
+  { id: "constipation", label: "Constipation" },
+  { id: "nausea", label: "Nausea" },
+  { id: "vomiting", label: "Vomiting" },
+  { id: "anorexia", label: "Anorexia" },
+];
+
+const bowelIncontinenceFrequencyOptions = [
+  { id: "rarely-never", label: "Very rarely or never incontinent of bowel" },
+  { id: "less-once-week", label: "Less than once per week" },
+  { id: "one-three-week", label: "One to three times per week" },
+  { id: "four-six-week", label: "Four to six times per week" },
+  { id: "daily", label: "On a daily basis" },
+  { id: "more-once-daily", label: "More than once daily" },
+];
+
+const cognitiveFunctioningOptions = [
+  { id: "alert-oriented", label: "Alert/oriented, able to focus and shift attention, comprehends and recalls task directions independently" },
+  { id: "prompting-stress", label: "Requires prompting (cueing, repetition, reminders) only under stressful or unfamiliar situations" },
+  { id: "assistance-specific", label: "Requires assistance, direction in specific situation, requires low stimulus environment due to distractibility" },
+  { id: "considerable-assistance", label: "Requires considerable assistance in routine situations. Is not alert and oriented or is unable to shift attention and recall more than half the time." },
+  { id: "totally-dependent", label: "Totally dependent due to coma or delirium" },
+];
+
+const speechOptions = [
+  { id: "clear-understandable", label: "Clear and understandable" },
+  { id: "slurred", label: "Slurred" },
+  { id: "garbled", label: "Garbled" },
+  { id: "aphasic", label: "Aphasic" },
+  { id: "unable-speak", label: "Unable to speak" },
+];
+
+const pupilOptions = [
+  { id: "equal", label: "Equal" },
+  { id: "unequal", label: "Unequal" },
+];
+
+const movementOptions = [
+  { id: "coordinated", label: "Coordinated" },
+  { id: "uncoordinated", label: "Uncoordinated" },
+];
+
+const extremityOptions = [
+  { id: "r-upper-strong", label: "Right upper Strong" },
+  { id: "r-upper-weak", label: "Right upper Weak" },
+  { id: "r-upper-tremors", label: "Right upper Tremors" },
+  { id: "r-upper-no-movement", label: "Right upper No movement" },
+  { id: "l-upper-strong", label: "Left upper Strong" },
+  { id: "l-upper-weak", label: "Left upper Weak" },
+  { id: "l-upper-tremors", label: "Left upper Tremors" },
+  { id: "l-upper-no-movement", label: "Left upper No movement" },
+  { id: "r-lower-strong", label: "Right lower Strong" },
+  { id: "r-lower-weak", label: "Right lower Weak" },
+  { id: "r-lower-tremors", label: "Right lower Tremors" },
+  { id: "r-lower-no-movement", label: "Right lower No movement" },
+  { id: "l-lower-strong", label: "Left lower Strong" },
+  { id: "l-lower-weak", label: "Left lower Weak" },
+  { id: "l-lower-tremors", label: "Left lower Tremors" },
+  { id: "l-lower-no-movement", label: "Left lower No movement" },
+];
+
+const visionOptions = [
+  { id: "normal", label: "Normal vision in most situations; can see medication labels, newsprint" },
+  { id: "partially-impaired", label: "Partially impaired; can't see medication labels, but can see objects in path; can count fingers at arms length" },
+  { id: "severely-impaired", label: "Severely impaired; cannot locate objects without hearing or touching or person non-responsive" },
+];
+
+const hearingOptions = [
+  { id: "normal", label: "Normal hearing in most situations, can hear normal conversational tone" },
+  { id: "partially-impaired", label: "Partially impaired; can't hear normal conversational tone" },
+  { id: "severely-impaired", label: "Severely impaired; cannot hear even with an elevated tone" },
+];
+
+const behaviorOptions = [
+  { id: "indecisiveness", label: "Indecisiveness" },
+  { id: "diminished-interest", label: "Diminished interest in most activities" },
+  { id: "sleep-disturbances", label: "Sleep disturbances" },
+  { id: "change-appetite-weight", label: "Recent change in appetite or weight" },
+  { id: "agitation", label: "Agitation" },
+  { id: "suicide-attempt", label: "A suicide attempt" },
+  { id: "none-behaviors", label: "None of the above behaviors observed or reported" },
+];
+
+const yesNoOptions = [
+  { id: "yes", label: "Yes" },
+  { id: "no", label: "No" },
+];
+
+const musculoskeletalOptions = [
+  { id: "normal-limits", label: "Within Normal limits" },
+  { id: "deformity", label: "Deformity" },
+  { id: "unsteady-gait", label: "Unsteady Gait" },
+  { id: "contracture", label: "Contracture" },
+  { id: "poor-endurance", label: "Poor endurance" },
+  { id: "impaired-rom", label: "Impaired ROM" },
+  { id: "altered-balance", label: "Altered Balance" },
+  { id: "poor-coordination", label: "Poor coordination" },
+  { id: "weakness", label: "Weakness" },
+];
+
+const mentalHealthOptions = [
+  { id: "angry", label: "Angry" },
+  { id: "depressed", label: "Depressed" },
+  { id: "uncooperative", label: "Uncooperative" },
+  { id: "hostile", label: "Hostile" },
+  { id: "panic", label: "Panic" },
+  { id: "flat-affect", label: "Flat affect" },
+  { id: "anxious", label: "Anxious" },
+  { id: "phobia", label: "Phobia" },
+  { id: "agitated", label: "Agitated" },
+  { id: "obsessive-compulsive", label: "Obsessive/Compulsive" },
+  { id: "tics", label: "Tics" },
+  { id: "spasms", label: "Spasms" },
+  { id: "mood-swings", label: "Mood swings" },
+  { id: "depressive-feeling", label: "Depressive feeling reported or observed" },
+  { id: "none-mental-health", label: "None of above" },
+];
+
+const skinColorOptions = [
+  { id: "normal", label: "Normal" },
+  { id: "pale", label: "Pale" },
+  { id: "red", label: "Red" },
+  { id: "irritation", label: "Irritation" },
+  { id: "rash", label: "Rash" },
+];
+
+const mobilityOptions = [
+  { id: "dependent", label: "Dependent" },
+  { id: "independent", label: "Independent" },
+  { id: "assist", label: "Assist" },
+  { id: "stand-by", label: "Stand-by" },
+  { id: "one-person-assist", label: "One person assist" },
+  { id: "two-person-assist", label: "Two person assist with transfer" },
+];
+
+const adlLevels = [
+  { id: "dependent", label: "Dependent" },
+  { id: "independent", label: "Independent" },
+  { id: "assist", label: "Assist" },
+  { id: "cue", label: "Cue" },
+];
+
+const healthMaintenanceNeedsOptions = [
+  { id: "diet-education", label: "Reinforce diet education" },
+  { id: "blood-sugar-monitoring", label: "Supervision of blood sugar monitoring" },
+  { id: "prosthetic-care", label: "Routine care of prosthetic/orthotic device" },
+  { id: "medical-equipment-education", label: "Education on medical equipment use or maintenance" },
+  { id: "referral-physician", label: "Referral to physician" },
+  { id: "other-health-education", label: "Other health education needed" },
+];
+
+const generalPhysicalConditionOptions = [
+  { id: "improving", label: "Improving" },
+  { id: "stable", label: "Stable" },
+  { id: "deteriorating", label: "Deteriorating" },
+];
+
+const medicationAdministrationOptions = [
+  { id: "independently", label: "Able to independently take the correct medications at the correct times" },
+  { id: "prepared-daily-reminders", label: "Able to take medications at the correct time if individual doses are prepared in advance by another person and given daily reminders" },
+  { id: "administered-by-someone-else", label: "Unable to take medication unless administered by someone else" },
+  { id: "no-medications", label: "No medications prescribed" },
+];
+
+const nurseVisitTypes = [
+  { id: "initial", label: "initial" },
+  { id: "monthly", label: "monthly" },
+  { id: "45-day", label: "45 day" },
+  { id: "3-month", label: "3 month" },
+  { id: "4-month", label: "4 month" },
+  { id: "annual-assessment", label: "annual assessment" },
+];
+
+const nurseVisitActivities = [
+  { id: "developed-caregiver-plan", label: "Developed Caregiver Support Plan" },
+  { id: "provided-info-training", label: "Provided Information and Training to Caregiver" },
+  { id: "reviewed-caregiver-plan", label: "Reviewed Caregiver Support Plan" },
+  { id: "assessed-monitored-caregiver", label: "Assessed/Monitored Caregiver" },
+  { id: "assessed-monitored-participant", label: "Assessed/Monitored Participant" },
+];
+
+
 export default function PatientAssessment() {
+  // --- State Management ---
+  const [selectedPatient, setSelectedPatient] = useState("");
+  const [assessmentType, setAssessmentType] = useState("");
+  const [assessmentDate, setAssessmentDate] = useState("");
+  const [assessorName, setAssessorName] = useState("");
+
+  // General Health
+  const [temp, setTemp] = useState("");
+  const [pulse, setPulse] = useState("");
+  const [respiration, setRespiration] = useState("");
+  const [bloodPressure, setBloodPressure] = useState("");
+  const [weight, setWeight] = useState("");
+  const [selectedDiets, setSelectedDiets] = useState([]);
+  const [otherDietDetails, setOtherDietDetails] = useState("");
+  const [fluidIntake, setFluidIntake] = useState("");
+  const [fluidAmount, setFluidAmount] = useState("");
+  const [recentChanges, setRecentChanges] = useState("");
+
+  // Respiratory
+  const [selectedRespiratoryFindings, setSelectedRespiratoryFindings] = useState([]);
+  const [otherRespiratoryFindings, setOtherRespiratoryFindings] = useState("");
+  const [shortnessOfBreath, setShortnessOfBreath] = useState("");
+  const [selectedRespiratoryTreatments, setSelectedRespiratoryTreatments] = useState([]);
+
+  // Pain
+  const [painFrequency, setPainFrequency] = useState("");
+  const [painSites, setPainSites] = useState("");
+  const [painIntensity, setPainIntensity] = useState("");
+  const [painAffectsLife, setPainAffectsLife] = useState(false);
+  const [painCause, setPainCause] = useState("");
+  const [painTreatment, setPainTreatment] = useState("");
+
+  // Genitourinary
+  const [catheter, setCatheter] = useState(false);
+  const [urineFrequency, setUrineFrequency] = useState("");
+  const [selectedGenitourinaryIssues, setSelectedGenitourinaryIssues] = useState([]);
+  const [otherGenitourinary, setOtherGenitourinary] = useState("");
+  const [utiTreated, setUtiTreated] = useState(false);
+
+  // Cardiovascular
+  const [bpPulseNormal, setBpPulseNormal] = useState(false);
+  const [rhythm, setRhythm] = useState("");
+  const [selectedEdema, setSelectedEdema] = useState([]);
+  const [otherCardiovascular, setOtherCardiovascular] = useState("");
+
+  // Gastrointestinal
+  const [bowelsFrequency, setBowelsFrequency] = useState("");
+  const [selectedGastrointestinalIssues, setSelectedGastrointestinalIssues] = useState([]);
+  const [swallowingIssues, setSwallowingIssues] = useState("");
+  const [painGastrointestinal, setPainGastrointestinal] = useState("");
+  const [otherGastrointestinal, setOtherGastrointestinal] = useState("");
+  const [bowelIncontinenceFrequency, setBowelIncontinenceFrequency] = useState("");
+  const [ostomyBowelElimination, setOstomyBowelElimination] = useState(false);
+
+  // Neurological
+  const [cognitiveFunctioning, setCognitiveFunctioning] = useState("");
+  const [selectedSpeechIssues, setSelectedSpeechIssues] = useState([]);
+  const [pupils, setPupils] = useState("");
+  const [movements, setMovements] = useState("");
+  const [selectedExtremities, setSelectedExtremities] = useState([]);
+
+  // Sensory
+  const [vision, setVision] = useState("");
+  const [hearing, setHearing] = useState("");
+
+  // Psychosocial
+  const [selectedBehaviors, setSelectedBehaviors] = useState([]);
+  const [psychologicalCounseling, setPsychologicalCounseling] = useState("");
+
+  // Musculoskeletal
+  const [selectedMusculoskeletalIssues, setSelectedMusculoskeletalIssues] = useState([]);
+  const [otherMusculoskeletal, setOtherMusculoskeletal] = useState("");
+
+  // Mental Health
+  const [selectedMentalHealthIssues, setSelectedMentalHealthIssues] = useState([]);
+
+  // Skin
+  const [selectedSkinColors, setSelectedSkinColors] = useState([]);
+  const [skinIntact, setSkinIntact] = useState("");
+  const [pressureUlcersStage1, setPressureUlcersStage1] = useState("");
+  const [pressureUlcersStage2, setPressureUlcersStage2] = useState("");
+  const [pressureUlcersStage3, setPressureUlcersStage3] = useState("");
+  const [pressureUlcersStage4, setPressureUlcersStage4] = useState("");
+  const [ulcerLocations, setUlcerLocations] = useState("");
+  const [surgicalWounds, setSurgicalWounds] = useState("");
+
+  // Mobility & Transfers
+  const [mobility, setMobility] = useState("");
+  const [ambulatingAid, setAmbulatingAid] = useState("");
+  const [transferAid, setTransferAid] = useState("");
+
+  // ADLs
+  const [bathingLevel, setBathingLevel] = useState("");
+  const [personalHygieneLevel, setPersonalHygieneLevel] = useState("");
+  const [toiletingLevel, setToiletingLevel] = useState("");
+  const [toiletingIncontinentBladder, setToiletingIncontinentBladder] = useState(false);
+  const [toiletingIncontinentBowel, setToiletingIncontinentBowel] = useState(false);
+  const [dressingLevel, setDressingLevel] = useState("");
+  const [eatingDrinkingLevel, setEatingDrinkingLevel] = useState("");
+
+  // Health Maintenance Needs
+  const [selectedHealthMaintenanceNeeds, setSelectedHealthMaintenanceNeeds] = useState([]);
+  const [otherHealthNeedsNotes, setOtherHealthNeedsNotes] = useState("");
+
+  // General Physical Condition
+  const [generalPhysicalCondition, setGeneralPhysicalCondition] = useState("stable"); // Default value
+  const [otherPhysicalCondition, setOtherPhysicalCondition] = useState("");
+
+  // Medication Management
+  const [currentMedications, setCurrentMedications] = useState("");
+  const [medicationAdministration, setMedicationAdministration] = useState("");
+  const [otherMedicationManagement, setOtherMedicationManagement] = useState("");
+
+  // Nurse Monitor Visit
+  const [nurseVisitType, setNurseVisitType] = useState("");
+  const [selectedNurseVisitActivities, setSelectedNurseVisitActivities] = useState([]);
+  const [caregiverNames, setCaregiverNames] = useState("");
+
+  // Signatures
+  const [rnName, setRnName] = useState("");
+  const [rnSignature, setRnSignature] = useState("");
+  const [rnDate, setRnDate] = useState("");
+  const [participantGuardianName, setParticipantGuardianName] = useState("");
+  const [participantGuardianSignature, setParticipantGuardianSignature] = useState("");
+  const [participantGuardianDate, setParticipantGuardianDate] = useState("");
+
+  // --- Handlers for Checkbox/Radio Groups ---
+
+  const handleCheckboxChange = (setter) => (id, checked) => {
+    setter((prev) =>
+      checked ? [...prev, id] : prev.filter((item) => item !== id)
+    );
+  };
+
+  const handleRadioChange = (setter) => (value) => {
+    setter(value);
+  };
+
+  // --- Form Submission ---
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const formData = {
+      // Patient Details
+      selectedPatient,
+      assessmentType,
+      assessmentDate,
+      assessorName,
+
+      // General Health
+      temp,
+      pulse,
+      respiration,
+      bloodPressure,
+      weight,
+      selectedDiets,
+      otherDietDetails: selectedDiets.includes("other") ? otherDietDetails : "",
+      fluidIntake,
+      fluidAmount: fluidIntake === "restricted" ? fluidAmount : "",
+      recentChanges,
+
+      // Respiratory
+      selectedRespiratoryFindings,
+      otherRespiratoryFindings: selectedRespiratoryFindings.includes("other") ? otherRespiratoryFindings : "",
+      shortnessOfBreath,
+      selectedRespiratoryTreatments,
+
+      // Pain
+      painFrequency,
+      painSites,
+      painIntensity,
+      painAffectsLife,
+      painCause,
+      painTreatment,
+
+      // Genitourinary
+      catheter,
+      urineFrequency,
+      selectedGenitourinaryIssues,
+      otherGenitourinary,
+      utiTreated,
+
+      // Cardiovascular
+      bpPulseNormal,
+      rhythm,
+      selectedEdema,
+      otherCardiovascular,
+
+      // Gastrointestinal
+      bowelsFrequency,
+      selectedGastrointestinalIssues,
+      swallowingIssues,
+      painGastrointestinal,
+      otherGastrointestinal,
+      bowelIncontinenceFrequency,
+      ostomyBowelElimination,
+
+      // Neurological
+      cognitiveFunctioning,
+      selectedSpeechIssues,
+      pupils,
+      movements,
+      selectedExtremities,
+
+      // Sensory
+      vision,
+      hearing,
+
+      // Psychosocial
+      selectedBehaviors,
+      psychologicalCounseling,
+
+      // Musculoskeletal
+      selectedMusculoskeletalIssues,
+      otherMusculoskeletal,
+
+      // Mental Health
+      selectedMentalHealthIssues,
+
+      // Skin
+      selectedSkinColors,
+      skinIntact,
+      pressureUlcers: {
+        stage1: pressureUlcersStage1,
+        stage2: pressureUlcersStage2,
+        stage3: pressureUlcersStage3,
+        stage4: pressureUlcersStage4,
+      },
+      ulcerLocations,
+      surgicalWounds,
+
+      // Mobility & Transfers
+      mobility,
+      ambulatingAid,
+      transferAid,
+
+      // ADLs
+      bathingLevel,
+      personalHygieneLevel,
+      toiletingLevel,
+      toiletingIncontinentBladder,
+      toiletingIncontinentBowel,
+      dressingLevel,
+      eatingDrinkingLevel,
+
+      // Health Maintenance Needs
+      selectedHealthMaintenanceNeeds,
+      otherHealthNeedsNotes,
+
+      // General Physical Condition
+      generalPhysicalCondition,
+      otherPhysicalCondition,
+
+      // Medication Management
+      currentMedications,
+      medicationAdministration,
+      otherMedicationManagement,
+
+      // Nurse Monitor Visit
+      nurseVisitType,
+      selectedNurseVisitActivities,
+      caregiverNames,
+
+      // Signatures
+      rnName,
+      rnSignature,
+      rnDate,
+      participantGuardianName,
+      participantGuardianSignature,
+      participantGuardianDate,
+    };
+
+    console.log("Collected Form Data:", formData);
+    // In a real application, you would send this data to an API
+    alert("Form data logged to console. In a real app, this would be submitted.");
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen">
@@ -43,964 +615,750 @@ export default function PatientAssessment() {
           <AppHeader />
           <SidebarInset>
             <main className="flex-1 overflow-auto p-6 space-y-6">
-              {/* Header */}
-              <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">
-                  DHMH 4658 A (N-PA) – Waiver Participant Assessment
-                </h1>
-                <Button variant="outline">
-                  <Printer className="mr-2 h-4 w-4" />
-                  Print Form
-                </Button>
-              </div>
+              <form onSubmit={handleSubmit}>
+                {/* Header */}
+                <div className="flex justify-between items-center mb-6">
+                  <h1 className="text-2xl font-bold">
+                    DHMH 4658 A (N-PA) – Waiver Participant Assessment
+                  </h1>
+                  <Button variant="outline" type="button" onClick={() => window.print()}>
+                    <Printer className="mr-2 h-4 w-4" />
+                    Print Form
+                  </Button>
+                </div>
 
-              {/* Patient Details */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Patient Details</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="space-y-1">
-                    <Label>Select Patient</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select patient" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {patients.map((p) => (
-                          <SelectItem key={p.id} value={p.id}>
-                            {p.name} ({p.mrn})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label>Assessment Type</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {assessmentTypes.map((t) => (
-                          <SelectItem key={t} value={t}>
-                            {t}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label>Assessment Date</Label>
-                    <Input type="date" />
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label>Assessor Name</Label>
-                    <Input placeholder="Your name" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* GENERAL HEALTH */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>General Health</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <div>
-                      <Label>Temp (°F)</Label>
-                      <Input />
-                    </div>
-                    <div>
-                      <Label>Pulse (bpm)</Label>
-                      <Input />
-                    </div>
-                    <div>
-                      <Label>Respiration (rpm)</Label>
-                      <Input />
-                    </div>
-                    <div>
-                      <Label>Blood Pressure</Label>
-                      <Input />
-                    </div>
-                    <div>
-                      <Label>Weight (lbs)</Label>
-                      <Input />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>Diet / Nutrition</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
-                      {[
-                        "Regular",
-                        "Low Salt",
-                        "Puree/Chopped",
-                        "Diabetic/No Concentrated Sweets",
-                        "Renal",
-                        "Other",
-                      ].map((d) => (
-                        <label key={d} className="flex items-center space-x-2">
-                          <Checkbox id={`diet-${d}`} />
-                          <span>{d}</span>
-                        </label>
-                      ))}
-                    </div>
-                    <Input placeholder="Other diet details" className="mt-2" />
-                  </div>
-
-                  <div>
-                    <Label>Fluid</Label>
-                    <RadioGroup className="flex items-center gap-4 mt-1">
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="unlimited" />
-                        <span>Unlimited</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="restricted" />
-                        <span>Restricted</span>
-                      </label>
-                      <Input placeholder="Amount (mL)" className="w-32" />
-                    </RadioGroup>
-                  </div>
-
-                  <div>
-                    <Label>
-                      Identify any changes over the past month (Diagnosis,
-                      Medications, Health Status, Hospitalization, Falls,
-                      Incidents, Other)
-                    </Label>
-                    <Textarea rows={3} />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* RESPIRATORY */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Respiratory</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Findings</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {[
-                        "Within Normal Limits",
-                        "Cough",
-                        "Wheezing",
-                        "Other",
-                      ].map((f) => (
-                        <label key={f} className="flex items-center space-x-2">
-                          <Checkbox id={`resp-${f}`} />
-                          <span>{f}</span>
-                        </label>
-                      ))}
-                    </div>
-                    <Input placeholder="Other findings" className="mt-2" />
-                  </div>
-
-                  <div>
-                    <Label>Shortness of Breath</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[
-                          "Never short of breath",
-                          "When walking >20 ft or climbing stairs",
-                          "With moderate exertion (dressing, commode, walking <20 ft)",
-                          "With minimal exertion (eating, talking)",
-                          "At rest",
-                        ].map((opt) => (
-                          <SelectItem key={opt} value={opt}>
-                            {opt}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label>Respiratory treatments at home</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {[
-                        "Oxygen (intermittent or continuous)",
-                        "Aerosol or nebulizer treatments",
-                        "Ventilator (intermittent or continuous)",
-                        "CPAP or BIPAP",
-                        "None",
-                      ].map((t) => (
-                        <label key={t} className="flex items-center space-x-2">
-                          <Checkbox id={`resp-tx-${t}`} />
-                          <span>{t}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* PAIN */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Pain / Discomfort</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Pain Frequency</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[
-                          "No pain or pain does not interfere with movement",
-                          "Less often than daily",
-                          "Daily, but not constant",
-                          "All the time",
-                        ].map((opt) => (
-                          <SelectItem key={opt} value={opt}>
-                            {opt}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Pain Sites</Label>
-                    <Textarea rows={2} />
-                  </div>
-                  <div>
-                    <Label>Pain Intensity</Label>
-                    <RadioGroup className="flex items-center gap-4">
-                      {["High", "Medium", "Low"].map((level) => (
-                        <label key={level} className="flex items-center space-x-2">
-                          <RadioGroupItem value={level} />
-                          <span>{level}</span>
-                        </label>
-                      ))}
-                    </RadioGroup>
-                  </div>
-                  <div>
-                    <Label>
-                      Person is experiencing pain that is not easily relieved,
-                      occurs at least daily, and affects the ability to sleep,
-                      appetite, physical or emotional energy, concentration,
-                      personal relationships, emotions, or ability or desire to
-                      perform physical activity
-                    </Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Cause (if known)</Label>
-                    <Input />
-                  </div>
-                  <div>
-                    <Label>Treatment</Label>
-                    <Input />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* GENITOURINARY */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Genitourinary Status</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Catheter</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Urine Frequency</Label>
-                    <Input />
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {[
-                      "Pain/Burning",
-                      "Discharge",
-                      "Distention/Retention",
-                      "Hesitancy",
-                      "Hematuria",
-                    ].map((g) => (
-                      <label key={g} className="flex items-center space-x-2">
-                        <Checkbox id={`gu-${g}`} />
-                        <span>{g}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div>
-                    <Label>Other</Label>
-                    <Input />
-                  </div>
-                  <div>
-                    <Label>Person has been treated for a UTI in the past month</Label>
-                    <Checkbox />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* CARDIOVASCULAR */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Cardiovascular</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>BP and Pulse within normal limits</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Rhythm</Label>
-                    <RadioGroup className="flex items-center gap-4">
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="regular" />
-                        <span>Regular</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="irregular" />
-                        <span>Irregular</span>
-                      </label>
-                    </RadioGroup>
-                  </div>
-                  <div>
-                    <Label>Edema</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {[
-                        "RUE: Non-pitting",
-                        "RUE: Pitting",
-                        "LUE: Non-pitting",
-                        "LUE: Pitting",
-                        "RLE: Non-pitting",
-                        "RLE: Pitting",
-                        "LLE: Non-pitting",
-                        "LLE: Pitting",
-                      ].map((e) => (
-                        <label key={e} className="flex items-center space-x-2">
-                          <Checkbox id={`edema-${e}`} />
-                          <span>{e}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Other</Label>
-                    <Input />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* GASTROINTESTINAL */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Gastrointestinal Status</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Bowels: frequency</Label>
-                    <Input />
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {[
-                      "Diarrhea",
-                      "Constipation",
-                      "Nausea",
-                      "Vomiting",
-                      "Anorexia",
-                    ].map((g) => (
-                      <label key={g} className="flex items-center space-x-2">
-                        <Checkbox id={`gi-${g}`} />
-                        <span>{g}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div>
-                    <Label>Swallowing issues</Label>
-                    <Input />
-                  </div>
-                  <div>
-                    <Label>Pain</Label>
-                    <Input placeholder="abdominal / epigastric" />
-                  </div>
-                  <div>
-                    <Label>Other</Label>
-                    <Input />
-                  </div>
-                  <div>
-                    <Label>Bowel incontinence frequency</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[
-                          "Very rarely or never incontinent of bowel",
-                          "Less than once per week",
-                          "One to three times per week",
-                          "Four to six times per week",
-                          "On a daily basis",
-                          "More than once daily",
-                        ].map((opt) => (
-                          <SelectItem key={opt} value={opt}>
-                            {opt}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Person has ostomy for bowel elimination</Label>
-                    <Checkbox />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* NEUROLOGICAL */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Neurological</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Cognitive functioning</Label>
-                    <RadioGroup className="space-y-1">
-                      {[
-                        "Alert/oriented, able to focus and shift attention, comprehends and recalls task directions independently",
-                        "Requires prompting (cueing, repetition, reminders) only under stressful or unfamiliar situations",
-                        "Requires assistance, direction in specific situation, requires low stimulus environment due to distractibility",
-                        "Requires considerable assistance in routine situations. Is not alert and oriented or is unable to shift attention and recall more than half the time.",
-                        "Totally dependent due to coma or delirium",
-                      ].map((c) => (
-                        <label key={c} className="flex items-start space-x-2">
-                          <RadioGroupItem value={c} />
-                          <span>{c}</span>
-                        </label>
-                      ))}
-                    </RadioGroup>
-                  </div>
-                  <div>
-                    <Label>Speech</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {[
-                        "Clear and understandable",
-                        "Slurred",
-                        "Garbled",
-                        "Aphasic",
-                        "Unable to speak",
-                      ].map((s) => (
-                        <label key={s} className="flex items-center space-x-2">
-                          <Checkbox id={`speech-${s}`} />
-                          <span>{s}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Pupils</Label>
-                    <RadioGroup className="flex items-center gap-4">
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="equal" />
-                        <span>Equal</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="unequal" />
-                        <span>Unequal</span>
-                      </label>
-                    </RadioGroup>
-                  </div>
-                  <div>
-                    <Label>Movements</Label>
-                    <RadioGroup className="flex items-center gap-4">
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="coordinated" />
-                        <span>Coordinated</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="uncoordinated" />
-                        <span>Uncoordinated</span>
-                      </label>
-                    </RadioGroup>
-                  </div>
-                  <div>
-                    <Label>Extremities</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {[
-                        "Right upper Strong",
-                        "Right upper Weak",
-                        "Right upper Tremors",
-                        "Right upper No movement",
-                        "Left upper Strong",
-                        "Left upper Weak",
-                        "Left upper Tremors",
-                        "Left upper No movement",
-                        "Right lower Strong",
-                        "Right lower Weak",
-                        "Right lower Tremors",
-                        "Right lower No movement",
-                        "Left lower Strong",
-                        "Left lower Weak",
-                        "Left lower Tremors",
-                        "Left lower No movement",
-                      ].map((e) => (
-                        <label key={e} className="flex items-center space-x-2">
-                          <Checkbox id={`ext-${e}`} />
-                          <span>{e}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* SENSORY */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Sensory</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Vision with corrective lenses</Label>
-                    <RadioGroup className="space-y-1">
-                      {[
-                        "Normal vision in most situations; can see medication labels, newsprint",
-                        "Partially impaired; can't see medication labels, but can see objects in path; can count fingers at arms length",
-                        "Severely impaired; cannot locate objects without hearing or touching or person non-responsive",
-                      ].map((v) => (
-                        <label key={v} className="flex items-start space-x-2">
-                          <RadioGroupItem value={v} />
-                          <span>{v}</span>
-                        </label>
-                      ))}
-                    </RadioGroup>
-                  </div>
-                  <div>
-                    <Label>Hearing with corrective device</Label>
-                    <RadioGroup className="space-y-1">
-                      {[
-                        "Normal hearing in most situations, can hear normal conversational tone",
-                        "Partially impaired; can't hear normal conversational tone",
-                        "Severely impaired; cannot hear even with an elevated tone",
-                      ].map((h) => (
-                        <label key={h} className="flex items-start space-x-2">
-                          <RadioGroupItem value={h} />
-                          <span>{h}</span>
-                        </label>
-                      ))}
-                    </RadioGroup>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* PSYCHOSOCIAL */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Psychosocial</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Behaviors reported or observed</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                      {[
-                        "Indecisiveness",
-                        "Diminished interest in most activities",
-                        "Sleep disturbances",
-                        "Recent change in appetite or weight",
-                        "Agitation",
-                        "A suicide attempt",
-                        "None of the above behaviors observed or reported",
-                      ].map((b) => (
-                        <label key={b} className="flex items-center space-x-2">
-                          <Checkbox id={`behavior-${b}`} />
-                          <span>{b}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Is this person receiving psychological counseling?</Label>
-                    <RadioGroup className="flex items-center gap-4">
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" />
-                        <span>Yes</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" />
-                        <span>No</span>
-                      </label>
-                    </RadioGroup>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* MUSCULOSKELETAL */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Musculoskeletal</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {[
-                      "Within Normal limits",
-                      "Deformity",
-                      "Unsteady Gait",
-                      "Contracture",
-                      "Poor endurance",
-                      "Impaired ROM",
-                      "Altered Balance",
-                      "Poor coordination",
-                      "Weakness",
-                    ].map((m) => (
-                      <label key={m} className="flex items-center space-x-2">
-                        <Checkbox id={`msk-${m}`} />
-                        <span>{m}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div>
-                    <Label>Other</Label>
-                    <Input />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* MENTAL HEALTH */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Mental Health</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {[
-                      "Angry",
-                      "Depressed",
-                      "Uncooperative",
-                      "Hostile",
-                      "Panic",
-                      "Flat affect",
-                      "Anxious",
-                      "Phobia",
-                      "Agitated",
-                      "Obsessive/Compulsive",
-                      "Tics",
-                      "Spasms",
-                      "Mood swings",
-                      "Depressive feeling reported or observed",
-                      "None of above",
-                    ].map((mh) => (
-                      <label key={mh} className="flex items-center space-x-2">
-                        <Checkbox id={`mh-${mh}`} />
-                        <span>{mh}</span>
-                      </label>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* SKIN */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Skin</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Color</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {["Normal", "Pale", "Red", "Irritation", "Rash"].map((c) => (
-                        <label key={c} className="flex items-center space-x-2">
-                          <Checkbox id={`skin-${c}`} />
-                          <span>{c}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Skin Intact</Label>
-                    <RadioGroup className="flex items-center gap-4">
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" />
-                        <span>Yes</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" />
-                        <span>No</span>
-                      </label>
-                    </RadioGroup>
-                  </div>
-
-                  <div>
-                    <Label>Pressure Ulcers</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {[1, 2, 3, 4].map((s) => (
-                        <div key={s} className="flex items-center space-x-2">
-                          <Label>Stage {s}</Label>
-                          <Input type="number" placeholder="Count" className="w-20" />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>Location of ulcers</Label>
-                    <Textarea rows={2} />
-                  </div>
-
-                  <div>
-                    <Label>Surgical or other wounds (describe location, size, nature)</Label>
-                    <Textarea rows={3} />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* MOBILITY & TRANSFERS */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Mobility & Transfers</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Mobility</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[
-                          "Dependent",
-                          "Independent",
-                          "Assist",
-                          "Stand-by",
-                          "One person assist",
-                          "Two person assist with transfer",
-                        ].map((m) => (
-                          <SelectItem key={m} value={m}>
-                            {m}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Uses ___ to aid in ambulating</Label>
-                    <Input />
-                  </div>
-                  <div>
-                    <Label>Uses ___ to aid in transfer</Label>
-                    <Input />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* ADLs */}
-              {[
-                "Bathing",
-                "Personal Hygiene (hair, nails, skin, oral care)",
-                "Toileting (bladder, bowel routine, ability to access toilet)",
-                "Dressing",
-                "Eating and Drinking",
-              ].map((label) => (
-                <Card key={label}>
+                {/* Patient Details */}
+                <Card>
                   <CardHeader>
-                    <CardTitle>{label}</CardTitle>
+                    <CardTitle>Patient Details</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <RadioGroup className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {["Dependent", "Independent", "Assist", "Cue"].map((level) => (
-                        <label key={level} className="flex items-center space-x-2">
-                          <RadioGroupItem value={level} />
-                          <span>{level}</span>
-                        </label>
-                      ))}
-                    </RadioGroup>
-                    {label.includes("Toileting") && (
-                      <div className="mt-4 space-y-2">
-                        <label>
-                          <Checkbox />
-                          <span className="ml-2">Incontinent bladder</span>
-                        </label>
-                        <label>
-                          <Checkbox />
-                          <span className="ml-2">Incontinent bowel</span>
-                        </label>
-                      </div>
-                    )}
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <Label htmlFor="patient-select">Select Patient</Label>
+                      <Select value={selectedPatient} onValueChange={setSelectedPatient} id="patient-select">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select patient" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {patients.map((p) => (
+                            <SelectItem key={p.id} value={p.id}>
+                              {p.name} ({p.mrn})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label htmlFor="assessment-type-select">Assessment Type</Label>
+                      <Select value={assessmentType} onValueChange={setAssessmentType} id="assessment-type-select">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {assessmentTypes.map((t) => (
+                            <SelectItem key={t} value={t}>
+                              {t}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label htmlFor="assessment-date">Assessment Date</Label>
+                      <Input id="assessment-date" type="date" value={assessmentDate} onChange={(e) => setAssessmentDate(e.target.value)} />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label htmlFor="assessor-name">Assessor Name</Label>
+                      <Input id="assessor-name" placeholder="Your name" value={assessorName} onChange={(e) => setAssessorName(e.target.value)} />
+                    </div>
                   </CardContent>
                 </Card>
-              ))}
 
-              {/* HEALTH MAINTENANCE NEEDS */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Health Maintenance Needs</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {[
-                    "Reinforce diet education",
-                    "Supervision of blood sugar monitoring",
-                    "Routine care of prosthetic/orthotic device",
-                    "Education on medical equipment use or maintenance",
-                    "Referral to physician",
-                    "Other health education needed",
-                  ].map((need) => (
-                    <label key={need} className="flex items-center space-x-2">
-                      <Checkbox />
-                      <span>{need}</span>
-                    </label>
-                  ))}
-                  <Textarea rows={2} placeholder="Other needs or notes" />
-                </CardContent>
-              </Card>
+                {/* GENERAL HEALTH */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>General Health</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      <div>
+                        <Label htmlFor="temp">Temp (°F)</Label>
+                        <Input id="temp" value={temp} onChange={(e) => setTemp(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="pulse">Pulse (bpm)</Label>
+                        <Input id="pulse" value={pulse} onChange={(e) => setPulse(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="respiration">Respiration (rpm)</Label>
+                        <Input id="respiration" value={respiration} onChange={(e) => setRespiration(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="bp">Blood Pressure</Label>
+                        <Input id="bp" value={bloodPressure} onChange={(e) => setBloodPressure(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="weight">Weight (lbs)</Label>
+                        <Input id="weight" value={weight} onChange={(e) => setWeight(e.target.value)} />
+                      </div>
+                    </div>
 
-              {/* GENERAL PHYSICAL CONDITION */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>General Physical Condition</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RadioGroup defaultValue="stable">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="improving" />
-                      <Label>Improving</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="stable" />
-                      <Label>Stable</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="deteriorating" />
-                      <Label>Deteriorating</Label>
-                    </div>
-                  </RadioGroup>
-                  <Input placeholder="Other" className="mt-2" />
-                </CardContent>
-              </Card>
+                    <FormCheckboxGroup
+                      label="Diet / Nutrition"
+                      options={dietOptions}
+                      selectedValues={selectedDiets}
+                      onValueChange={handleCheckboxChange(setSelectedDiets)}
+                    />
+                    {selectedDiets.includes("other") && (
+                      <Input
+                        placeholder="Other diet details"
+                        className="mt-2"
+                        value={otherDietDetails}
+                        onChange={(e) => setOtherDietDetails(e.target.value)}
+                      />
+                    )}
 
-              {/* MEDICATION MANAGEMENT */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Medication Management</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Current Medications (attach additional pages if necessary)</Label>
-                    <Textarea rows={4} />
-                  </div>
-                  <div>
-                    <Label>Medication Administration</Label>
-                    <RadioGroup className="space-y-2">
-                      {[
-                        "Able to independently take the correct medications at the correct times",
-                        "Able to take medications at the correct time if individual doses are prepared in advance by another person and given daily reminders",
-                        "Unable to take medication unless administered by someone else",
-                        "No medications prescribed",
-                      ].map((opt) => (
-                        <label key={opt} className="flex items-start space-x-2">
-                          <RadioGroupItem value={opt} />
-                          <span>{opt}</span>
+                    <div>
+                      <Label>Fluid</Label>
+                      <RadioGroup value={fluidIntake} onValueChange={setFluidIntake} className="flex items-center gap-4 mt-1">
+                        <label className="flex items-center space-x-2">
+                          <RadioGroupItem value="unlimited" />
+                          <span>Unlimited</span>
                         </label>
-                      ))}
-                    </RadioGroup>
-                  </div>
-                  <Input placeholder="Other" />
-                </CardContent>
-              </Card>
+                        <label className="flex items-center space-x-2">
+                          <RadioGroupItem value="restricted" />
+                          <span>Restricted</span>
+                        </label>
+                        {fluidIntake === "restricted" && (
+                          <Input placeholder="Amount (mL)" className="w-32" value={fluidAmount} onChange={(e) => setFluidAmount(e.target.value)} />
+                        )}
+                      </RadioGroup>
+                    </div>
 
-              {/* NURSE MONITOR VISIT */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Nurse Monitor Visit</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Visit type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[
-                        "initial",
-                        "monthly",
-                        "45 day",
-                        "3 month",
-                        "4 month",
-                        "annual assessment",
-                      ].map((v) => (
-                        <SelectItem key={v} value={v}>
-                          {v}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <div>
+                      <Label htmlFor="recent-changes">
+                        Identify any changes over the past month (Diagnosis,
+                        Medications, Health Status, Hospitalization, Falls,
+                        Incidents, Other)
+                      </Label>
+                      <Textarea id="recent-changes" rows={3} value={recentChanges} onChange={(e) => setRecentChanges(e.target.value)} />
+                    </div>
+                  </CardContent>
+                </Card>
 
-                  <Label className="mt-4 block">Activities of Visit</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {[
-                      "Developed Caregiver Support Plan",
-                      "Provided Information and Training to Caregiver",
-                      "Reviewed Caregiver Support Plan",
-                      "Assessed/Monitored Caregiver",
-                      "Assessed/Monitored Participant",
-                    ].map((act) => (
-                      <label key={act} className="flex items-center space-x-2">
-                        <Checkbox />
-                        <span>{act}</span>
+                {/* RESPIRATORY */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Respiratory</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormCheckboxGroup
+                      label="Findings"
+                      options={respiratoryFindingsOptions}
+                      selectedValues={selectedRespiratoryFindings}
+                      onValueChange={handleCheckboxChange(setSelectedRespiratoryFindings)}
+                    />
+                    {selectedRespiratoryFindings.includes("other") && (
+                      <Input
+                        placeholder="Other findings"
+                        className="mt-2"
+                        value={otherRespiratoryFindings}
+                        onChange={(e) => setOtherRespiratoryFindings(e.target.value)}
+                      />
+                    )}
+
+                    <div>
+                      <Label htmlFor="shortness-of-breath">Shortness of Breath</Label>
+                      <Select value={shortnessOfBreath} onValueChange={setShortnessOfBreath} id="shortness-of-breath">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {shortnessOfBreathOptions.map((opt) => (
+                            <SelectItem key={opt.id} value={opt.id}>
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <FormCheckboxGroup
+                      label="Respiratory treatments at home"
+                      options={respiratoryTreatmentOptions}
+                      selectedValues={selectedRespiratoryTreatments}
+                      onValueChange={handleCheckboxChange(setSelectedRespiratoryTreatments)}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* PAIN */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Pain / Discomfort</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="pain-frequency">Pain Frequency</Label>
+                      <Select value={painFrequency} onValueChange={setPainFrequency} id="pain-frequency">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {painFrequencyOptions.map((opt) => (
+                            <SelectItem key={opt.id} value={opt.id}>
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="pain-sites">Pain Sites</Label>
+                      <Textarea id="pain-sites" rows={2} value={painSites} onChange={(e) => setPainSites(e.target.value)} />
+                    </div>
+                    <FormRadioGroup
+                      label="Pain Intensity"
+                      options={painIntensityOptions}
+                      selectedValue={painIntensity}
+                      onValueChange={handleRadioChange(setPainIntensity)}
+                      className="flex items-center gap-4"
+                    />
+                    <div>
+                      <label htmlFor="pain-affects-life" className="flex items-center space-x-2">
+                        <Checkbox
+                          id="pain-affects-life"
+                          checked={painAffectsLife}
+                          onCheckedChange={setPainAffectsLife}
+                        />
+                        <span>
+                          Person is experiencing pain that is not easily relieved,
+                          occurs at least daily, and affects the ability to sleep,
+                          appetite, physical or emotional energy, concentration,
+                          personal relationships, emotions, or ability or desire to
+                          perform physical activity
+                        </span>
                       </label>
-                    ))}
-                  </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="pain-cause">Cause (if known)</Label>
+                      <Input id="pain-cause" value={painCause} onChange={(e) => setPainCause(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label htmlFor="pain-treatment">Treatment</Label>
+                      <Input id="pain-treatment" value={painTreatment} onChange={(e) => setPainTreatment(e.target.value)} />
+                    </div>
+                  </CardContent>
+                </Card>
 
-                  <Label className="mt-4 block">Caregiver Names</Label>
-                  <Textarea rows={2} placeholder="List all caregivers" />
-                </CardContent>
-              </Card>
+                {/* GENITOURINARY */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Genitourinary Status</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label htmlFor="catheter" className="flex items-center space-x-2">
+                        <Checkbox id="catheter" checked={catheter} onCheckedChange={setCatheter} />
+                        <span>Catheter</span>
+                      </label>
+                    </div>
+                    <div>
+                      <Label htmlFor="urine-frequency">Urine Frequency</Label>
+                      <Input id="urine-frequency" value={urineFrequency} onChange={(e) => setUrineFrequency(e.target.value)} />
+                    </div>
+                    <FormCheckboxGroup
+                      label=""
+                      options={genitourinaryOptions}
+                      selectedValues={selectedGenitourinaryIssues}
+                      onValueChange={handleCheckboxChange(setSelectedGenitourinaryIssues)}
+                      className="grid-cols-2 md:grid-cols-3"
+                    />
+                    <div>
+                      <Label htmlFor="other-genitourinary">Other</Label>
+                      <Input id="other-genitourinary" value={otherGenitourinary} onChange={(e) => setOtherGenitourinary(e.target.value)} />
+                    </div>
+                    <div>
+                      <label htmlFor="uti-treated" className="flex items-center space-x-2">
+                        <Checkbox id="uti-treated" checked={utiTreated} onCheckedChange={setUtiTreated} />
+                        <span>Person has been treated for a UTI in the past month</span>
+                      </label>
+                    </div>
+                  </CardContent>
+                </Card>
 
-              {/* SIGNATURES */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Signatures</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label>RN Name (Print)</Label>
-                    <Input />
-                    <Label>RN Signature</Label>
-                    <Input />
-                    <Label>Date</Label>
-                    <Input type="date" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Participant / Guardian Name</Label>
-                    <Input />
-                    <Label>Signature</Label>
-                    <Input />
-                    <Label>Date</Label>
-                    <Input type="date" />
-                  </div>
-                </CardContent>
-              </Card>
+                {/* CARDIOVASCULAR */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Cardiovascular</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label htmlFor="bp-pulse-normal" className="flex items-center space-x-2">
+                        <Checkbox id="bp-pulse-normal" checked={bpPulseNormal} onCheckedChange={setBpPulseNormal} />
+                        <span>BP and Pulse within normal limits</span>
+                      </label>
+                    </div>
+                    <FormRadioGroup
+                      label="Rhythm"
+                      options={rhythmOptions}
+                      selectedValue={rhythm}
+                      onValueChange={handleRadioChange(setRhythm)}
+                      className="flex items-center gap-4"
+                    />
+                    <FormCheckboxGroup
+                      label="Edema"
+                      options={edemaOptions}
+                      selectedValues={selectedEdema}
+                      onValueChange={handleCheckboxChange(setSelectedEdema)}
+                    />
+                    <div>
+                      <Label htmlFor="other-cardiovascular">Other</Label>
+                      <Input id="other-cardiovascular" value={otherCardiovascular} onChange={(e) => setOtherCardiovascular(e.target.value)} />
+                    </div>
+                  </CardContent>
+                </Card>
 
-              {/* DISCLAIMERS */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Disclaimers</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p>
-                    <strong>MANDATED REPORTING:</strong> Any suspicion of abuse,
-                    neglect, or exploitation must be immediately reported to
-                    Adult Protective Services at 1-800-917-7383.
-                  </p>
-                  <p>
-                    <strong>Case Manager Contact:</strong> Immediately contact
-                    your Case Manager to report any health and safety concerns.
-                    This form must be submitted within 10 days of assessment
-                    completion.
-                  </p>
-                </CardContent>
-              </Card>
+                {/* GASTROINTESTINAL */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Gastrointestinal Status</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="bowels-frequency">Bowels: frequency</Label>
+                      <Input id="bowels-frequency" value={bowelsFrequency} onChange={(e) => setBowelsFrequency(e.target.value)} />
+                    </div>
+                    <FormCheckboxGroup
+                      label=""
+                      options={gastrointestinalOptions}
+                      selectedValues={selectedGastrointestinalIssues}
+                      onValueChange={handleCheckboxChange(setSelectedGastrointestinalIssues)}
+                      className="grid-cols-2 md:grid-cols-3"
+                    />
+                    <div>
+                      <Label htmlFor="swallowing-issues">Swallowing issues</Label>
+                      <Input id="swallowing-issues" value={swallowingIssues} onChange={(e) => setSwallowingIssues(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label htmlFor="pain-gastrointestinal">Pain</Label>
+                      <Input id="pain-gastrointestinal" placeholder="abdominal / epigastric" value={painGastrointestinal} onChange={(e) => setPainGastrointestinal(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label htmlFor="other-gastrointestinal">Other</Label>
+                      <Input id="other-gastrointestinal" value={otherGastrointestinal} onChange={(e) => setOtherGastrointestinal(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label htmlFor="bowel-incontinence-frequency">Bowel incontinence frequency</Label>
+                      <Select value={bowelIncontinenceFrequency} onValueChange={setBowelIncontinenceFrequency} id="bowel-incontinence-frequency">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {bowelIncontinenceFrequencyOptions.map((opt) => (
+                            <SelectItem key={opt.id} value={opt.id}>
+                              {opt.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label htmlFor="ostomy-bowel-elimination" className="flex items-center space-x-2">
+                        <Checkbox id="ostomy-bowel-elimination" checked={ostomyBowelElimination} onCheckedChange={setOstomyBowelElimination} />
+                        <span>Person has ostomy for bowel elimination</span>
+                      </label>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* NEUROLOGICAL */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Neurological</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormRadioGroup
+                      label="Cognitive functioning"
+                      options={cognitiveFunctioningOptions}
+                      selectedValue={cognitiveFunctioning}
+                      onValueChange={handleRadioChange(setCognitiveFunctioning)}
+                      className="space-y-1"
+                    />
+                    <FormCheckboxGroup
+                      label="Speech"
+                      options={speechOptions}
+                      selectedValues={selectedSpeechIssues}
+                      onValueChange={handleCheckboxChange(setSelectedSpeechIssues)}
+                      className="grid-cols-2 md:grid-cols-3"
+                    />
+                    <FormRadioGroup
+                      label="Pupils"
+                      options={pupilOptions}
+                      selectedValue={pupils}
+                      onValueChange={handleRadioChange(setPupils)}
+                      className="flex items-center gap-4"
+                    />
+                    <FormRadioGroup
+                      label="Movements"
+                      options={movementOptions}
+                      selectedValue={movements}
+                      onValueChange={handleRadioChange(setMovements)}
+                      className="flex items-center gap-4"
+                    />
+                    <FormCheckboxGroup
+                      label="Extremities"
+                      options={extremityOptions}
+                      selectedValues={selectedExtremities}
+                      onValueChange={handleCheckboxChange(setSelectedExtremities)}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* SENSORY */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Sensory</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormRadioGroup
+                      label="Vision with corrective lenses"
+                      options={visionOptions}
+                      selectedValue={vision}
+                      onValueChange={handleRadioChange(setVision)}
+                      className="space-y-1"
+                    />
+                    <FormRadioGroup
+                      label="Hearing with corrective device"
+                      options={hearingOptions}
+                      selectedValue={hearing}
+                      onValueChange={handleRadioChange(setHearing)}
+                      className="space-y-1"
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* PSYCHOSOCIAL */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Psychosocial</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormCheckboxGroup
+                      label="Behaviors reported or observed"
+                      options={behaviorOptions}
+                      selectedValues={selectedBehaviors}
+                      onValueChange={handleCheckboxChange(setSelectedBehaviors)}
+                      className="grid-cols-2 md:grid-cols-3"
+                    />
+                    <FormRadioGroup
+                      label="Is this person receiving psychological counseling?"
+                      options={yesNoOptions}
+                      selectedValue={psychologicalCounseling}
+                      onValueChange={handleRadioChange(setPsychologicalCounseling)}
+                      className="flex items-center gap-4"
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* MUSCULOSKELETAL */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Musculoskeletal</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormCheckboxGroup
+                      label=""
+                      options={musculoskeletalOptions}
+                      selectedValues={selectedMusculoskeletalIssues}
+                      onValueChange={handleCheckboxChange(setSelectedMusculoskeletalIssues)}
+                      className="grid-cols-2 md:grid-cols-3"
+                    />
+                    <div>
+                      <Label htmlFor="other-musculoskeletal">Other</Label>
+                      <Input id="other-musculoskeletal" value={otherMusculoskeletal} onChange={(e) => setOtherMusculoskeletal(e.target.value)} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* MENTAL HEALTH */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Mental Health</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormCheckboxGroup
+                      label=""
+                      options={mentalHealthOptions}
+                      selectedValues={selectedMentalHealthIssues}
+                      onValueChange={handleCheckboxChange(setSelectedMentalHealthIssues)}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* SKIN */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Skin</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormCheckboxGroup
+                      label="Color"
+                      options={skinColorOptions}
+                      selectedValues={selectedSkinColors}
+                      onValueChange={handleCheckboxChange(setSelectedSkinColors)}
+                    />
+                    <FormRadioGroup
+                      label="Skin Intact"
+                      options={yesNoOptions}
+                      selectedValue={skinIntact}
+                      onValueChange={handleRadioChange(setSkinIntact)}
+                      className="flex items-center gap-4"
+                    />
+                    <div>
+                      <Label>Pressure Ulcers</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {[1, 2, 3, 4].map((s) => (
+                          <div key={s} className="flex items-center space-x-2">
+                            <Label htmlFor={`pressure-ulcer-stage-${s}`}>Stage {s}</Label>
+                            <Input
+                              id={`pressure-ulcer-stage-${s}`}
+                              type="number"
+                              placeholder="Count"
+                              className="w-20"
+                              value={eval(`pressureUlcersStage${s}`)} // Using eval for simplicity, consider a map or object for better practice
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (s === 1) setPressureUlcersStage1(value);
+                                else if (s === 2) setPressureUlcersStage2(value);
+                                else if (s === 3) setPressureUlcersStage3(value);
+                                else if (s === 4) setPressureUlcersStage4(value);
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="ulcer-locations">Location of ulcers</Label>
+                      <Textarea id="ulcer-locations" rows={2} value={ulcerLocations} onChange={(e) => setUlcerLocations(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label htmlFor="surgical-wounds">Surgical or other wounds (describe location, size, nature)</Label>
+                      <Textarea id="surgical-wounds" rows={3} value={surgicalWounds} onChange={(e) => setSurgicalWounds(e.target.value)} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* MOBILITY & TRANSFERS */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Mobility & Transfers</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="mobility">Mobility</Label>
+                      <Select value={mobility} onValueChange={setMobility} id="mobility">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {mobilityOptions.map((m) => (
+                            <SelectItem key={m.id} value={m.id}>
+                              {m.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="ambulating-aid">Uses ___ to aid in ambulating</Label>
+                      <Input id="ambulating-aid" value={ambulatingAid} onChange={(e) => setAmbulatingAid(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label htmlFor="transfer-aid">Uses ___ to aid in transfer</Label>
+                      <Input id="transfer-aid" value={transferAid} onChange={(e) => setTransferAid(e.target.value)} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* ADLs */}
+                {[
+                  { label: "Bathing", state: bathingLevel, setter: setBathingLevel },
+                  { label: "Personal Hygiene (hair, nails, skin, oral care)", state: personalHygieneLevel, setter: setPersonalHygieneLevel },
+                  { label: "Toileting (bladder, bowel routine, ability to access toilet)", state: toiletingLevel, setter: setToiletingLevel },
+                  { label: "Dressing", state: dressingLevel, setter: setDressingLevel },
+                  { label: "Eating and Drinking", state: eatingDrinkingLevel, setter: setEatingDrinkingLevel },
+                ].map((adl) => (
+                  <Card key={adl.label}>
+                    <CardHeader>
+                      <CardTitle>{adl.label}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <FormRadioGroup
+                        label=""
+                        options={adlLevels}
+                        selectedValue={adl.state}
+                        onValueChange={handleRadioChange(adl.setter)}
+                        className="grid grid-cols-2 md:grid-cols-4 gap-4"
+                      />
+                      {adl.label.includes("Toileting") && (
+                        <div className="mt-4 space-y-2">
+                          <label htmlFor="incontinent-bladder" className="flex items-center">
+                            <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBladder} onCheckedChange={setToiletingIncontinentBladder} />
+                            <span className="ml-2">Incontinent bladder</span>
+                          </label>
+                          <label htmlFor="incontinent-bowel" className="flex items-center">
+                            <Checkbox id="incontinent-bowel" checked={toiletingIncontinentBowel} onCheckedChange={setToiletingIncontinentBowel} />
+                            <span className="ml-2">Incontinent bowel</span>
+                          </label>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {/* HEALTH MAINTENANCE NEEDS */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Health Maintenance Needs</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <FormCheckboxGroup
+                      label=""
+                      options={healthMaintenanceNeedsOptions}
+                      selectedValues={selectedHealthMaintenanceNeeds}
+                      onValueChange={handleCheckboxChange(setSelectedHealthMaintenanceNeeds)}
+                      className="grid-cols-1 md:grid-cols-2" // Adjust grid for smaller options count
+                    />
+                    <Textarea rows={2} placeholder="Other needs or notes" value={otherHealthNeedsNotes} onChange={(e) => setOtherHealthNeedsNotes(e.target.value)} />
+                  </CardContent>
+                </Card>
+
+                {/* GENERAL PHYSICAL CONDITION */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>General Physical Condition</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <FormRadioGroup
+                      label=""
+                      options={generalPhysicalConditionOptions}
+                      selectedValue={generalPhysicalCondition}
+                      onValueChange={handleRadioChange(setGeneralPhysicalCondition)}
+                      className="space-y-2"
+                    />
+                    <Input placeholder="Other" className="mt-2" value={otherPhysicalCondition} onChange={(e) => setOtherPhysicalCondition(e.target.value)} />
+                  </CardContent>
+                </Card>
+
+                {/* MEDICATION MANAGEMENT */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Medication Management</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="current-medications">Current Medications (attach additional pages if necessary)</Label>
+                      <Textarea id="current-medications" rows={4} value={currentMedications} onChange={(e) => setCurrentMedications(e.target.value)} />
+                    </div>
+                    <FormRadioGroup
+                      label="Medication Administration"
+                      options={medicationAdministrationOptions}
+                      selectedValue={medicationAdministration}
+                      onValueChange={handleRadioChange(setMedicationAdministration)}
+                      className="space-y-2"
+                    />
+                    <Input placeholder="Other" value={otherMedicationManagement} onChange={(e) => setOtherMedicationManagement(e.target.value)} />
+                  </CardContent>
+                </Card>
+
+                {/* NURSE MONITOR VISIT */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Nurse Monitor Visit</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Label htmlFor="nurse-visit-type">Visit type</Label>
+                    <Select value={nurseVisitType} onValueChange={setNurseVisitType} id="nurse-visit-type">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Visit type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {nurseVisitTypes.map((v) => (
+                          <SelectItem key={v.id} value={v.id}>
+                            {v.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <Label className="mt-4 block">Activities of Visit</Label>
+                    <FormCheckboxGroup
+                      label=""
+                      options={nurseVisitActivities}
+                      selectedValues={selectedNurseVisitActivities}
+                      onValueChange={handleCheckboxChange(setSelectedNurseVisitActivities)}
+                      className="grid-cols-1 md:grid-cols-2"
+                    />
+
+                    <Label htmlFor="caregiver-names" className="mt-4 block">Caregiver Names</Label>
+                    <Textarea id="caregiver-names" rows={2} placeholder="List all caregivers" value={caregiverNames} onChange={(e) => setCaregiverNames(e.target.value)} />
+                  </CardContent>
+                </Card>
+
+                {/* SIGNATURES */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Signatures</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="rn-name">RN Name (Print)</Label>
+                      <Input id="rn-name" value={rnName} onChange={(e) => setRnName(e.target.value)} />
+                      <Label htmlFor="rn-signature">RN Signature</Label>
+                      <Input id="rn-signature" value={rnSignature} onChange={(e) => setRnSignature(e.target.value)} /> {/* In a real app, this might be a signature pad or image upload */}
+                      <Label htmlFor="rn-date">Date</Label>
+                      <Input id="rn-date" type="date" value={rnDate} onChange={(e) => setRnDate(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="participant-guardian-name">Participant / Guardian Name</Label>
+                      <Input id="participant-guardian-name" value={participantGuardianName} onChange={(e) => setParticipantGuardianName(e.target.value)} />
+                      <Label htmlFor="participant-guardian-signature">Signature</Label>
+                      <Input id="participant-guardian-signature" value={participantGuardianSignature} onChange={(e) => setParticipantGuardianSignature(e.target.value)} /> {/* Similarly, for real signatures */}
+                      <Label htmlFor="participant-guardian-date">Date</Label>
+                      <Input id="participant-guardian-date" type="date" value={participantGuardianDate} onChange={(e) => setParticipantGuardianDate(e.target.value)} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* DISCLAIMERS */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Disclaimers</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <p>
+                      <strong>MANDATED REPORTING:</strong> Any suspicion of abuse,
+                      neglect, or exploitation must be immediately reported to
+                      Adult Protective Services at 1-800-917-7383.
+                    </p>
+                    <p>
+                      <strong>Case Manager Contact:</strong> Immediately contact
+                      your Case Manager to report any health and safety concerns.
+                      This form must be submitted within 10 days of assessment
+                      completion.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <div className="flex justify-end mt-6">
+                  <Button type="submit">Submit Assessment</Button>
+                </div>
+              </form>
             </main>
           </SidebarInset>
         </div>
