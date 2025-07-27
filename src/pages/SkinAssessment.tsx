@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
-import { AppHeader } from "@/components/ui/app-header";
+import { AppHeader } => from "@/components/ui/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,90 +67,83 @@ export default function SkinAssessmentForm() {
   const handleSvgClick = (e: React.MouseEvent<SVGSVGElement>) => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    // Adjusting coordinates to match the aspect ratio of the new SVG paths (viewBox="0 0 400 900")
+    const x = ((e.clientX - rect.left) / rect.width) * 400;
+    const y = ((e.clientY - rect.top) / rect.height) * 900;
     setDots((prev) => [...prev, { id: `${Date.now()}`, x, y, view: bodyView }]);
   };
   const removeDot = (id: string) => setDots((prev) => prev.filter((d) => d.id !== id));
 
   const renderFrontView = () => (
-    <g stroke="#333" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <g stroke="#333" strokeWidth="1.5" fill="none">
       {/* Head */}
-      <path d="M100 20 C115 20 125 35 125 50 C125 70 110 80 100 80 C90 80 75 70 75 50 C75 35 85 20 100 20 Z" />
+      <path d="M200,60 C230,60 240,80 240,100 C240,130 220,150 200,150 C180,150 160,130 160,100 C160,80 170,60 200,60 Z" />
       {/* Neck */}
-      <path d="M90 80 L90 95 M110 80 L110 95" />
-      {/* Torso (Main Outline) */}
-      <path d="M90 95 C85 90 75 95 70 105 C65 115 65 130 70 145 C75 160 85 170 90 175 L90 280 C85 285 80 295 80 305 L80 350 C80 370 90 380 100 380 C110 380 120 370 120 350 L120 305 C120 295 115 285 110 280 L110 175 C115 170 125 160 130 145 C135 130 135 115 130 105 C125 95 115 90 110 95 Z" />
-      {/* Chest line */}
-      <path d="M75 120 C85 115 115 115 125 120" />
+      <path d="M185,150 L185,170 M215,150 L215,170" />
+      {/* Torso */}
+      <path d="M185,170 C160,180 140,210 140,250 C140,300 160,340 185,350 L185,550 C170,560 165,580 165,600 C165,620 170,640 185,650 L185,730 C185,750 190,760 200,760 C210,760 215,750 215,730 L215,650 C230,640 235,620 235,600 C235,580 230,560 215,550 L215,350 C240,340 260,300 260,250 C260,210 240,180 215,170 Z" />
+      {/* Chest lines */}
+      <path d="M150,230 C165,220 235,220 250,230" />
       {/* Navel */}
-      <circle cx="100" cy="190" r="2" fill="#333" />
+      <circle cx="200" cy="380" r="4" fill="#333" />
       {/* Abdominal muscle lines */}
-      <path d="M95 160 V220 M105 160 V220" />
-      <path d="M90 220 H110" />
-      {/* Arms (Outline) */}
-      <path d="M70 110 C60 115 50 130 50 160 C50 200 60 230 70 240 L70 340 C65 350 60 365 60 380 L60 410 C65 420 70 425 75 420" />
-      <path d="M130 110 C140 115 150 130 150 160 C150 200 140 230 130 240 L130 340 C135 350 140 365 140 380 L140 410 C135 420 130 425 125 420" />
-      {/* Forearm lines */}
-      <path d="M65 290 L65 330 M135 290 L135 330" />
-      {/* Hands (simplified outlines) */}
-      <path d="M70 410 C65 415 60 420 60 430 C60 440 65 445 70 440" />
-      <path d="M130 410 C135 415 140 420 140 430 C140 440 135 445 130 440" />
-      {/* Legs (Outline) */}
-      <path d="M80 380 L80 440 C80 450 85 460 90 460 L90 470 C90 475 85 480 80 480 L75 480 C70 480 65 475 65 470 L65 450 C65 440 70 430 75 430" />
-      <path d="M120 380 L120 440 C120 450 115 460 110 460 L110 470 C110 475 115 480 120 480 L125 480 C130 480 135 475 135 470 L135 450 C135 440 130 430 125 430" />
-      {/* Inner thigh line */}
-      <path d="M98 380 L92 410" />
-      {/* Kneecaps (simple curves) */}
-      <path d="M85 435 C88 438 92 438 95 435" />
-      <path d="M105 435 C108 438 112 438 115 435" />
-      {/* Feet (Outline) */}
-      <path d="M75 480 L80 490 L90 490 L85 480 Z" />
-      <path d="M115 480 L120 490 L130 490 L125 480 Z" />
-      {/* Toes (simple lines) */}
-      <path d="M80 490 L80 495 M85 490 L85 495" />
-      <path d="M120 490 L120 495 M125 490 L125 495" />
+      <path d="M190,320 V440 M210,320 V440" />
+      <path d="M185,340 H215 M185,380 H215 M185,420 H215" />
+      {/* Inner thigh/groin */}
+      <path d="M195,550 C198,560 202,560 205,550" />
+      {/* Arms */}
+      <path d="M140,200 C120,220 100,280 100,350 C100,420 120,480 140,500 L140,650 C130,670 120,700 120,720 L120,780 C130,800 140,810 150,800" />
+      <path d="M260,200 C280,220 300,280 300,350 C300,420 280,480 260,500 L260,650 C270,670 280,700 280,720 L280,780 C270,800 260,810 250,800" />
+      {/* Hands */}
+      <path d="M120,780 C110,790 100,800 100,820 C100,840 110,850 120,840" />
+      <path d="M280,780 C290,790 300,800 300,820 C300,840 290,850 280,840" />
+      {/* Legs */}
+      <path d="M185,760 L185,830 C185,840 190,850 195,850 L195,870 C195,880 190,890 185,890 L175,890 C165,890 155,880 155,870 L155,850 C155,840 160,830 165,830" />
+      <path d="M215,760 L215,830 C215,840 210,850 205,850 L205,870 C205,880 210,890 215,890 L225,890 C235,890 245,880 245,870 L245,850 C245,840 240,830 235,830" />
+      {/* Feet */}
+      <path d="M175,890 L180,900 L200,900 L195,890 Z" />
+      <path d="M225,890 L220,900 L200,900 L205,890 Z" />
+      {/* Toes */}
+      <path d="M180,900 L180,910 M190,900 L190,910" />
+      <path d="M220,900 L220,910 M210,900 L210,910" />
     </g>
   );
 
   const renderBackView = () => (
-    <g stroke="#333" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+    <g stroke="#333" strokeWidth="1.5" fill="none">
       {/* Head (back) */}
-      <path d="M100 20 C115 20 125 35 125 50 C125 70 110 80 100 80 C90 80 75 70 75 50 C75 35 85 20 100 20 Z" />
+      <path d="M200,60 C230,60 240,80 240,100 C240,130 220,150 200,150 C180,150 160,130 160,100 C160,80 170,60 200,60 Z" />
       {/* Neck (back) */}
-      <path d="M90 80 L90 95 M110 80 L110 95" />
-      {/* Torso (Main Outline, back) */}
-      <path d="M90 95 C85 90 75 95 70 105 C65 115 65 130 70 145 C75 160 85 170 90 175 L90 280 C85 285 80 295 80 305 L80 350 C80 370 90 380 100 380 C110 380 120 370 120 350 L120 305 C120 295 115 285 110 280 L110 175 C115 170 125 160 130 145 C135 130 135 115 130 105 C125 95 115 90 110 95 Z" />
+      <path d="M185,150 L185,170 M215,150 L215,170" />
+      {/* Torso (back) */}
+      <path d="M185,170 C160,180 140,210 140,250 C140,300 160,340 185,350 L185,550 C170,560 165,580 165,600 C165,620 170,640 185,650 L185,730 C185,750 190,760 200,760 C210,760 215,750 215,730 L215,650 C230,640 235,620 235,600 C235,580 230,560 215,550 L215,350 C240,340 260,300 260,250 C260,210 240,180 215,170 Z" />
       {/* Shoulder blades */}
-      <path d="M78 120 C75 125 75 135 78 140 C81 145 90 145 95 140" />
-      <path d="M122 120 C125 125 125 135 122 140 C119 145 110 145 105 140" />
+      <path d="M165,220 C160,230 160,250 165,260 C170,270 185,270 190,260" />
+      <path d="M235,220 C240,230 240,250 235,260 C230,270 215,270 210,260" />
       {/* Spinal column line */}
-      <path d="M100 95 V280" />
+      <path d="M200,170 V550" />
       {/* Buttocks area */}
-      <path d="M80 280 C70 295 70 315 80 330 C90 345 110 345 120 330 C130 315 130 295 120 280" />
-      {/* Arms (Outline) */}
-      <path d="M70 110 C60 115 50 130 50 160 C50 200 60 230 70 240 L70 340 C65 350 60 365 60 380 L60 410 C65 420 70 425 75 420" />
-      <path d="M130 110 C140 115 150 130 150 160 C150 200 140 230 130 240 L130 340 C135 350 140 365 140 380 L140 410 C135 420 130 425 125 420" />
-      {/* Forearm lines */}
-      <path d="M65 290 L65 330 M135 290 L135 330" />
-      {/* Hands (simplified outlines) */}
-      <path d="M70 410 C65 415 60 420 60 430 C60 440 65 445 70 440" />
-      <path d="M130 410 C135 415 140 420 140 430 C140 440 135 445 130 440" />
-      {/* Legs (Outline) */}
-      <path d="M80 380 L80 440 C80 450 85 460 90 460 L90 470 C90 475 85 480 80 480 L75 480 C70 480 65 475 65 470 L65 450 C65 440 70 430 75 430" />
-      <path d="M120 380 L120 440 C120 450 115 460 110 460 L110 470 C110 475 115 480 120 480 L125 480 C130 480 135 475 135 470 L135 450 C135 440 130 430 125 430" />
+      <path d="M165,550 C155,570 155,600 165,620 C175,640 225,640 235,620 C245,600 245,570 235,550" />
+      {/* Arms */}
+      <path d="M140,200 C120,220 100,280 100,350 C100,420 120,480 140,500 L140,650 C130,670 120,700 120,720 L120,780 C130,800 140,810 150,800" />
+      <path d="M260,200 C280,220 300,280 300,350 C300,420 280,480 260,500 L260,650 C270,670 280,700 280,720 L280,780 C270,800 260,810 250,800" />
+      {/* Hands */}
+      <path d="M120,780 C110,790 100,800 100,820 C100,840 110,850 120,840" />
+      <path d="M280,780 C290,790 300,800 300,820 C300,840 290,850 280,840" />
+      {/* Legs */}
+      <path d="M185,760 L185,830 C185,840 190,850 195,850 L195,870 C195,880 190,890 185,890 L175,890 C165,890 155,880 155,870 L155,850 C155,840 160,830 165,830" />
+      <path d="M215,760 L215,830 C215,840 210,850 205,850 L205,870 C205,880 210,890 215,890 L225,890 C235,890 245,880 245,870 L245,850 C245,840 240,830 235,830" />
       {/* Calf muscles */}
-      <path d="M85 410 C88 420 88 430 85 440" />
-      <path d="M115 410 C112 420 112 430 115 440" />
-      {/* Feet (Outline) */}
-      <path d="M75 480 L80 490 L90 490 L85 480 Z" />
-      <path d="M115 480 L120 490 L130 490 L125 480 Z" />
-      {/* Toes (simple lines) */}
-      <path d="M80 490 L80 495 M85 490 L85 495" />
-      <path d="M120 490 L120 495 M125 490 L125 495" />
+      <path d="M175,820 C178,830 178,840 175,850" />
+      <path d="M225,820 C222,830 222,840 225,850" />
+      {/* Feet */}
+      <path d="M175,890 L180,900 L200,900 L195,890 Z" />
+      <path d="M225,890 L220,900 L200,900 L205,890 Z" />
+      {/* Toes */}
+      <path d="M180,900 L180,910 M190,900 L190,910" />
+      <path d="M220,900 L220,910 M210,900 L210,910" />
     </g>
   );
-
 
   return (
     <SidebarProvider>
@@ -190,9 +183,10 @@ export default function SkinAssessmentForm() {
                       Back View
                     </Button>
                   </div>
+                  {/* Adjusted viewBox for more vertical space and accurate tracing */}
                   <svg
                     ref={svgRef}
-                    viewBox="0 0 200 500"
+                    viewBox="0 0 400 920"
                     className="w-full h-auto cursor-crosshair border"
                     onClick={handleSvgClick}
                   >
@@ -201,8 +195,9 @@ export default function SkinAssessmentForm() {
                     {/* Annotation dots */}
                     {dots.filter(dot => dot.view === bodyView).map((dot) => (
                       <g key={dot.id}>
-                        <circle cx={`${dot.x}%`} cy={`${dot.y}%`} r="4" fill="red" />
-                        <circle cx={`${dot.x}%`} cy={`${dot.y}%`} r="10" fill="transparent" onClick={(e) => { e.stopPropagation(); removeDot(dot.id); }} className="cursor-pointer" />
+                        {/* Dots coordinates are absolute now, not percentages */}
+                        <circle cx={dot.x} cy={dot.y} r="4" fill="red" />
+                        <circle cx={dot.x} cy={dot.y} r="10" fill="transparent" onClick={(e) => { e.stopPropagation(); removeDot(dot.id); }} className="cursor-pointer" />
                       </g>
                     ))}
                   </svg>
