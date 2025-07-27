@@ -17,14 +17,14 @@ export default function PatientAssessment() {
         <div className="flex flex-col w-full">
           <AppHeader />
           <SidebarInset>
-            <main className="flex flex-1 flex-col gap-6 p-6 md:gap-8 md:p-10">
-              <div className="grid w-full gap-6 xl:grid-cols-1">
+            <main className="flex-1 p-6 md:p-10 space-y-6">
+              <div className="w-full space-y-6">
                 {/* 2. General Health */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>2. General Health</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-2 gap-4">
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input placeholder="Temperature (°F)" />
                     <Input placeholder="Pulse (bpm)" />
                     <Input placeholder="Respiration (rpm)" />
@@ -33,7 +33,7 @@ export default function PatientAssessment() {
 
                     <div className="col-span-2">
                       <p className="mb-2 font-medium">Diet/Nutrition:</p>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                         {[
                           "Regular",
                           "Low Salt",
@@ -51,10 +51,15 @@ export default function PatientAssessment() {
                       </div>
                     </div>
 
-                    <div className="col-span-2 flex items-center space-x-2">
-                      <Checkbox id="fluid-restrictions" />
-                      <span>Fluid Restrictions?</span>
-                      <Input placeholder="If yes, amount in mL" className="w-32 ml-4" />
+                    <div className="col-span-2 flex flex-wrap items-center gap-4">
+                      <label className="flex items-center space-x-2">
+                        <Checkbox id="fluid-restrictions" />
+                        <span>Fluid Restrictions?</span>
+                      </label>
+                      <Input
+                        placeholder="If yes, amount in mL"
+                        className="w-48"
+                      />
                     </div>
 
                     <Textarea
@@ -65,7 +70,7 @@ export default function PatientAssessment() {
                 </Card>
 
                 {/* 3. Diagnosis & Health Status */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>3. Diagnosis & Health Status</CardTitle>
                   </CardHeader>
@@ -94,11 +99,11 @@ export default function PatientAssessment() {
                 </Card>
 
                 {/* 10. Signatures */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>10. Signatures</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-2 gap-4">
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Input placeholder="RN Signature" />
                       <Input type="date" placeholder="Date" />
@@ -111,7 +116,7 @@ export default function PatientAssessment() {
                 </Card>
 
                 {/* Disclaimers */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Disclaimers</CardTitle>
                   </CardHeader>
