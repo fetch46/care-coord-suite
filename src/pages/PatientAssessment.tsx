@@ -42,8 +42,8 @@ export default function PatientAssessment() {
         <div className="flex flex-col w-full">
           <AppHeader />
           <SidebarInset>
-            <main className="flex-1 p-4 md:p-6">
-              <div className="w-full mx-auto space-y-6" style={{ maxWidth: '95%' }}>
+            <main className="flex-1 p-4 md:p-6 overflow-auto">
+              <div className="w-full max-w-[1800px] mx-auto space-y-6">
                 {/* Header */}
                 <div className="flex justify-between items-center">
                   <h1 className="text-2xl font-bold">Patient Assessment Form</h1>
@@ -53,13 +53,13 @@ export default function PatientAssessment() {
                   </Button>
                 </div>
 
-                {/* Patient Details - Wider Card */}
+                {/* Patient Details */}
                 <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Patient Details</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <div className="space-y-2">
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1">
                       <Label>Select Patient</Label>
                       <Select>
                         <SelectTrigger className="w-full">
@@ -75,7 +75,7 @@ export default function PatientAssessment() {
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <Label>Assessment Type</Label>
                       <Select>
                         <SelectTrigger className="w-full">
@@ -91,34 +91,34 @@ export default function PatientAssessment() {
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <Label>Assessment Date</Label>
                       <Input type="date" className="w-full" />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <Label>Assessor Name</Label>
                       <Input className="w-full" placeholder="Your name" />
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* General Health - Wider Layout */}
+                {/* General Health */}
                 <Card className="w-full">
                   <CardHeader>
                     <CardTitle>General Health</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  <CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     <div className="space-y-1">
                       <Label>Temp (°F)</Label>
                       <Input className="w-full" />
                     </div>
                     <div className="space-y-1">
-                      <Label>Pulse</Label>
+                      <Label>Pulse (bpm)</Label>
                       <Input className="w-full" />
                     </div>
                     <div className="space-y-1">
-                      <Label>Respiration</Label>
+                      <Label>Respiration (rpm)</Label>
                       <Input className="w-full" />
                     </div>
                     <div className="space-y-1">
@@ -130,21 +130,19 @@ export default function PatientAssessment() {
                       <Input className="w-full" />
                     </div>
 
-                    {/* Diet Options - Full Width */}
-                    <div className="md:col-span-3 lg:col-span-5 space-y-2">
+                    <div className="col-span-2 md:col-span-3 lg:col-span-5 space-y-1">
                       <Label>Diet/Nutrition</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                         {["Regular", "Low Salt", "Diabetic", "Renal", "Soft", "NPO"].map((option) => (
-                          <div key={option} className="flex items-center space-x-2">
+                          <label key={option} className="flex items-center space-x-2">
                             <Checkbox id={option} />
-                            <Label htmlFor={option}>{option}</Label>
-                          </div>
+                            <span>{option}</span>
+                          </label>
                         ))}
                       </div>
                     </div>
 
-                    {/* Fluid Restrictions - Full Width */}
-                    <div className="md:col-span-3 lg:col-span-5 space-y-2">
+                    <div className="col-span-2 md:col-span-3 lg:col-span-5 space-y-1">
                       <Label>Fluid Restrictions</Label>
                       <div className="flex items-center gap-4">
                         <RadioGroup defaultValue="no" className="flex gap-4">
@@ -161,21 +159,20 @@ export default function PatientAssessment() {
                       </div>
                     </div>
 
-                    {/* Notes - Full Width */}
-                    <div className="md:col-span-3 lg:col-span-5 space-y-1">
+                    <div className="col-span-2 md:col-span-3 lg:col-span-5 space-y-1">
                       <Label>Recent Health Changes</Label>
                       <Textarea className="w-full" rows={3} />
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Diagnosis Section - Wider */}
+                {/* Diagnosis */}
                 <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Diagnosis & Health Status</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <Label>Primary Diagnosis</Label>
                         <Input className="w-full" />
@@ -186,14 +183,14 @@ export default function PatientAssessment() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                       <Label>Recent Changes</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                         {["Medications", "Hospitalizations", "Falls", "ER Visits", "New Symptoms", "Other"].map((item) => (
-                          <div key={item} className="flex items-center space-x-2">
+                          <label key={item} className="flex items-center space-x-2">
                             <Checkbox id={item} />
-                            <Label htmlFor={item}>{item}</Label>
-                          </div>
+                            <span>{item}</span>
+                          </label>
                         ))}
                       </div>
                     </div>
@@ -205,39 +202,109 @@ export default function PatientAssessment() {
                   </CardContent>
                 </Card>
 
-                {/* Signatures - Wider Layout */}
+                {/* Respiratory */}
+                <Card className="w-full">
+                  <CardHeader>
+                    <CardTitle>Respiratory Status</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label>Shortness of Breath</Label>
+                      <Select>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select frequency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["Never", "Walking >20ft", "Moderate exertion", "Minimal exertion", "At rest"].map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label>Respiratory Treatments</Label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {["Oxygen", "Nebulizer", "Ventilator", "CPAP/BIPAP"].map((treatment) => (
+                          <label key={treatment} className="flex items-center space-x-2">
+                            <Checkbox id={treatment} />
+                            <span>{treatment}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Pain Assessment */}
+                <Card className="w-full">
+                  <CardHeader>
+                    <CardTitle>Pain Assessment</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <Label>Pain Frequency</Label>
+                      <Select>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select frequency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["No pain", "Less than daily", "Daily", "Constant"].map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label>Pain Location</Label>
+                      <Input className="w-full" placeholder="Where is the pain?" />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label>Pain Intensity</Label>
+                      <div className="flex gap-4">
+                        {["Mild", "Moderate", "Severe"].map((level) => (
+                          <label key={level} className="flex items-center space-x-2">
+                            <RadioGroupItem value={level.toLowerCase()} id={level.toLowerCase()} />
+                            <span>{level}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label>Current Treatment</Label>
+                      <Input className="w-full" placeholder="Current pain management" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Signatures */}
                 <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Signatures</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <div className="space-y-1">
-                        <Label>RN Name</Label>
-                        <Input className="w-full" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label>RN Signature</Label>
-                        <Input className="w-full" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label>Date</Label>
-                        <Input type="date" className="w-full" />
-                      </div>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label>RN Name</Label>
+                      <Input className="w-full" />
+                      <Label>RN Signature</Label>
+                      <Input className="w-full" />
+                      <Label>Date</Label>
+                      <Input type="date" className="w-full" />
                     </div>
-                    <div className="space-y-4">
-                      <div className="space-y-1">
-                        <Label>Patient/Guardian Name</Label>
-                        <Input className="w-full" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label>Signature</Label>
-                        <Input className="w-full" />
-                      </div>
-                      <div className="space-y-1">
-                        <Label>Date</Label>
-                        <Input type="date" className="w-full" />
-                      </div>
+                    <div className="space-y-2">
+                      <Label>Patient/Guardian Name</Label>
+                      <Input className="w-full" />
+                      <Label>Signature</Label>
+                      <Input className="w-full" />
+                      <Label>Date</Label>
+                      <Input type="date" className="w-full" />
                     </div>
                   </CardContent>
                 </Card>
@@ -250,11 +317,13 @@ export default function PatientAssessment() {
                   <CardContent className="space-y-2 text-sm">
                     <p>
                       <strong>MANDATED REPORTING:</strong> Any suspicion of abuse,
-                      neglect, or exploitation must be immediately reported.
+                      neglect, or exploitation must be immediately reported to Adult Protective
+                      Services at 1-800-XXX-XXXX.
                     </p>
                     <p>
                       <strong>Case Manager Contact:</strong> Immediately contact your Case Manager 
-                      to report any health and safety concerns.
+                      to report any health and safety concerns. This form must be submitted within 
+                      10 days of assessment completion.
                     </p>
                   </CardContent>
                 </Card>
