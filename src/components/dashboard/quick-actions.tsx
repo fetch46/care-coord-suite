@@ -18,8 +18,6 @@ const variantMap = {
   default: "outline",
 } as const;
 
-const iconSize = "w-5 h-5";
-
 export function QuickActions() {
   const quickActions = useMemo<QuickAction[]>(
     () => [
@@ -31,14 +29,14 @@ export function QuickActions() {
         action: () => console.log("New patient"),
       },
       {
-        title: "Schedule Appointment",
+        title: "Schedule",
         description: "Book patient appointment",
         icon: Calendar,
         variant: "teal",
         action: () => console.log("Schedule appointment"),
       },
       {
-        title: "Start Assessment",
+        title: "Assessment",
         description: "Begin patient evaluation",
         icon: ClipboardList,
         variant: "coral",
@@ -56,27 +54,28 @@ export function QuickActions() {
   );
 
   return (
-    <Card className="w-full shadow-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Plus className={iconSize} />
+    <Card className="w-full shadow-sm">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Plus className="w-5 h-5" />
           Quick Actions
         </CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <CardContent className="grid grid-cols-2 gap-3">
         {quickActions.map((action) => (
           <Button
             key={action.title}
             variant={variantMap[action.variant]}
-            className="h-auto p-4 flex flex-col items-start gap-2 text-left hover:bg-opacity-90 transition-colors"
+            className="h-24 p-4 flex flex-col items-start justify-between text-left"
             onClick={action.action}
-            aria-label={action.title}
           >
             <div className="flex items-center gap-2 w-full">
-              <action.icon className={`${iconSize} flex-shrink-0`} />
-              <span className="font-medium">{action.title}</span>
+              <action.icon className="w-5 h-5 flex-shrink-0" />
+              <span className="font-medium text-sm sm:text-base line-clamp-1">
+                {action.title}
+              </span>
             </div>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs text-muted-foreground line-clamp-2 text-ellipsis w-full">
               {action.description}
             </span>
           </Button>
