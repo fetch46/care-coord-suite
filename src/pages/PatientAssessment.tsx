@@ -37,7 +37,7 @@ const assessmentTypes = [
 export default function PatientAssessment() {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-muted/40">
+      <div className="flex h-screen w-screen">
         <AppSidebar />
         <div className="flex flex-col w-full">
           <AppHeader />
