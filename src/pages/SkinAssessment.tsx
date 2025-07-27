@@ -1,251 +1,427 @@
-"use client";
+import React, { useState, useEffect, useRef } from "react";
 
-import { useEffect, useState, useRef, useCallback } from "react";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/ui/app-sidebar";
-import { AppHeader } from "@/components/ui/app-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } = "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Printer, XCircle } from "lucide-react"; // Import XCircle for the clear button icon
+// Utility functions for localStorage auto-save
+const STORAGE_KEY = "skinAssessmentFormDraft";
 
-/* -------------------- Body-annotation dots -------------------- */
-interface Dot { id: string; x: number; y: number; view: "front" | "back"; }
+const saveDraft = (data: any) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+};
 
-/* -------------------- Pressure-sore checklist ----------------- */
-const HOT_SPOTS = [
-  "Rime of Ear",
-  "Shoulder Blade",
-  "Elbow",
-  "Sacrum",
-  "Hip",
-  "Inner Knee",
-  "Outer Ankle",
-  "Heel",
-] as const;
-type HotSpot = typeof HOT_SPOTS[number];
-interface HotSpotRecord { area: HotSpot; status: "Normal" | "Abnormal"; notes: string; }
+const loadDraft = () => {
+  const draft = localStorage.getItem(STORAGE_KEY);
+  return draft ? JSON.parse(draft) : null;
+};
 
-/* -------------------- Component ------------------------------- */
-export default function SkinAssessmentForm() {
-  /* ---- Header fields ---- */
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [patientName, setPatientName] = useState("");
-  const [physician, setPhysician] = useState("");
-  const [room, setRoom] = useState("");
+const initialFormState = {
+  date: "",
+  patientName: "",
+  caregiverName: "",
+  assessmentStatus: "normal",
+  abnormalAreas: {
+    front: [],
+    back: [],
+  },
+  skinSheet: {
+    name: "",
+    age: "",
+    physician: "",
+    room: "",
+    observations: [],
+  },
+};
 
-  /* ---- Pressure-sore records ---- */
-  const [records, setRecords] = useState<HotSpotRecord[]>(() =>
-    HOT_SPOTS.map((a) => ({ area: a, status: "Normal", notes: "" }))
+// Annotatable Areas (SVG coordinates are approximate)
+const AREAS = [
+  { label: "Rim of Ear", id: "ear", coordsFront: [160, 40], coordsBack: [160, 40] },
+  { label: "Shoulder Blade", id: "shoulder", coordsFront: [110, 70], coordsBack: [110, 70] },
+  { label: "Elbow", id: "elbow", coordsFront: [90, 130], coordsBack: [90, 130] },
+  { label: "Sacrum", id: "sacrum", coordsFront: [160, 200], coordsBack: [160, 200] },
+  { label: "Hip", id: "hip", coordsFront: [120, 180], coordsBack: [120, 180] },
+  { label: "Inner Knee", id: "innerKnee", coordsFront: [150, 260], coordsBack: [150, 260] },
+  { label: "Outer Ankle", id: "outerAnkle", coordsFront: [110, 340], coordsBack: [110, 340] },
+  { label: "Heel", id: "heel", coordsFront: [160, 370], coordsBack: [160, 370] },
+];
+
+// SVG Body Diagram Component
+function BodyDiagram({ side, markedAreas, onMark }) {
+  // SVG outline is simple for demo; can be replaced with detailed SVG for production
+  const width = 320, height = 400;
+  return (
+    <svg width={width} height={height} style={{ background: "#f8f8f8", borderRadius: "10px" }}>
+      {/* Body outline */}
+      <ellipse cx={160} cy={120} rx={60} ry={95} fill="#eee" stroke="#888" strokeWidth="2" />
+      {/* Arms */}
+      <rect x={70} y={110} width={40} height={140} rx={20} fill="#eee" stroke="#888" strokeWidth="2" />
+      <rect x={210} y={110} width={40} height={140} rx={20} fill="#eee" stroke="#888" strokeWidth="2" />
+      {/* Head */}
+      <ellipse cx={160} cy={40} rx={30} ry={30} fill="#eee" stroke="#888" strokeWidth="2" />
+
+      {/* Annotatable areas */}
+      {AREAS.map(area => {
+        const coords = side === "front" ? area.coordsFront : area.coordsBack;
+        const marked = markedAreas.includes(area.id);
+        return (
+          <circle
+            key={area.id}
+            cx={coords[0]}
+            cy={coords[1]}
+            r={18}
+            fill={marked ? "#ffcccc" : "#cceeff"}
+            stroke="#333"
+            strokeWidth={marked ? 4 : 2}
+            style={{ cursor: "pointer" }}
+            onClick={() => onMark(area.id)}
+          >
+            <title>{area.label}</title>
+          </circle>
+        );
+      })}
+      {/* Labels for accessibility */}
+      {AREAS.map(area => {
+        const coords = side === "front" ? area.coordsFront : area.coordsBack;
+        return (
+          <text
+            key={area.id + "-label"}
+            x={coords[0]}
+            y={coords[1] - 22}
+            textAnchor="middle"
+            fontSize="11"
+            fill="#444"
+          >
+            {area.label}
+          </text>
+        );
+      })}
+    </svg>
   );
+}
 
-  /* ---- Body diagram dots ---- */
-  const [dots, setDots] = useState<Dot[]>([]);
-  const [bodyView, setBodyView] = useState<"front" | "back">("front");
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export default function SkinAssessmentForm() {
+  const [form, setForm] = useState(() => loadDraft() || initialFormState);
+  const [printMode, setPrintMode] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
-  // State to hold the loaded images
-  const [frontImage, setFrontImage] = useState<HTMLImageElement | null>(null);
-  const [backImage, setBackImage] = useState<HTMLImageElement | null>(null);
-
-  // Define the canvas dimensions - these should ideally match your image dimensions
-  // or be set such that the images scale nicely within them.
-  // Assuming the images are roughly 400px width for consistency with previous setup.
-  const CANVAS_WIDTH = 400;
-  const CANVAS_HEIGHT = 920; // Adjust this if your PNGs have different aspect ratios/heights
-
-  /* ---- LocalStorage persist ---- */
+  // Auto-save
   useEffect(() => {
-    const saved = localStorage.getItem("skinAssessment");
-    if (saved) {
-      const { date, patientName, physician, room, records, dots: d, bodyView: bv } = JSON.parse(saved);
-      setDate(date); setPatientName(patientName); setPhysician(physician); setRoom(room);
-      setRecords(records); setDots(d || []); setBodyView(bv || "front");
-    }
-  }, []);
-  useEffect(() => {
-    localStorage.setItem("skinAssessment", JSON.stringify({ date, patientName, physician, room, records, dots, bodyView }));
-  }, [date, patientName, physician, room, records, dots, bodyView]);
+    saveDraft(form);
+  }, [form]);
 
-  const updateRecord = (area: HotSpot, patch: Partial<HotSpotRecord>) =>
-    setRecords((prev) => prev.map((r) => (r.area === area ? { ...r, ...patch } : r)));
-
-  // --- Image Loading and Canvas Drawing Logic ---
-  useEffect(() => {
-    const loadImages = () => {
-      const imgFront = new Image();
-      imgFront.src = "/Front.png"; // Reference from public folder
-      imgFront.onload = () => setFrontImage(imgFront);
-      imgFront.onerror = () => console.error("Failed to load Front.png");
-
-      const imgBack = new Image();
-      imgBack.src = "/Back.png"; // Reference from public folder
-      imgBack.onload = () => setBackImage(imgBack);
-      imgBack.onerror = () => console.error("Failed to load Back.png");
-    };
-
-    loadImages();
-  }, []); // Run once on component mount to load images
-
-  const drawCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT); // Clear canvas
-
-    // Draw the appropriate body image
-    if (bodyView === "front" && frontImage) {
-      // Draw image to fit canvas dimensions
-      ctx.drawImage(frontImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    } else if (bodyView === "back" && backImage) {
-      // Draw image to fit canvas dimensions
-      ctx.drawImage(backImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    }
-
-    // Draw dots on top
-    ctx.fillStyle = "red";
-    dots.filter(dot => dot.view === bodyView).forEach(dot => {
-      ctx.beginPath();
-      ctx.arc(dot.x, dot.y, 4, 0, Math.PI * 2);
-      ctx.fill();
-    });
-  }, [bodyView, dots, frontImage, backImage]); // Redraw when view, dots, or images change
-
-  useEffect(() => {
-    drawCanvas();
-  }, [drawCanvas]); // Depend on drawCanvas to redraw whenever necessary
-
-  /* ---- Canvas Click Logic ---- */
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    // Calculate scale factors based on actual canvas drawing size vs. CSS size
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-
-    const clientX = e.clientX - rect.left;
-    const clientY = e.clientY - rect.top;
-
-    // Adjust click coordinates to the canvas's internal coordinate system
-    const x = clientX * scaleX;
-    const y = clientY * scaleY;
-
-    // Check if clicked on an existing dot to remove it
-    const dotRemoved = dots.some(dot => {
-      if (dot.view === bodyView) {
-        const distance = Math.sqrt(Math.pow(dot.x - x, 2) + Math.pow(dot.y - y, 2));
-        if (distance < 10) { // Click radius for removing a dot
-          removeDot(dot.id);
-          return true;
-        }
-      }
-      return false;
-    });
-
-    // If no dot was removed, add a new one
-    if (!dotRemoved) {
-      setDots((prev) => [...prev, { id: `${Date.now()}`, x, y, view: bodyView }]);
-    }
+  // Print handler
+  const handlePrint = () => {
+    setPrintMode(true);
+    setTimeout(() => {
+      window.print();
+      setPrintMode(false);
+    }, 500);
   };
 
-  const removeDot = (id: string) => setDots((prev) => prev.filter((d) => d.id !== id));
+  // Form field update helper
+  const updateField = (path: string, value: any) => {
+    setForm(prev => {
+      const updated = JSON.parse(JSON.stringify(prev));
+      const segments = path.split(".");
+      let obj = updated;
+      for (let i = 0; i < segments.length - 1; i++) {
+        obj = obj[segments[i]];
+      }
+      obj[segments[segments.length - 1]] = value;
+      return updated;
+    });
+  };
 
-  // Function to clear all dots
-  const clearAnnotations = () => {
-    setDots([]);
+  // Annotate area handler
+  const handleAreaMark = (side: "front" | "back", areaId: string) => {
+    setForm(prev => {
+      const marked = prev.abnormalAreas[side];
+      const newMarked = marked.includes(areaId)
+        ? marked.filter((id: string) => id !== areaId)
+        : [...marked, areaId];
+      return {
+        ...prev,
+        abnormalAreas: {
+          ...prev.abnormalAreas,
+          [side]: newMarked,
+        },
+      };
+    });
+  };
+
+  // Observations Table
+  const addObservation = () => {
+    setForm(prev => ({
+      ...prev,
+      skinSheet: {
+        ...prev.skinSheet,
+        observations: [
+          ...prev.skinSheet.observations,
+          { date: "", time: "", remarks: "" },
+        ],
+      },
+    }));
+  };
+
+  const updateObservation = (idx: number, field: string, value: string) => {
+    setForm(prev => {
+      const observations = [...prev.skinSheet.observations];
+      observations[idx][field] = value;
+      return {
+        ...prev,
+        skinSheet: {
+          ...prev.skinSheet,
+          observations,
+        },
+      };
+    });
+  };
+
+  const removeObservation = (idx: number) => {
+    setForm(prev => {
+      const observations = [...prev.skinSheet.observations];
+      observations.splice(idx, 1);
+      return {
+        ...prev,
+        skinSheet: {
+          ...prev.skinSheet,
+          observations,
+        },
+      };
+    });
   };
 
   return (
-    <SidebarProvider>
-      <div className="flex h-screen w-screen">
-        <AppSidebar />
-        <SidebarInset>
-          <AppHeader />
-          <main className="flex-1 overflow-auto p-6 space-y-6">
-            {/* Header Card */}
-            <Card>
-              <CardHeader><CardTitle>Skin Assessment Sheet</CardTitle></CardHeader>
-              <CardContent className="grid md:grid-cols-2 gap-4">
-                <div><Label>Date</Label><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
-                <div><Label>Patient Name</Label><Input value={patientName} onChange={(e) => setPatientName(e.target.value)} /></div>
-                <div><Label>Attending Physician</Label><Input value={physician} onChange={(e) => setPhysician(e.target.value)} /></div>
-                <div><Label>Room</Label><Input value={room} onChange={(e) => setRoom(e.target.value)} /></div>
-              </CardContent>
-            </Card>
+    <div
+      ref={formRef}
+      className={`skin-assessment-form${printMode ? " print-mode" : ""}`}
+      style={{
+        maxWidth: 600,
+        margin: "auto",
+        background: "#fff",
+        borderRadius: 12,
+        boxShadow: "0 2px 16px #eee",
+        padding: "16px 16px 40px 16px",
+        fontFamily: "sans-serif",
+      }}
+    >
+      <h1>Skin Assessment Form</h1>
+      <section>
+        <label>
+          Date:
+          <input
+            type="date"
+            value={form.date}
+            onChange={e => updateField("date", e.target.value)}
+            required
+            style={{marginLeft: 8}}
+          />
+        </label>
+        <br />
+        <label>
+          Patient’s Name:
+          <input
+            type="text"
+            value={form.patientName}
+            onChange={e => updateField("patientName", e.target.value)}
+            required
+            style={{marginLeft: 8}}
+          />
+        </label>
+        <br />
+        <label>
+          Caregiver’s/Staff’s Name:
+          <input
+            type="text"
+            value={form.caregiverName}
+            onChange={e => updateField("caregiverName", e.target.value)}
+            required
+            style={{marginLeft: 8}}
+          />
+        </label>
+        <br />
+        <label>
+          Assessment Status:
+          <input
+            type="radio"
+            name="assessmentStatus"
+            value="normal"
+            checked={form.assessmentStatus === "normal"}
+            onChange={e => updateField("assessmentStatus", "normal")}
+            style={{marginLeft: 8}}
+          />
+          Normal
+          <input
+            type="radio"
+            name="assessmentStatus"
+            value="abnormal"
+            checked={form.assessmentStatus === "abnormal"}
+            onChange={e => updateField("assessmentStatus", "abnormal")}
+            style={{marginLeft: 16}}
+          />
+          Abnormal
+        </label>
+      </section>
 
-            {/* Two-column grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* LEFT: Human Body Diagram (Canvas with Image Background) */}
-              <Card className="h-fit">
-                <CardHeader><CardTitle>Body Diagram – Click/Tap to Annotate</CardTitle></CardHeader>
-                <CardContent className="relative w-full max-w-md mx-auto"> {/* Changed max-w-sm to max-w-md */}
-                  <div className="mb-4 flex justify-center space-x-4">
-                    <Button
-                      variant={bodyView === "front" ? "default" : "outline"}
-                      onClick={() => setBodyView("front")}
-                    >
-                      Front View
-                    </Button>
-                    <Button
-                      variant={bodyView === "back" ? "default" : "outline"}
-                      onClick={() => setBodyView("back")}
-                    >
-                      Back View
-                    </Button>
-                    <Button
-                      variant="destructive" // Example: A red button for clearing
-                      onClick={clearAnnotations}
-                    >
-                      <XCircle className="w-4 h-4 mr-2" /> Clear Annotations
-                    </Button>
-                  </div>
-                  <canvas
-                    ref={canvasRef}
-                    width={CANVAS_WIDTH}
-                    height={CANVAS_HEIGHT}
-                    className="w-full h-auto cursor-crosshair border"
-                    onClick={handleCanvasClick}
-                  >
-                    Your browser does not support the HTML canvas tag.
-                  </canvas>
-                  <p className="text-xs text-muted-foreground mt-2 text-center">Tap anywhere to add a red dot; tap the dot to remove.</p>
-                </CardContent>
-              </Card>
-
-              {/* RIGHT: Pressure-sore checklist */}
-              <Card>
-                <CardHeader><CardTitle>Areas Most Prone to Pressure Sores</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                  {records.map(({ area, status, notes }) => (
-                    <div key={area} className="border rounded p-4 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold">{area}</span>
-                        <RadioGroup value={status} onValueChange={(val: "Normal" | "Abnormal") => updateRecord(area, { status: val })} className="flex gap-4">
-                          <div className="flex items-center gap-2"><RadioGroupItem value="Normal" id={`${area}-normal`} /><Label htmlFor={`${area}-normal`}>Normal</Label></div>
-                          <div className="flex items-center gap-2"><RadioGroupItem value="Abnormal" id={`${area}-abnormal`} /><Label htmlFor={`${area}-abnormal`}>Abnormal</Label></div>
-                        </RadioGroup>
-                      </div>
-                      {status === "Abnormal" && (
-                        <Textarea value={notes} onChange={(e) => updateRecord(area, { notes: e.target.value })} placeholder="Describe any broken, bruised or reddened areas" rows={2} />
-                      )}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+      {form.assessmentStatus === "abnormal" && (
+        <section style={{marginTop: 20, marginBottom: 20, border: "1px solid #eee", borderRadius: 8, padding: 12}}>
+          <h3>Annotate Areas of Concern</h3>
+          <div style={{display: "flex", gap: 16, flexWrap: "wrap"}}>
+            <div>
+              <div style={{textAlign: "center"}}><strong>Front</strong></div>
+              <BodyDiagram
+                side="front"
+                markedAreas={form.abnormalAreas.front}
+                onMark={id => handleAreaMark("front", id)}
+              />
             </div>
+            <div>
+              <div style={{textAlign: "center"}}><strong>Back</strong></div>
+              <BodyDiagram
+                side="back"
+                markedAreas={form.abnormalAreas.back}
+                onMark={id => handleAreaMark("back", id)}
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
-            <Button onClick={() => window.print()}><Printer className="w-4 h-4 mr-2" />Print / Export</Button>
-          </main>
-        </SidebarInset>
+      <section style={{marginTop: 20}}>
+        <h3>Skin Sheet Notes</h3>
+        <label>
+          Name:
+          <input
+            type="text"
+            value={form.skinSheet.name}
+            onChange={e => updateField("skinSheet.name", e.target.value)}
+            style={{marginLeft: 8}}
+          />
+        </label>
+        <br />
+        <label>
+          Age:
+          <input
+            type="number"
+            value={form.skinSheet.age}
+            onChange={e => updateField("skinSheet.age", e.target.value)}
+            style={{marginLeft: 8, width: 60}}
+          />
+        </label>
+        <br />
+        <label>
+          Attending Physician:
+          <input
+            type="text"
+            value={form.skinSheet.physician}
+            onChange={e => updateField("skinSheet.physician", e.target.value)}
+            style={{marginLeft: 8}}
+          />
+        </label>
+        <br />
+        <label>
+          Room:
+          <input
+            type="text"
+            value={form.skinSheet.room}
+            onChange={e => updateField("skinSheet.room", e.target.value)}
+            style={{marginLeft: 8}}
+          />
+        </label>
+      </section>
+
+      <section style={{marginTop: 20}}>
+        <h4>Observations</h4>
+        <table style={{width: "100%", borderCollapse: "collapse"}}>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Remarks</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {form.skinSheet.observations.map((obs, idx) => (
+              <tr key={idx}>
+                <td>
+                  <input
+                    type="date"
+                    value={obs.date}
+                    onChange={e => updateObservation(idx, "date", e.target.value)}
+                  />
+                </td>
+                <td>
+                  <input
+                    type="time"
+                    value={obs.time}
+                    onChange={e => updateObservation(idx, "time", e.target.value)}
+                  />
+                </td>
+                <td>
+                  <textarea
+                    value={obs.remarks}
+                    rows={2}
+                    style={{width: "90%"}}
+                    onChange={e => updateObservation(idx, "remarks", e.target.value)}
+                  />
+                </td>
+                <td>
+                  <button type="button" onClick={() => removeObservation(idx)} style={{color: "red", fontWeight: "bold"}}>✕</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button type="button" onClick={addObservation} style={{marginTop: 10}}>Add Observation</button>
+      </section>
+
+      <div style={{marginTop: 40, display: "flex", justifyContent: "space-between"}}>
+        <button type="button" onClick={handlePrint}>Print Form</button>
+        <span style={{fontSize: 12, color: "#aaa"}}>Auto-saved</span>
       </div>
-    </SidebarProvider>
+
+      {/* Print CSS */}
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          .skin-assessment-form, .skin-assessment-form * {
+            visibility: visible !important;
+          }
+          .skin-assessment-form {
+            position: absolute !important;
+            left: 0; top: 0;
+            width: 100vw;
+            margin: 0 !important;
+            box-shadow: none !important;
+            background: #fff !important;
+            padding: 0 !important;
+          }
+          button, input[type="button"] {
+            display: none !important;
+          }
+        }
+        /* Mobile-friendly styles */
+        .skin-assessment-form input,
+        .skin-assessment-form textarea {
+          font-size: 1em;
+          width: 92%;
+          max-width: 320px;
+          margin-bottom: 4px;
+        }
+        .skin-assessment-form table input,
+        .skin-assessment-form table textarea {
+          width: 100%;
+        }
+        @media (max-width: 700px) {
+          .skin-assessment-form {
+            max-width: 98vw !important;
+            padding: 3vw;
+          }
+          .skin-assessment-form section {
+            padding: 0 !important;
+          }
+        }
+      `}</style>
+    </div>
   );
 }
