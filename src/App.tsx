@@ -32,6 +32,7 @@ const App = () => (
           <Route path="/timesheet" element={<Timesheet />} />
           <Route path="/digital-timesheet" element={<DigitalTimesheet />} />
           <Route path="/timesheet-reports" element={<TimesheetReports />} />
+          <Route path="/reports" element={<Reports />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
