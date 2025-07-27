@@ -10,6 +10,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 interface Dot { id: string; x: number; y: number; view: "front" | "back"; }
 
@@ -130,33 +137,23 @@ export default function SkinAssessmentForm() {
                 <div><Label>Room</Label><Input value={room} onChange={(e) => setRoom(e.target.value)} /></div>
               </CardContent>
             </Card>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Body Diagram */}
               <Card className="h-fit">
                 <CardHeader><CardTitle>Body Diagram – Click/Tap to Annotate</CardTitle></CardHeader>
                 <CardContent className="relative w-full max-w-sm mx-auto">
-                  <div className="mb-4 flex flex-col items-center space-y-2">
-                    <div className="flex justify-center space-x-4">
-                      <Button
-                        variant={bodyView === "front" ? "default" : "outline"}
-                        onClick={() => setBodyView("front")}
-                      >
-                        Front View
-                      </Button>
-                      <Button
-                        variant={bodyView === "back" ? "default" : "outline"}
-                        onClick={() => setBodyView("back")}
-                      >
-                        Back View
-                      </Button>
-                    </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => setDots([])}
-                      className="mt-2"
-                    >
-                      Clear Annotations
-                    </Button>
+                  <div className="mb-4">
+                    <Label className="text-sm">Select View</Label>
+                    <Select value={bodyView} onValueChange={(val) => setBodyView(val as "front" | "back")}>
+                      <SelectTrigger className="w-full mt-1">
+                        <SelectValue placeholder="Select View" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="front">Front View</SelectItem>
+                        <SelectItem value="back">Back View</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <canvas
                     ref={canvasRef}
@@ -168,8 +165,19 @@ export default function SkinAssessmentForm() {
                     Your browser does not support the HTML canvas tag.
                   </canvas>
                   <p className="text-xs text-muted-foreground mt-2 text-center">Tap anywhere to add a red dot; tap the dot to remove.</p>
+                  <div className="flex justify-center mt-4">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setDots([])}
+                    >
+                      Clear Annotations
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
+
+              {/* Pressure Sores Checklist */}
               <Card>
                 <CardHeader><CardTitle>Areas Most Prone to Pressure Sores</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
@@ -205,6 +213,7 @@ export default function SkinAssessmentForm() {
                 </CardContent>
               </Card>
             </div>
+
             <Button onClick={() => window.print()}>
               <Printer className="w-4 h-4 mr-2" />Print / Export
             </Button>
