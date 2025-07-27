@@ -240,17 +240,7 @@ export default function DigitalTimesheet() {
               {/* <div className="w-full max-w-6xl mx-auto space-y-8"> ----Andrew */}
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                 {/* Header */}
-                <Card className="bg-primary text-primary-foreground">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold">American Care Team</CardTitle>
-                    <div className="space-y-1">
-                      <p className="text-lg font-semibold">Provider Timesheet For Home Health Care</p>
-                      <p className="text-sm">240-581-2918</p>
-                      <p className="text-sm">1503 East North Ave, Baltimore MD 21213</p>
-                      <p className="text-sm">www.AmericanCareTeam.com</p>
-                    </div>
-                  </CardHeader>
-                </Card>
+                
 
                 {/* Important Notice */}
                 <Card className="border-orange-200 bg-orange-50">
