@@ -103,76 +103,79 @@ export default function PatientAssessment() {
                   </CardContent>
                 </Card>
 
-                {/* General Health */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>General Health</CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    <div><Label>Temp (°F)</Label><Input /></div>
-                    <div><Label>Pulse (bpm)</Label><Input /></div>
-                    <div><Label>Respiration (rpm)</Label><Input /></div>
-                    <div><Label>Blood Pressure</Label><Input /></div>
-                    <div><Label>Weight (lbs)</Label><Input /></div>
+                {/* Combined General Health and Diagnosis & Health Status */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* General Health */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>General Health</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                      <div><Label>Temp (°F)</Label><Input /></div>
+                      <div><Label>Pulse (bpm)</Label><Input /></div>
+                      <div><Label>Respiration (rpm)</Label><Input /></div>
+                      <div><Label>Blood Pressure</Label><Input /></div>
+                      <div><Label>Weight (lbs)</Label><Input /></div>
 
-                    <div className="col-span-2 md:col-span-3 lg:col-span-5">
-                      <Label>Diet/Nutrition</Label>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-1">
-                        {["Regular","Low Salt","Diabetic","Renal","Soft","NPO"].map((opt) => (
-                          <label key={opt} className="flex items-center space-x-2">
-                            <Checkbox id={opt} />
-                            <span>{opt}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="col-span-2 md:col-span-3 lg:col-span-5">
-                      <Label>Fluid Restrictions</Label>
-                      <RadioGroup defaultValue="no" className="flex items-center gap-4 mt-1">
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="no-res" />
-                          <Label htmlFor="no-res">No</Label>
+                      <div className="col-span-2 md:col-span-3 lg:col-span-5">
+                        <Label>Diet/Nutrition</Label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-1">
+                          {["Regular","Low Salt","Diabetic","Renal","Soft","NPO"].map((opt) => (
+                            <label key={opt} className="flex items-center space-x-2">
+                              <Checkbox id={opt} />
+                              <span>{opt}</span>
+                            </label>
+                          ))}
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="yes-res" />
-                          <Label htmlFor="yes-res">Yes</Label>
-                        </div>
-                        <Input placeholder="Amount (mL)" className="w-32" />
-                      </RadioGroup>
-                    </div>
-
-                    <div className="col-span-2 md:col-span-3 lg:col-span-5">
-                      <Label>Recent Health Changes</Label>
-                      <Textarea rows={3} />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Diagnosis */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Diagnosis & Health Status</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div><Label>Primary Diagnosis</Label><Input /></div>
-                      <div><Label>Secondary Diagnoses</Label><Input /></div>
-                    </div>
-                    <div>
-                      <Label>Recent Changes</Label>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-1">
-                        {["Medications","Hospitalizations","Falls","ER Visits","New Symptoms","Other"].map((c) => (
-                          <label key={c} className="flex items-center space-x-2">
-                            <Checkbox id={c} />
-                            <span>{c}</span>
-                          </label>
-                        ))}
                       </div>
-                    </div>
-                    <div><Label>Details</Label><Textarea rows={4} /></div>
-                  </CardContent>
-                </Card>
+
+                      <div className="col-span-2 md:col-span-3 lg:col-span-5">
+                        <Label>Fluid Restrictions</Label>
+                        <RadioGroup defaultValue="no" className="flex items-center gap-4 mt-1">
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="no" id="no-res" />
+                            <Label htmlFor="no-res">No</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="yes" id="yes-res" />
+                            <Label htmlFor="yes-res">Yes</Label>
+                          </div>
+                          <Input placeholder="Amount (mL)" className="w-32" />
+                        </RadioGroup>
+                      </div>
+
+                      <div className="col-span-2 md:col-span-3 lg:col-span-5">
+                        <Label>Recent Health Changes</Label>
+                        <Textarea rows={3} />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Diagnosis */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Diagnosis & Health Status</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><Label>Primary Diagnosis</Label><Input /></div>
+                        <div><Label>Secondary Diagnoses</Label><Input /></div>
+                      </div>
+                      <div>
+                        <Label>Recent Changes</Label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-1">
+                          {["Medications","Hospitalizations","Falls","ER Visits","New Symptoms","Other"].map((c) => (
+                            <label key={c} className="flex items-center space-x-2">
+                              <Checkbox id={c} />
+                              <span>{c}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                      <div><Label>Details</Label><Textarea rows={4} /></div>
+                    </CardContent>
+                  </Card>
+                </div>
 
                 {/* Combined Respiratory and Pain Assessment */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
