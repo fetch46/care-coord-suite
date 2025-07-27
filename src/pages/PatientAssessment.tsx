@@ -144,19 +144,17 @@ export default function PatientAssessment() {
 
                     <div className="col-span-2 md:col-span-3 lg:col-span-5 space-y-1">
                       <Label>Fluid Restrictions</Label>
-                      <div className="flex items-center gap-4">
-                        <RadioGroup defaultValue="no" className="flex gap-4">
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="no" id="no-restriction" />
-                            <Label htmlFor="no-restriction">No</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="yes" id="yes-restriction" />
-                            <Label htmlFor="yes-restriction">Yes</Label>
-                          </div>
-                        </RadioGroup>
+                      <RadioGroup defaultValue="no" className="flex items-center gap-4">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="no" id="no-restriction" />
+                          <Label htmlFor="no-restriction">No</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="yes" id="yes-restriction" />
+                          <Label htmlFor="yes-restriction">Yes</Label>
+                        </div>
                         <Input placeholder="Amount (mL)" className="w-32" />
-                      </div>
+                      </RadioGroup>
                     </div>
 
                     <div className="col-span-2 md:col-span-3 lg:col-span-5 space-y-1">
@@ -267,14 +265,19 @@ export default function PatientAssessment() {
 
                     <div className="space-y-1">
                       <Label>Pain Intensity</Label>
-                      <div className="flex gap-4">
+                      <RadioGroup defaultValue="mild" className="flex gap-4">
                         {["Mild", "Moderate", "Severe"].map((level) => (
-                          <label key={level} className="flex items-center space-x-2">
-                            <RadioGroupItem value={level.toLowerCase()} id={level.toLowerCase()} />
-                            <span>{level}</span>
-                          </label>
+                          <div key={level} className="flex items-center space-x-2">
+                            <RadioGroupItem 
+                              value={level.toLowerCase()} 
+                              id={`pain-${level.toLowerCase()}`} 
+                            />
+                            <Label htmlFor={`pain-${level.toLowerCase()}`}>
+                              {level}
+                            </Label>
+                          </div>
                         ))}
-                      </div>
+                      </RadioGroup>
                     </div>
 
                     <div className="space-y-1">
