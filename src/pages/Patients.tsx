@@ -31,7 +31,7 @@ interface Patient {
 export default function Patients() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = true;
 
   useEffect(() => {
     fetchPatients();
@@ -98,7 +98,7 @@ export default function Patients() {
   if (loading) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/} 
+        <div className="flex h-screen w-screen">
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
@@ -113,14 +113,14 @@ export default function Patients() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
+      <div className="flex h-screen w-screen">
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-none w-full space-y-8">
+          <main className="flex-1 overflow-auto p-6 space-y-6"> {/* Added space-y-6 for consistent section spacing */}
+            <div className="max-w-none w-full"> {/* Removed space-y-8 to avoid double spacing */}
               {/* Header */}
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center mb-6"> {/* Added mb-6 for spacing from card */}
                 <div>
                   <h1 className="text-3xl font-bold text-foreground">Patients</h1>
                   <p className="text-muted-foreground mt-1">Manage patient information and care details</p>
@@ -134,8 +134,8 @@ export default function Patients() {
               </div>
 
               {/* Search and Filter */}
-              <Card>
-                <CardContent className="p-12">
+              <Card className="mb-6"> {/* Added mb-6 for spacing from table */}
+                <CardContent className="p-6"> {/* Changed p-12 to p-6 */}
                   <div className="flex gap-4">
                     <div className="relative flex-1">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -156,7 +156,7 @@ export default function Patients() {
 
               {/* Patients Table */}
               <Card>
-                <CardContent className="p-0">
+                <CardContent className="p-0"> {/* p-0 is correct for table directly inside card */}
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -228,7 +228,7 @@ export default function Patients() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge 
+                            <Badge
                               variant={patient.status === "Active" ? "default" : "secondary"}
                               className={patient.status === "Active" ? "bg-green-100 text-green-800" : ""}
                             >
