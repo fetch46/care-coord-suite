@@ -17,8 +17,9 @@ export default function PatientAssessment() {
         <div className="flex flex-col w-full">
           <AppHeader />
           <SidebarInset>
+            {/* Removed max-w-screen-2xl from the direct child of main */}
             <main className="flex-1 px-4 py-6 md:px-10 md:py-8 lg:px-16 space-y-6 w-full">
-              <div className="max-w-screen-2xl mx-auto w-full space-y-6">
+              {/* The individual cards will naturally expand due to w-full */}
                 {/* 2. General Health */}
                 <Card className="w-full">
                   <CardHeader>
@@ -132,7 +133,6 @@ export default function PatientAssessment() {
                     </p>
                   </CardContent>
                 </Card>
-              </div>
             </main>
           </SidebarInset>
         </div>
