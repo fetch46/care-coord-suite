@@ -288,5 +288,239 @@ export default function DigitalTimesheet() {
                           type="date"
                           {...register("timeLog.date", { required: "Date is required" })}
                         />
-                        {*
-
+                        {dayOfWeek && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {dayOfWeek}
+                          </div>
+                        )}
+                        {errors?.timeLog?.date && (
+                          <p className="text-sm text-red-600 mt-1">{errors.timeLog.date.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="timeLog.timeIn">Time In</Label>
+                        <Input
+                          type="time"
+                          {...register("timeLog.timeIn", { required: "Time In is required" })}
+                        />
+                        {errors?.timeLog?.timeIn && (
+                          <p className="text-sm text-red-600 mt-1">{errors.timeLog.timeIn.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="timeLog.timeOut">Time Out</Label>
+                        <Input
+                          type="time"
+                          {...register("timeLog.timeOut", { required: "Time Out is required" })}
+                        />
+                        {errors?.timeLog?.timeOut && (
+                          <p className="text-sm text-red-600 mt-1">{errors.timeLog.timeOut.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="timeLog.break">Break (mins)</Label>
+                        <Input
+                          type="number"
+                          {...register("timeLog.break", { required: "Break is required" })}
+                          placeholder="0"
+                        />
+                        {errors?.timeLog?.break && (
+                          <p className="text-sm text-red-600 mt-1">{errors.timeLog.break.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="timeLog.sleepIn">Sleep In?</Label>
+                        <Switch
+                          onCheckedChange={(checked) => setValue("timeLog.sleepIn", checked)}
+                        />
+                      </div>
+                      <div>
+                        <Label>Total Hours</Label>
+                        <div className="font-medium">
+                          {calculateTotalHours(
+                            watch("timeLog.timeIn"),
+                            watch("timeLog.timeOut"),
+                            watch("timeLog.break")
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="timeLog.miles">Miles</Label>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          {...register("timeLog.miles")}
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Duties Checklist Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CheckSquare className="w-5 h-5" />
+                      Care Plan Activities
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">
+                      For this shift, please check which items you worked on with the patient
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+                    {/* Personal Care Tasks */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Personal Care Tasks</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {personalCareTasks.map(task => (
+                            <div key={task} className="flex items-center">
+                              <Checkbox
+                                checked={duties.personalCare[task] || false}
+                                onCheckedChange={(checked) => handleDutyChange("personalCare", task, !!checked)}
+                              />
+                              <Label className="ml-2">{task}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                    {/* Home Management Tasks */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Home Management Tasks</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {homeManagementTasks.map(task => (
+                            <div key={task} className="flex items-center">
+                              <Checkbox
+                                checked={duties.homeManagement[task] || false}
+                                onCheckedChange={(checked) => handleDutyChange("homeManagement", task, !!checked)}
+                              />
+                              <Label className="ml-2">{task}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                    {/* Activities */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Activities</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {activitiesTasks.map(task => (
+                            <div key={task} className="flex items-center">
+                              <Checkbox
+                                checked={duties.activities[task] || false}
+                                onCheckedChange={(checked) => handleDutyChange("activities", task, !!checked)}
+                              />
+                              <Label className="ml-2">{task}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </CardContent>
+                </Card>
+
+                {/* Additional Notes */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5" />
+                      Additional Comments
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Label htmlFor="additionalComments">Additional Comments or Notes About the Patient</Label>
+                    <Textarea
+                      {...register("additionalComments")}
+                      rows={4}
+                      placeholder="Enter any additional comments or observations about the patient's care..."
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Agreement Section */}
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardHeader>
+                    <CardTitle>Employee Agreement</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm">
+                    <p>I agree not to accept employment with the Patient for the term of employment with American Care Team, LLC and for one (1) year after the termination of my employment with American Care Team, LLC.</p>
+                    <p>I declare that I have sustained no injury on this assigned job.</p>
+                    <p>By signing this time sheet, I certify that all services have been provided in accordance with the Patient's healthcare assessment and I have delivered all service hours shown on the time sheet.</p>
+                    <p className="font-semibold">In order to be paid, I understand this time sheet must be completed and signed by both me and the patient.</p>
+                    <p className="font-semibold text-red-600">All completed time sheets must be returned by Mondays at 12:00 PM.</p>
+                  </CardContent>
+                </Card>
+
+                {/* Signatures Section */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <PenTool className="w-5 h-5" />
+                      Signatures
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <h4 className="font-semibold">Employee Signature</h4>
+                        <div>
+                          <Label htmlFor="employeeSignature">Digital Signature</Label>
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-32 flex items-center justify-center bg-gray-50">
+                            <p className="text-gray-500 text-sm">Click to sign digitally</p>
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="employeeDate">Date</Label>
+                          <Input
+                            type="date"
+                            {...register("employeeDate", { required: "Employee date is required" })}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <h4 className="font-semibold">Patient Signature</h4>
+                        <div>
+                          <Label htmlFor="patientSignature">Digital Signature</Label>
+                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-32 flex items-center justify-center bg-gray-50">
+                            <p className="text-gray-500 text-sm">Click to sign digitally</p>
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="patientDate">Date</Label>
+                          <Input
+                            type="date"
+                            {...register("patientDate", { required: "Patient date is required" })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Submit Buttons */}
+                <div className="flex justify-center gap-4 pt-6">
+                  <Button type="button" variant="outline" size="lg">
+                    Save as Draft
+                  </Button>
+                  <Button type="submit" size="lg" className="bg-gradient-primary text-white hover:opacity-90">
+                    Submit Timesheet
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
+  );
+}
