@@ -210,9 +210,6 @@ export default function SkinAssessmentForm() {
                       )}
                     </div>
                   ))}
-                  <Button onClick={() => window.print()}>
-              <Printer className="w-4 h-4 mr-2" />Save / Submit
-            </Button>
                 </CardContent>
               </Card>
             </div>
