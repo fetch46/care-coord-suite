@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
-import { AppHeader } => from "@/components/ui/app-header";
+import { AppHeader } from "@/components/ui/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,7 +69,7 @@ export default function SkinAssessmentForm() {
     const rect = svgRef.current.getBoundingClientRect();
     // Adjusting coordinates to match the aspect ratio of the new SVG paths (viewBox="0 0 400 900")
     const x = ((e.clientX - rect.left) / rect.width) * 400;
-    const y = ((e.clientY - rect.top) / rect.height) * 900;
+    const y = ((e.clientY - rect.top) / rect.height) * 900; // Using 900 as the max Y for viewBox
     setDots((prev) => [...prev, { id: `${Date.now()}`, x, y, view: bodyView }]);
   };
   const removeDot = (id: string) => setDots((prev) => prev.filter((d) => d.id !== id));
@@ -186,7 +186,7 @@ export default function SkinAssessmentForm() {
                   {/* Adjusted viewBox for more vertical space and accurate tracing */}
                   <svg
                     ref={svgRef}
-                    viewBox="0 0 400 920"
+                    viewBox="0 0 400 920" // Adjusted viewBox to accommodate the full height and width of the new tracing
                     className="w-full h-auto cursor-crosshair border"
                     onClick={handleSvgClick}
                   >
