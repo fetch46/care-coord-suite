@@ -49,12 +49,18 @@ const navigationItems = [
     url: "/timesheets", 
     icon: Clock,
     submenu: [
-      { title: "Digital Timesheet", url: "/digital-timesheet", icon: FileText },
-      { title: "Timesheet Reports", url: "/timesheet-reports", icon: Activity }
+      { title: "Submit Timesheet", url: "/digital-timesheet", icon: FileText },
     ]
   },
   { title: "Assessments", url: "/assessments", icon: FileText },
-  { title: "Reports", url: "/reports", icon: Activity },
+  { 
+  title: "Reports", 
+  url: "/reports", 
+  icon: Activity,
+  submenu: [
+    { title: "Timesheet Reports", url: "/timesheet-reports", icon: Activity }
+  ]
+},
   { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Settings", url: "/settings", icon: Settings },
 ]
