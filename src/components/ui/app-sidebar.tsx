@@ -52,7 +52,17 @@ const navigationItems = [
       { title: "Submit Timesheet", url: "/digital-timesheet", icon: FileText },
     ]
   },
-  { title: "Assessments", url: "/assessments", icon: FileText },
+
+  { 
+  title: "Assessments", 
+  url: "/assessments", 
+  icon: FileText,
+  submenu: [
+    { title: "Skin Assessments", url: "/skin-assessments", icon: FileText },
+    { title: "Timesheet Reports", url: "/timesheet-reports", icon: FileText }
+  ]
+},
+  
   { 
   title: "Reports", 
   url: "/reports", 
