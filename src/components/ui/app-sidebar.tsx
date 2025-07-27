@@ -46,7 +46,7 @@ const navigationItems = [
   { 
     title: "Timesheets", 
     url: "/timesheets", 
-    icon: Clock,
+    {/*icon: Clock,*/}
     submenu: [
       { title: "Digital Timesheet", url: "/digital-timesheet", icon: FileText },
       { title: "Timesheet Reports", url: "/timesheet-reports", icon: Activity }
