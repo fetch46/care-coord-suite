@@ -58,8 +58,7 @@ const navigationItems = [
   url: "/assessments", 
   icon: FileText,
   submenu: [
-    { title: "Skin Assessments", url: "/skin-assessments", icon: FileText },
-    { title: "Timesheet Reports", url: "/timesheet-reports", icon: FileText }
+    { title: "Skin Assessments", url: "/skin-assessment", icon: FileText },
   ]
 },
   { 
