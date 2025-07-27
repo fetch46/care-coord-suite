@@ -39,13 +39,15 @@ export default function PatientAssessment() {
     <SidebarProvider>
       <div className="flex h-screen w-screen">
         <AppSidebar />
-        <div className="flex flex-col w-full"> {/* Added this wrapper div for column layout */}
+        <div className="flex flex-col w-full">
           <AppHeader />
           <SidebarInset>
-            <main className="flex-1 overflow-auto p-6 space-y-6"> {/* Adjusted padding here */}
+            <main className="flex-1 overflow-auto p-6 space-y-6">
               {/* Header */}
               <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">Patient Assessment Form</h1>
+                <h1 className="text-2xl font-bold">
+                  DHMH 4658 A (N-PA) – Waiver Participant Assessment
+                </h1>
                 <Button variant="outline">
                   <Printer className="mr-2 h-4 w-4" />
                   Print Form
@@ -58,7 +60,7 @@ export default function PatientAssessment() {
                   <CardTitle>Patient Details</CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="space-y-1"> {/* Added space-y-1 */}
+                  <div className="space-y-1">
                     <Label>Select Patient</Label>
                     <Select>
                       <SelectTrigger>
@@ -74,7 +76,7 @@ export default function PatientAssessment() {
                     </Select>
                   </div>
 
-                  <div className="space-y-1"> {/* Added space-y-1 */}
+                  <div className="space-y-1">
                     <Label>Assessment Type</Label>
                     <Select>
                       <SelectTrigger>
@@ -90,230 +92,1003 @@ export default function PatientAssessment() {
                     </Select>
                   </div>
 
-                  <div className="space-y-1"> {/* Added space-y-1 */}
+                  <div className="space-y-1">
                     <Label>Assessment Date</Label>
                     <Input type="date" />
                   </div>
 
-                  <div className="space-y-1"> {/* Added space-y-1 */}
+                  <div className="space-y-1">
                     <Label>Assessor Name</Label>
                     <Input placeholder="Your name" />
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Combined General Health and Diagnosis & Health Status */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* General Health */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>General Health</CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    <div className="space-y-1"> {/* Added space-y-1 */}
+              {/* GENERAL HEALTH */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>General Health</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div>
                       <Label>Temp (°F)</Label>
                       <Input />
                     </div>
-                    <div className="space-y-1"> {/* Added space-y-1 */}
+                    <div>
                       <Label>Pulse (bpm)</Label>
                       <Input />
                     </div>
-                    <div className="space-y-1"> {/* Added space-y-1 */}
+                    <div>
                       <Label>Respiration (rpm)</Label>
                       <Input />
                     </div>
-                    <div className="space-y-1"> {/* Added space-y-1 */}
-                      <Label>Blood Pressure</Label>
+                    <div>
+                      <Label>BP Systolic/Diastolic</Label>
                       <Input />
                     </div>
-                    <div className="space-y-1"> {/* Added space-y-1 */}
-                      <Label>Weight (lbs)</Label>
+                    <div>
+                      <Label>Current Weight (lbs)</Label>
                       <Input />
                     </div>
-
-                    <div className="col-span-2 md:col-span-3 lg:col-span-5 space-y-1"> {/* Added space-y-1 */}
-                      <Label>Diet/Nutrition</Label>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-1">
-                        {["Regular","Low Salt","Diabetic","Renal","Soft","NPO"].map((opt) => (
-                          <label key={opt} className="flex items-center space-x-2">
-                            <Checkbox id={opt} />
-                            <span>{opt}</span>
-                          </label>
-                        ))}
-                      </div>
+                    <div>
+                      <Label>Gain / Loss</Label>
+                      <Input placeholder="+/- lbs" />
                     </div>
+                    <div>
+                      <Label>Target Weight (lbs)</Label>
+                      <Input />
+                    </div>
+                  </div>
 
-                    <div className="col-span-2 md:col-span-3 lg:col-span-5 space-y-1"> {/* Added space-y-1 */}
-                      <Label>Fluid Restrictions</Label>
-                      <RadioGroup defaultValue="no" className="flex items-center gap-4 mt-1">
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="no" id="no-res" />
-                          <Label htmlFor="no-res">No</Label>
+                  <div>
+                    <Label>Diet / Nutrition</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {[
+                        "Regular",
+                        "Low Salt",
+                        "Puree/Chopped",
+                        "Diabetic/No Concentrated Sweets",
+                        "Renal",
+                        "Other",
+                      ].map((d) => (
+                        <label key={d} className="flex items-center space-x-2">
+                          <Checkbox id={`diet-${d}`} />
+                          <span>{d}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <Input placeholder="Other diet details" className="mt-2" />
+                  </div>
+
+                  <div>
+                    <Label>Fluid</Label>
+                    <div className="flex items-center gap-4 mt-1">
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="unlimited" />
+                        <span>Unlimited</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="restricted" />
+                        <span>Restricted</span>
+                      </label>
+                      <Input placeholder="Amount (mL)" className="w-32" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>
+                      Identify any changes over the past month (Diagnosis,
+                      Medications, Health Status, Hospitalization, Falls,
+                      Incidents, Other)
+                    </Label>
+                    <Textarea rows={3} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* RESPIRATORY */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Respiratory</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Within Normal Limits</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Cough</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Wheezing</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Other respiratory findings</Label>
+                    <Input />
+                  </div>
+                  <div>
+                    <Label>Shortness of Breath</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[
+                          "Never short of breath",
+                          "When walking >20 ft or climbing stairs",
+                          "With moderate exertion (dressing, commode, walking <20 ft)",
+                          "With minimal exertion (eating, talking)",
+                          "At rest",
+                        ].map((opt) => (
+                          <SelectItem key={opt} value={opt}>
+                            {opt}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Respiratory treatments utilized at home</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {[
+                        "Oxygen (intermittent or continuous)",
+                        "Aerosol or nebulizer treatments",
+                        "Ventilator (intermittent or continuous)",
+                        "CPAP or BIPAP",
+                        "None",
+                      ].map((t) => (
+                        <label key={t} className="flex items-center space-x-2">
+                          <Checkbox id={`resp-${t}`} />
+                          <span>{t}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* PAIN / DISCOMFORT */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pain / Discomfort</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Pain Frequency</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[
+                          "No pain or pain does not interfere with movement",
+                          "Less often than daily",
+                          "Daily, but not constant",
+                          "All the time",
+                        ].map((opt) => (
+                          <SelectItem key={opt} value={opt}>
+                            {opt}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Pain Sites</Label>
+                    <Textarea rows={3} />
+                  </div>
+                  <div>
+                    <Label>Pain Intensity</Label>
+                    <div className="flex items-center gap-4 mt-1">
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="high" />
+                        <span>High</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="medium" />
+                        <span>Medium</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="low" />
+                        <span>Low</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>
+                      Person is experiencing pain that is not easily relieved,
+                      occurs at least daily, and affects the ability to sleep,
+                      appetite, physical or emotional energy, concentration,
+                      personal relationships, emotions, or ability or desire to
+                      perform physical activity
+                    </Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Cause (if known)</Label>
+                    <Input />
+                  </div>
+                  <div>
+                    <Label>Treatment</Label>
+                    <Input />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* GENITOURINARY STATUS */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Genitourinary Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Catheter</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Urine Frequency</Label>
+                    <Input />
+                  </div>
+                  <div>
+                    <Label>Pain/Burning</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Discharge</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Distention/Retention</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Hesitancy</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Hematuria</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Other</Label>
+                    <Input />
+                  </div>
+                  <div>
+                    <Label>Person has been treated for a UTI in the past month</Label>
+                    <Checkbox />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* CARDIOVASCULAR */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cardiovascular</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>BP and Pulse within normal limits</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Rhythm</Label>
+                    <div className="flex items-center gap-4 mt-1">
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="regular" />
+                        <span>Regular</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="irregular" />
+                        <span>Irregular</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Edema</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {[
+                        "RUE: Non-pitting",
+                        "RUE: Pitting",
+                        "LUE: Non-pitting",
+                        "LUE: Pitting",
+                        "RLE: Non-pitting",
+                        "RLE: Pitting",
+                        "LLE: Non-pitting",
+                        "LLE: Pitting",
+                      ].map((e) => (
+                        <label key={e} className="flex items-center space-x-2">
+                          <Checkbox id={`edema-${e}`} />
+                          <span>{e}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Other</Label>
+                    <Input />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* GASTROINTESTINAL STATUS */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Gastrointestinal Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Bowels: frequency</Label>
+                    <Input />
+                  </div>
+                  <div>
+                    <Label>Diarrhea</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Constipation</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Nausea</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Vomiting</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Swallowing issues</Label>
+                    <Input />
+                  </div>
+                  <div>
+                    <Label>Pain</Label>
+                    <Input />
+                  </div>
+                  <div>
+                    <Label>Anorexia</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Other</Label>
+                    <Input />
+                  </div>
+                  <div>
+                    <Label>Bowel incontinence frequency</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[
+                          "Very rarely or never incontinent of bowel",
+                          "Less than once per week",
+                          "One to three times per week",
+                          "Four to six times per week",
+                          "On a daily basis",
+                          "More than once daily",
+                        ].map((opt) => (
+                          <SelectItem key={opt} value={opt}>
+                            {opt}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Person has ostomy for bowel elimination</Label>
+                    <Checkbox />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* NEUROLOGICAL */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Neurological</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Cognitive functioning</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {[
+                        "Alert/oriented, able to focus and shift attention, comprehends and recalls task directions independently",
+                        "Requires prompting (cueing, repetition, reminders) only under stressful or unfamiliar situations",
+                        "Requires assistance, direction in specific situation, requires low stimulus environment due to distractibility",
+                        "Requires considerable assistance in routine situations. Is not alert and oriented or is unable to shift attention and recall more than half the time.",
+                        "Totally dependent due to coma or delirium",
+                      ].map((c) => (
+                        <label key={c} className="flex items-center space-x-2">
+                          <Checkbox id={`cog-${c}`} />
+                          <span>{c}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Speech</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {[
+                        "Clear and understandable",
+                        "Slurred",
+                        "Garbled",
+                        "Aphasic",
+                        "Unable to speak",
+                      ].map((s) => (
+                        <label key={s} className="flex items-center space-x-2">
+                          <Checkbox id={`speech-${s}`} />
+                          <span>{s}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Pupils</Label>
+                    <div className="flex items-center gap-4 mt-1">
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="equal" />
+                        <span>Equal</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="unequal" />
+                        <span>Unequal</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Movements</Label>
+                    <div className="flex items-center gap-4 mt-1">
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="coordinated" />
+                        <span>Coordinated</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="uncoordinated" />
+                        <span>Uncoordinated</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Extremities</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {[
+                        "Right upper Strong",
+                        "Right upper Weak",
+                        "Right upper Tremors",
+                        "Right upper No movement",
+                        "Left upper Strong",
+                        "Left upper Weak",
+                        "Left upper Tremors",
+                        "Left upper No movement",
+                        "Right lower Strong",
+                        "Right lower Weak",
+                        "Right lower Tremors",
+                        "Right lower No movement",
+                        "Left lower Strong",
+                        "Left lower Weak",
+                        "Left lower Tremors",
+                        "Left lower No movement",
+                      ].map((e) => (
+                        <label key={e} className="flex items-center space-x-2">
+                          <Checkbox id={`ext-${e}`} />
+                          <span>{e}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* SENSORY */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sensory</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Vision with corrective lenses if applicable</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {[
+                        "Normal vision in most situations; can see medication labels, newsprint",
+                        "Partially impaired; can't see medication labels, but can see objects in path; can count fingers at arms length",
+                        "Severely impaired; cannot locate objects without hearing or touching or person non-responsive",
+                      ].map((v) => (
+                        <label key={v} className="flex items-center space-x-2">
+                          <Checkbox id={`vision-${v}`} />
+                          <span>{v}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Hearing with corrective device if applicable</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {[
+                        "Normal hearing in most situations, can hear normal conversational tone",
+                        "Partially impaired; can't hear normal conversational tone",
+                        "Severely impaired; cannot hear even with an elevated tone",
+                      ].map((h) => (
+                        <label key={h} className="flex items-center space-x-2">
+                          <Checkbox id={`hearing-${h}`} />
+                          <span>{h}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* PSYCHOSOCIAL */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Psychosocial</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Behaviors reported or observed</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {[
+                        "Indecisiveness",
+                        "Diminished interest in most activities",
+                        "Sleep disturbances",
+                        "Recent change in appetite or weight",
+                        "Agitation",
+                        "A suicide attempt",
+                        "None of the above behaviors observed or reported",
+                      ].map((b) => (
+                        <label key={b} className="flex items-center space-x-2">
+                          <Checkbox id={`behavior-${b}`} />
+                          <span>{b}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Is this person receiving psychological counseling?</Label>
+                    <div className="flex items-center gap-4 mt-1">
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" />
+                        <span>Yes</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" />
+                        <span>No</span>
+                      </label>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* MUSCULOSKELETAL */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Musculoskeletal</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Within Normal limits</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Deformity</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Unsteady Gait</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Contracture</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Poor endurance</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Impaired ROM</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Altered Balance</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Poor coordination</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Weakness</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Other</Label>
+                    <Input />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* MENTAL HEALTH */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mental Health</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Angry</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Depressed</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Uncooperative</Label>
+                                      </div>
+                  <div>
+                    <Label>Hostile</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Panic</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Flat affect</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Anxious</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Phobia</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Agitated</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Obsessive/Compulsive</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Tics</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Spasms</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Mood swings</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>Depressive feeling reported or observed</Label>
+                    <Checkbox />
+                  </div>
+                  <div>
+                    <Label>None of above</Label>
+                    <Checkbox />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* SKIN */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Skin</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Color</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {["Normal", "Pale", "Red", "Irritation", "Rash"].map((c) => (
+                        <label key={c} className="flex items-center space-x-2">
+                          <Checkbox id={`skin-${c}`} />
+                          <span>{c}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Skin Intact</Label>
+                    <div className="flex items-center gap-4 mt-1">
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" />
+                        <span>Yes</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" />
+                        <span>No</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Pressure Ulcers */}
+                  <div>
+                    <Label>Pressure Ulcer Staging</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                      {[1, 2, 3, 4].map((stage) => (
+                        <div key={stage} className="flex items-center space-x-2">
+                          <Label>Stage {stage}</Label>
+                          <Input type="number" placeholder="Count" className="w-20" />
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="yes" id="yes-res" />
-                          <Label htmlFor="yes-res">Yes</Label>
-                        </div>
-                        <Input placeholder="Amount (mL)" className="w-32" />
-                      </RadioGroup>
+                      ))}
                     </div>
+                  </div>
 
-                    <div className="col-span-2 md:col-span-3 lg:col-span-5 space-y-1"> {/* Added space-y-1 */}
-                      <Label>Recent Health Changes</Label>
-                      <Textarea rows={3} />
-                    </div>
-                  </CardContent>
-                </Card>
+                  <div>
+                    <Label>Location of ulcers</Label>
+                    <Textarea rows={2} />
+                  </div>
 
-                {/* Diagnosis */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Diagnosis & Health Status</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-1"> {/* Added space-y-1 */}
-                        <Label>Primary Diagnosis</Label>
-                        <Input />
-                      </div>
-                      <div className="space-y-1"> {/* Added space-y-1 */}
-                        <Label>Secondary Diagnoses</Label>
-                        <Input />
-                      </div>
-                    </div>
-                    <div className="space-y-1"> {/* Added space-y-1 */}
-                      <Label>Recent Changes</Label>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-1">
-                        {["Medications","Hospitalizations","Falls","ER Visits","New Symptoms","Other"].map((c) => (
-                          <label key={c} className="flex items-center space-x-2">
-                            <Checkbox id={c} />
-                            <span>{c}</span>
-                          </label>
+                  <div>
+                    <Label>Surgical or other wounds (describe location, size, nature)</Label>
+                    <Textarea rows={3} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* MOBILITY & TRANSFERS */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mobility & Transfers</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Mobility</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["Dependent", "Independent", "Assist", "Stand-by"].map((m) => (
+                          <SelectItem key={m} value={m}>
+                            {m}
+                          </SelectItem>
                         ))}
-                      </div>
-                    </div>
-                    <div className="space-y-1"> {/* Added space-y-1 */}
-                      <Label>Details</Label>
-                      <Textarea rows={4} />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Combined Respiratory and Pain Assessment */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Respiratory */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Respiratory Status</CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1"> {/* Added space-y-1 */}
-                      <Label>Shortness of Breath</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select frequency" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {["Never","Walking >20ft","Moderate exertion","Minimal exertion","At rest"].map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-1"> {/* Added space-y-1 */}
-                      <Label>Respiratory Treatments</Label>
-                      <div className="grid grid-cols-2 gap-2 mt-1">
-                        {["Oxygen","Nebulizer","Ventilator","CPAP/BIPAP"].map((t) => (
-                          <label key={t} className="flex items-center space-x-2">
-                            <Checkbox id={t} />
-                            <span>{t}</span>
-                          </label>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Transfer</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["One person assist", "Two person assist"].map((t) => (
+                          <SelectItem key={t} value={t}>
+                            {t}
+                          </SelectItem>
                         ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Uses ___ to aid in ambulating</Label>
+                    <Input />
+                  </div>
+                  <div>
+                    <Label>Uses ___ to aid in transfer</Label>
+                    <Input />
+                  </div>
+                </CardContent>
+              </Card>
 
-                {/* Pain Assessment */}
-                <Card>
+              {/* BATHING / PERSONAL HYGIENE / TOILETING / DRESSING / EATING */}
+              {[
+                "Bathing",
+                "Personal Hygiene (hair, nails, skin, oral care)",
+                "Toileting (bladder, bowel routine, ability to access toilet)",
+                "Dressing",
+                "Eating and Drinking",
+              ].map((label) => (
+                <Card key={label}>
                   <CardHeader>
-                    <CardTitle>Pain Assessment</CardTitle>
+                    <CardTitle>{label}</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1"> {/* Added space-y-1 */}
-                      <Label>Pain Frequency</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select frequency" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {["No pain","Less than daily","Daily","Constant"].map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {["Dependent", "Independent", "Assist", "Cue"].map((level) => (
+                        <label key={level} className="flex items-center space-x-2">
+                          <RadioGroupItem value={level} />
+                          <span>{level}</span>
+                        </label>
+                      ))}
                     </div>
-                    <div className="space-y-1"> {/* Added space-y-1 */}
-                      <Label>Pain Location</Label>
-                      <Input placeholder="Where is the pain?" />
-                    </div>
-                    <div className="space-y-1"> {/* Added space-y-1 */}
-                      <Label>Pain Intensity</Label>
-                      <RadioGroup defaultValue="mild" className="flex gap-4 mt-1">
-                        {["Mild","Moderate","Severe"].map((level) => (
-                          <div key={level} className="flex items-center space-x-2">
-                            <RadioGroupItem value={level.toLowerCase()} id={`pain-${level.toLowerCase()}`} />
-                            <Label htmlFor={`pain-${level.toLowerCase()}`}>{level}</Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    </div>
-                    <div className="space-y-1"> {/* Added space-y-1 */}
-                      <Label>Current Treatment</Label>
-                      <Input placeholder="Current pain management" />
-                    </div>
+                    {label.includes("Toileting") && (
+                      <div className="mt-4 space-y-2">
+                        <label>
+                          <Checkbox />
+                          <span className="ml-2">Incontinent bladder</span>
+                        </label>
+                        <label>
+                          <Checkbox />
+                          <span className="ml-2">Incontinent bowel</span>
+                        </label>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
-              </div>
+              ))}
 
-              {/* Signatures */}
+              {/* HEALTH MAINTENANCE NEEDS */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Health Maintenance Needs</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {[
+                    "Reinforce diet education",
+                    "Supervision of blood sugar monitoring",
+                    "Routine care of prosthetic/orthotic device",
+                    "Education on medical equipment use or maintenance",
+                    "Referral to physician",
+                    "Other health education needed",
+                  ].map((need) => (
+                    <label key={need} className="flex items-center space-x-2">
+                      <Checkbox />
+                      <span>{need}</span>
+                    </label>
+                  ))}
+                  <Textarea rows={2} placeholder="Other needs or notes" />
+                </CardContent>
+              </Card>
+
+              {/* GENERAL PHYSICAL CONDITION */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>General Physical Condition</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RadioGroup defaultValue="stable">
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="improving" />
+                      <Label>Improving</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="stable" />
+                      <Label>Stable</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="deteriorating" />
+                      <Label>Deteriorating</Label>
+                    </div>
+                  </RadioGroup>
+                  <Input placeholder="Other" className="mt-2" />
+                </CardContent>
+              </Card>
+
+              {/* MEDICATION MANAGEMENT */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Medication Management</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Current Medications (attach additional pages if necessary)</Label>
+                    <Textarea rows={4} />
+                  </div>
+                  <div>
+                    <Label>Medication Administration</Label>
+                    <div className="space-y-2 mt-1">
+                      {[
+                        "Able to independently take the correct medications at the correct times",
+                        "Able to take medications at the correct time if individual doses are prepared in advance by another person and given daily reminders",
+                        "Unable to take medication unless administered by someone else",
+                        "No medications prescribed",
+                      ].map((opt) => (
+                        <label key={opt} className="flex items-start space-x-2">
+                          <RadioGroupItem value={opt} />
+                          <span>{opt}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <Input placeholder="Other" />
+                </CardContent>
+              </Card>
+
+              {/* NURSE MONITOR VISIT */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Nurse Monitor Visit</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Visit type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[
+                        "initial",
+                        "monthly",
+                        "45 day",
+                        "3 month",
+                        "4 month",
+                        "annual assessment",
+                      ].map((v) => (
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Label className="mt-4 block">Activities of Visit</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
+                    {[
+                      "Developed Caregiver Support Plan",
+                      "Provided Information and Training to Caregiver",
+                      "Reviewed Caregiver Support Plan",
+                      "Assessed/Monitored Caregiver",
+                      "Assessed/Monitored Participant",
+                    ].map((act) => (
+                      <label key={act} className="flex items-center space-x-2">
+                        <Checkbox />
+                        <span>{act}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <Label className="mt-4 block">Caregiver Names</Label>
+                  <Textarea rows={2} placeholder="List all caregivers" />
+                </CardContent>
+              </Card>
+
+              {/* SIGNATURES */}
               <Card>
                 <CardHeader>
                   <CardTitle>Signatures</CardTitle>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label>RN Name</Label><Input />
-                    <Label>RN Signature</Label><Input />
-                    <Label>Date</Label><Input type="date" />
+                    <Label>RN Name (Print)</Label>
+                    <Input />
+                    <Label>RN Signature</Label>
+                    <Input />
+                    <Label>Date</Label>
+                    <Input type="date" />
                   </div>
                   <div className="space-y-2">
-                    <Label>Patient/Guardian Name</Label><Input />
-                    <Label>Signature</Label><Input />
-                    <Label>Date</Label><Input type="date" />
+                    <Label>Participant Signature</Label>
+                    <Input />
+                    <Label>Date</Label>
+                    <Input type="date" />
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Disclaimers */}
+              {/* DISCLAIMERS */}
               <Card>
                 <CardHeader>
                   <CardTitle>Disclaimers</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   <p>
-                    <strong>MANDATED REPORTING:</strong> Any suspicion of abuse, neglect, or exploitation must be immediately reported to Adult Protective Services at 1-800-XXX-XXXX.
+                    <strong>MANDATED REPORTING:</strong> Any suspicion of abuse,
+                    neglect, or exploitation must be immediately reported to
+                    Adult Protective Services at 1-800-917-7383.
                   </p>
                   <p>
-                    <strong>Case Manager Contact:</strong> Immediately contact your Case Manager to report any health and safety concerns. This form must be submitted within 10 days of assessment completion.
+                    <strong>Case Manager Contact:</strong> Immediately contact
+                    your Case Manager to report any health and safety concerns.
+                    This form must be submitted within 10 days of assessment
+                    completion.
                   </p>
                 </CardContent>
               </Card>
             </main>
           </SidebarInset>
-       </div> {/* Closed the wrapper div */}
+        </div>
       </div>
     </SidebarProvider>
   );
 }
+
