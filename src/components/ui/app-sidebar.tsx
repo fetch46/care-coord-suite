@@ -11,7 +11,7 @@ import {
   UserPlus,
   ChevronDown,
   Heart,
-  clock,
+  Clock,
 } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 
@@ -47,7 +47,7 @@ const navigationItems = [
   { 
     title: "Timesheets", 
     url: "/timesheets", 
-    icon: clock,
+    icon: Clock,
     submenu: [
       { title: "Digital Timesheet", url: "/digital-timesheet", icon: FileText },
       { title: "Timesheet Reports", url: "/timesheet-reports", icon: Activity }
