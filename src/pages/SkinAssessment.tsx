@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } = "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, XCircle } from "lucide-react"; // Import XCircle for the clear button icon
 
 /* -------------------- Body-annotation dots -------------------- */
 interface Dot { id: string; x: number; y: number; view: "front" | "back"; }
@@ -158,6 +158,11 @@ export default function SkinAssessmentForm() {
 
   const removeDot = (id: string) => setDots((prev) => prev.filter((d) => d.id !== id));
 
+  // Function to clear all dots
+  const clearAnnotations = () => {
+    setDots([]);
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen">
@@ -181,7 +186,7 @@ export default function SkinAssessmentForm() {
               {/* LEFT: Human Body Diagram (Canvas with Image Background) */}
               <Card className="h-fit">
                 <CardHeader><CardTitle>Body Diagram – Click/Tap to Annotate</CardTitle></CardHeader>
-                <CardContent className="relative w-full max-w-sm mx-auto">
+                <CardContent className="relative w-full max-w-md mx-auto"> {/* Changed max-w-sm to max-w-md */}
                   <div className="mb-4 flex justify-center space-x-4">
                     <Button
                       variant={bodyView === "front" ? "default" : "outline"}
@@ -194,6 +199,12 @@ export default function SkinAssessmentForm() {
                       onClick={() => setBodyView("back")}
                     >
                       Back View
+                    </Button>
+                    <Button
+                      variant="destructive" // Example: A red button for clearing
+                      onClick={clearAnnotations}
+                    >
+                      <XCircle className="w-4 h-4 mr-2" /> Clear Annotations
                     </Button>
                   </div>
                   <canvas
