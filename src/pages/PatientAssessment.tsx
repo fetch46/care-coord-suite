@@ -5,7 +5,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Input } => "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
@@ -570,7 +570,7 @@ export default function PatientAssessment() {
       bathingLevel,
       personalHygieneLevel,
       toiletingLevel,
-      toiletingIncontinentBlader,
+      toiletingIncontinentBladder,
       toiletingIncontinentBowel,
       dressingLevel,
       eatingDrinkingLevel,
@@ -615,7 +615,7 @@ export default function PatientAssessment() {
           <AppHeader />
           <SidebarInset>
             <main className="flex-1 overflow-auto p-6 space-y-6">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                   <h1 className="text-2xl font-bold">
@@ -988,7 +988,7 @@ export default function PatientAssessment() {
                   </Card>
                 </div>
 
-                {/* Neurological (Full Width) - This section has too many complex inputs to easily halve without reducing usability */}
+                {/* Neurological (Full Width) */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Neurological</CardTitle>
@@ -1032,7 +1032,7 @@ export default function PatientAssessment() {
                   </CardContent>
                 </Card>
 
-                {/* Sensory (Full Width) - Keeping full width for better readability of long options */}
+                {/* Sensory (Full Width) */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Sensory</CardTitle>
@@ -1068,7 +1068,7 @@ export default function PatientAssessment() {
                         options={behaviorOptions}
                         selectedValues={selectedBehaviors}
                         onValueChange={handleCheckboxChange(setSelectedBehaviors)}
-                        className="grid-cols-1 md:grid-cols-2" // Adjusting grid for better fit
+                        className="grid-cols-1 md:grid-cols-2"
                       />
                       <FormRadioGroup
                         label="Is this person receiving psychological counseling?"
