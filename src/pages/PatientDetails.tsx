@@ -1,436 +1,477 @@
-"use client";
-import { useEffect, useState, useRef, useCallback, useReducer } from "react";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { ArrowLeft, Phone, Mail, AlertTriangle, User, Calendar, Heart } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
-import { toast } from "sonner";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PatientAssessments } from "@/components/assessments/patient-assessments";
 
-// Types
-type BodyView = "front" | "back";
-type Status = "Normal" | "Abnormal";
-
-const HOT_SPOTS = {
-  RIME_OF_EAR: "Rime of Ear",
-  SHOULDER_BLADE: "Shoulder Blade",
-  ELBOW: "Elbow",
-  SACRUM: "Sacrum",
-  HIP: "Hip",
-  INNER_KNEE: "Inner Knee",
-  OUTER_ANKLE: "Outer Ankle",
-  HEEL: "Heel",
-} as const;
-
-type HotSpot = typeof HOT_SPOTS[keyof typeof HOT_SPOTS];
-
-interface Dot {
+interface Patient {
   id: string;
-  x: number;
-  y: number;
-  view: BodyView;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  gender: string;
+  phone: string;
+  email: string;
+  address: string;
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
+  admission_date: string;
+  room_number: string;
+  care_level: string;
+  status: string;
+  profile_image_url?: string;
 }
 
-interface HotSpotRecord {
-  area: HotSpot;
-  status: Status;
-  notes: string;
+interface Allergy {
+  id: string;
+  allergy_name: string;
+  severity: string;
+  reaction: string;
+  notes?: string;
 }
 
-interface FormState {
-  date: string;
-  patientName: string;
-  physician: string;
-  room: string;
-  records: HotSpotRecord[];
-  dots: Dot[];
-  bodyView: BodyView;
+interface Caregiver {
+  id: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+  specialization: string;
+  phone: string;
+  email: string;
+  shift: string;
+  profile_image_url?: string;
+  is_primary: boolean;
 }
 
-// Storage service
-const storage = {
-  get: (key: string): FormState | null => {
+interface MedicalRecord {
+  id: string;
+  record_type: string;
+  title: string;
+  description: string;
+  recorded_by: string;
+  recorded_date: string;
+}
+
+export default function PatientDetails() {
+  const { id } = useParams<{ id: string }>();
+  const [patient, setPatient] = useState<Patient | null>(null);
+  const [allergies, setAllergies] = useState<Allergy[]>([]);
+  const [caregivers, setCaregivers] = useState<Caregiver[]>([]);
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
+
+  useEffect(() => {
+    if (id) {
+      fetchPatientData();
+    }
+  }, [id]);
+
+  const fetchPatientData = async () => {
     try {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : null;
-    } catch (error) {
-      console.error("Failed to parse storage item", error);
-      return null;
-    }
-  },
-  set: (key: string, value: FormState) => {
-    localStorage.setItem(key, JSON.stringify(value));
-  },
-};
+      // Fetch patient details
+      const { data: patientData, error: patientError } = await supabase
+        .from("patients")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-// Custom hook for image loading
-const useImageLoader = (src: string) => {
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [error, setError] = useState<Error | null>(null);
+      if (patientError) throw patientError;
+      setPatient(patientData);
 
-  useEffect(() => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => setImage(img);
-    img.onerror = (e) => setError(new Error(`Failed to load image: ${src}`));
+      // Fetch allergies
+      const { data: allergiesData, error: allergiesError } = await supabase
+        .from("patient_allergies")
+        .select("*")
+        .eq("patient_id", id);
 
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [src]);
+      if (allergiesError) throw allergiesError;
+      setAllergies(allergiesData || []);
 
-  return { image, error };
-};
+      // Fetch caregivers
+      const { data: caregiversData, error: caregiversError } = await supabase
+        .from("patient_caregivers")
+        .select(`
+          is_primary,
+          caregivers (
+            id,
+            first_name,
+            last_name,
+            role,
+            specialization,
+            phone,
+            email,
+            shift,
+            profile_image_url
+          )
+        `)
+        .eq("patient_id", id);
 
-// Constants
-const CANVAS_WIDTH = 400;
-const CANVAS_HEIGHT = 920;
-
-// Reducer for complex state
-const formReducer = (state: FormState, action: any) => {
-  switch (action.type) {
-    case "UPDATE_FIELD":
-      return { ...state, [action.field]: action.value };
-    case "UPDATE_RECORD":
-      return {
-        ...state,
-        records: state.records.map((r) =>
-          r.area === action.area ? { ...r, ...action.patch } : r
-        ),
-      };
-    case "ADD_DOT":
-      return { ...state, dots: [...state.dots, action.dot] };
-    case "REMOVE_DOT":
-      return { ...state, dots: state.dots.filter((d) => d.id !== action.id) };
-    case "CLEAR_DOTS":
-      return { ...state, dots: [] };
-    case "SET_BODY_VIEW":
-      return { ...state, bodyView: action.view };
-    case "LOAD_STATE":
-      return { ...state, ...action.payload };
-    default:
-      return state;
-  }
-};
-
-const initialState: FormState = {
-  date: new Date().toISOString().slice(0, 10),
-  patientName: "",
-  physician: "",
-  room: "",
-  records: Object.values(HOT_SPOTS).map((a) => ({
-    area: a,
-    status: "Normal",
-    notes: "",
-  })),
-  dots: [],
-  bodyView: "front",
-};
-
-export default function SkinAssessmentForm() {
-  const [state, dispatch] = useReducer(formReducer, initialState);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { image: frontImage, error: frontError } = useImageLoader("/Front.png");
-  const { image: backImage, error: backError } = useImageLoader("/Back.png");
-
-  // Load saved data
-  useEffect(() => {
-    const saved = storage.get("skinAssessment");
-    if (saved) {
-      dispatch({ type: "LOAD_STATE", payload: saved });
-    }
-  }, []);
-
-  // Handle errors
-  useEffect(() => {
-    if (frontError) console.error(frontError);
-    if (backError) console.error(backError);
-  }, [frontError, backError]);
-
-  // Form validation
-  const validateForm = (): boolean => {
-    if (!state.patientName.trim()) {
-      toast.error("Patient name is required");
-      return false;
-    }
-    return true;
-  };
-
-  // Save handler
-  const handleSave = useCallback(() => {
-    if (!validateForm()) return;
-    storage.set("skinAssessment", state);
-    toast.success("Assessment saved successfully!");
-  }, [state]);
-
-  // Canvas drawing
-  const drawCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const draw = () => {
-      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      if (caregiversError) throw caregiversError;
       
-      const currentImage = state.bodyView === "front" ? frontImage : backImage;
-      if (currentImage) {
-        ctx.drawImage(currentImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-      }
+      const caregiversWithPrimary = caregiversData?.map(item => ({
+        ...item.caregivers,
+        is_primary: item.is_primary
+      })) || [];
+      setCaregivers(caregiversWithPrimary);
 
-      ctx.fillStyle = "red";
-      state.dots
-        .filter((dot) => dot.view === state.bodyView)
-        .forEach((dot) => {
-          ctx.beginPath();
-          ctx.arc(dot.x, dot.y, 4, 0, Math.PI * 2);
-          ctx.fill();
-        });
-    };
+      // Fetch medical records
+      const { data: recordsData, error: recordsError } = await supabase
+        .from("medical_records")
+        .select("*")
+        .eq("patient_id", id)
+        .order("recorded_date", { ascending: false });
 
-    requestAnimationFrame(draw);
-  }, [state.bodyView, state.dots, frontImage, backImage]);
+      if (recordsError) throw recordsError;
+      setMedicalRecords(recordsData || []);
 
-  useEffect(() => {
-    drawCanvas();
-  }, [drawCanvas]);
-
-  // Canvas click handler
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const clientX = e.clientX - rect.left;
-    const clientY = e.clientY - rect.top;
-    const x = clientX * scaleX;
-    const y = clientY * scaleY;
-
-    // Check if clicked on existing dot
-    const dotClicked = state.dots.find((dot) => {
-      if (dot.view === state.bodyView) {
-        const distance = Math.sqrt(Math.pow(dot.x - x, 2) + Math.pow(dot.y - y, 2));
-        return distance < 10;
-      }
-      return false;
-    });
-
-    if (dotClicked) {
-      dispatch({ type: "REMOVE_DOT", id: dotClicked.id });
-    } else {
-      dispatch({
-        type: "ADD_DOT",
-        dot: {
-          id: `${Date.now()}`,
-          x,
-          y,
-          view: state.bodyView,
-        },
-      });
+    } catch (error) {
+      console.error("Error fetching patient data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Memoized HotSpotItem component
-  const HotSpotItem = useCallback(
-    ({ area, status, notes }: HotSpotRecord) => (
-      <div className="border rounded p-4 space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="font-semibold">{area}</span>
-          <RadioGroup
-            value={status}
-            onValueChange={(val: Status) =>
-              dispatch({ type: "UPDATE_RECORD", area, patch: { status: val } })
-            }
-            className="flex gap-4"
-          >
-            <div className="flex items-center gap-2">
-              <RadioGroupItem value="Normal" id={`${area}-normal`} />
-              <Label htmlFor={`${area}-normal`}>Normal</Label>
+  const calculateAge = (dateOfBirth: string) => {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+
+  const getCareLevelColor = (level: string) => {
+    switch (level) {
+      case "Critical": return "bg-red-100 text-red-800 border-red-200";
+      case "High": return "bg-orange-100 text-orange-800 border-orange-200";
+      case "Medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Low": return "bg-green-100 text-green-800 border-green-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "Life-threatening": return "bg-red-100 text-red-800";
+      case "Severe": return "bg-orange-100 text-orange-800";
+      case "Moderate": return "bg-yellow-100 text-yellow-800";
+      case "Mild": return "bg-green-100 text-green-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  if (loading) {
+    return (
+      <SidebarProvider>
+        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
+          <AppSidebar />
+          <SidebarInset>
+            <AppHeader />
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">Loading patient details...</div>
             </div>
-            <div className="flex items-center gap-2">
-              <RadioGroupItem value="Abnormal" id={`${area}-abnormal`} />
-              <Label htmlFor={`${area}-abnormal`}>Abnormal</Label>
-            </div>
-          </RadioGroup>
+          </SidebarInset>
         </div>
-        {status === "Abnormal" && (
-          <Textarea
-            value={notes}
-            onChange={(e) =>
-              dispatch({
-                type: "UPDATE_RECORD",
-                area,
-                patch: { notes: e.target.value },
-              })
-            }
-            placeholder="Describe any broken, bruised or reddened areas"
-            rows={2}
-          />
-        )}
-      </div>
-    ),
-    []
-  );
+      </SidebarProvider>
+    );
+  }
+
+  if (!patient) {
+    return (
+      <SidebarProvider>
+        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
+          <AppSidebar />
+          <SidebarInset>
+            <AppHeader />
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">Patient not found</div>
+            </div>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen">
+      <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Skin Assessment Sheet</CardTitle>
-              </CardHeader>
-              <CardContent className="grid md:grid-cols-2 gap-4">
-                {[
-                  {
-                    label: "Date",
-                    value: state.date,
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                      dispatch({
-                        type: "UPDATE_FIELD",
-                        field: "date",
-                        value: e.target.value,
-                      }),
-                    type: "date",
-                  },
-                  {
-                    label: "Patient Name",
-                    value: state.patientName,
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                      dispatch({
-                        type: "UPDATE_FIELD",
-                        field: "patientName",
-                        value: e.target.value,
-                      }),
-                  },
-                  {
-                    label: "Attending Physician",
-                    value: state.physician,
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                      dispatch({
-                        type: "UPDATE_FIELD",
-                        field: "physician",
-                        value: e.target.value,
-                      }),
-                  },
-                  {
-                    label: "Room",
-                    value: state.room,
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                      dispatch({
-                        type: "UPDATE_FIELD",
-                        field: "room",
-                        value: e.target.value,
-                      }),
-                  },
-                ].map((field) => (
-                  <div key={field.label}>
-                    <Label>{field.label}</Label>
-                    <Input
-                      value={field.value}
-                      onChange={field.onChange}
-                      type={field.type || "text"}
-                      required
-                      aria-required="true"
-                    />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+          <main className="flex-1 overflow-auto p-6">
+            <div className="max-w-none w-full space-y-8">
+              {/* Header */}
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/patients">
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Patients
+                  </Link>
+                </Button>
+              </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {/* Body Diagram */}
-              <Card className="h-fit">
-                <CardHeader>
-                  <CardTitle>Body Diagram – Click/Tap to Annotate</CardTitle>
-                </CardHeader>
-                <CardContent className="relative w-full max-w-sm mx-auto">
-                  <div className="mb-4">
-                    <Label className="text-sm">Select View</Label>
-                    <Select
-                      value={state.bodyView}
-                      onValueChange={(val: BodyView) =>
-                        dispatch({ type: "SET_BODY_VIEW", view: val })
-                      }
-                    >
-                      <SelectTrigger className="w-full mt-1">
-                        <SelectValue placeholder="Select View" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="front">Front View</SelectItem>
-                        <SelectItem value="back">Back View</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <canvas
-                    ref={canvasRef}
-                    width={CANVAS_WIDTH}
-                    height={CANVAS_HEIGHT}
-                    className="w-full h-auto cursor-crosshair border"
-                    onClick={handleCanvasClick}
-                    aria-label="Body diagram canvas for marking skin issues"
-                  >
-                    Your browser does not support the HTML canvas tag.
-                  </canvas>
-                  <p className="text-xs text-muted-foreground mt-2 text-center">
-                    Tap anywhere to add a red dot; tap the dot to remove.
-                  </p>
-                  <div className="flex justify-center mt-4">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => dispatch({ type: "CLEAR_DOTS" })}
-                    >
-                      Clear Annotations
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Pressure Sores Checklist */}
+              {/* Patient Header Card */}
               <Card>
-                <CardHeader>
-                  <CardTitle>Areas Most Prone to Pressure Sores</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {state.records.map((record) => (
-                    <HotSpotItem key={record.area} {...record} />
-                  ))}
-                  <div className="flex justify-end mt-4">
-                    <Button onClick={handleSave}>Save Assessment</Button>
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-6">
+                    <Avatar className="w-24 h-24">
+                      <AvatarImage src={patient.profile_image_url} />
+                      <AvatarFallback className="bg-gradient-teal text-white text-2xl">
+                        {patient.first_name[0]}{patient.last_name[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h1 className="text-3xl font-bold text-foreground">
+                            {patient.first_name} {patient.last_name}
+                          </h1>
+                          <div className="flex items-center gap-4 mt-2 text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <User className="w-4 h-4" />
+                              {calculateAge(patient.date_of_birth)} years, {patient.gender}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              Room {patient.room_number}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 mt-3">
+                            <Badge className={getCareLevelColor(patient.care_level)}>
+                              {patient.care_level} Care
+                            </Badge>
+                            <Badge variant={patient.status === "Active" ? "default" : "secondary"}>
+                              {patient.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <div className="text-right space-y-1">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Phone className="w-4 h-4" />
+                            {patient.phone}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Mail className="w-4 h-4" />
+                            {patient.email}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Allergies Alert */}
+                  {allergies.length > 0 && (
+                    <Alert className="mt-6 border-red-200 bg-red-50">
+                      <AlertTriangle className="h-4 w-4 text-red-600" />
+                      <AlertDescription className="text-red-800">
+                        <strong>Allergies:</strong> {allergies.map(a => a.allergy_name).join(", ")}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </CardContent>
               </Card>
-            </div>
 
-            <div className="flex justify-end">
-              <Button
-                onClick={() => window.print()}
-                className="ml-auto"
-                aria-label="Print or export form"
-              >
-                <Printer className="w-4 h-4 mr-2" aria-hidden="true" />
-                Print / Export
-              </Button>
+              {/* Tabs */}
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="medical-records">Medical Records</TabsTrigger>
+                  <TabsTrigger value="caregivers">Assigned Caregivers</TabsTrigger>
+                  <TabsTrigger value="assessments">Assessments</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="overview" className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Personal Information */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Personal Information</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
+                          <p className="text-foreground">{new Date(patient.date_of_birth).toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Address</label>
+                          <p className="text-foreground">{patient.address || "Not provided"}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Admission Date</label>
+                          <p className="text-foreground">{new Date(patient.admission_date).toLocaleDateString()}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Emergency Contact */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Emergency Contact</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Name</label>
+                          <p className="text-foreground">{patient.emergency_contact_name || "Not provided"}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Phone</label>
+                          <p className="text-foreground">{patient.emergency_contact_phone || "Not provided"}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Allergies */}
+                    <Card className="md:col-span-2">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Heart className="w-5 h-5 text-red-500" />
+                          Allergies & Reactions
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {allergies.length > 0 ? (
+                          <div className="space-y-3">
+                            {allergies.map((allergy) => (
+                              <div key={allergy.id} className="p-3 border rounded-lg">
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium">{allergy.allergy_name}</span>
+                                      <Badge className={getSeverityColor(allergy.severity)}>
+                                        {allergy.severity}
+                                      </Badge>
+                                    </div>
+                                    {allergy.reaction && (
+                                      <p className="text-sm text-muted-foreground mt-1">
+                                        Reaction: {allergy.reaction}
+                                      </p>
+                                    )}
+                                    {allergy.notes && (
+                                      <p className="text-sm text-muted-foreground mt-1">
+                                        Notes: {allergy.notes}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-muted-foreground">No known allergies</p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="medical-records">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Medical Records</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Recorded By</TableHead>
+                            <TableHead>Description</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {medicalRecords.map((record) => (
+                            <TableRow key={record.id}>
+                              <TableCell>
+                                {new Date(record.recorded_date).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{record.record_type}</Badge>
+                              </TableCell>
+                              <TableCell className="font-medium">{record.title}</TableCell>
+                              <TableCell className="text-muted-foreground">{record.recorded_by}</TableCell>
+                              <TableCell className="max-w-xs truncate">{record.description}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                      {medicalRecords.length === 0 && (
+                        <div className="text-center py-8 text-muted-foreground">
+                          No medical records found.
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="caregivers">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Assigned Caregivers</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {caregivers.length > 0 ? (
+                        <div className="space-y-4">
+                          {caregivers.map((caregiver) => (
+                            <div key={caregiver.id} className="p-4 border rounded-lg">
+                              <div className="flex items-center gap-4">
+                                <Avatar className="w-12 h-12">
+                                  <AvatarImage src={caregiver.profile_image_url} />
+                                  <AvatarFallback className="bg-gradient-secondary text-white">
+                                    {caregiver.first_name[0]}{caregiver.last_name[0]}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">
+                                      {caregiver.first_name} {caregiver.last_name}
+                                    </span>
+                                    {caregiver.is_primary && (
+                                      <Badge className="bg-blue-100 text-blue-800">Primary</Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">
+                                    {caregiver.role} - {caregiver.specialization}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {caregiver.shift} Shift
+                                  </p>
+                                </div>
+                                <div className="text-right text-sm text-muted-foreground">
+                                  <div>{caregiver.phone}</div>
+                                  <div>{caregiver.email}</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground">No caregivers assigned.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="assessments">
+                  <PatientAssessments patientId={id!} />
+                </TabsContent>
+              </Tabs>
             </div>
           </main>
         </SidebarInset>
