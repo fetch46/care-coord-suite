@@ -29,7 +29,6 @@ const App = () => (
           <Route path="/staff" element={<Staff />} />
           <Route path="/staff/:id" element={<StaffDetails />} />
           <Route path="/patient-registration" element={<PatientRegistration />} />
-          <Route path="/timesheet" element={<Timesheet />} />
           <Route path="/digital-timesheet" element={<DigitalTimesheet />} />
           <Route path="/timesheet-reports" element={<TimesheetReports />} />
           <Route path="/reports" element={<Reports />} />
