@@ -66,7 +66,7 @@ export default function PatientAssessment() {
                           <SelectValue placeholder="Select patient" />
                         </SelectTrigger>
                         <SelectContent>
-                          {patients.map(p => (
+                          {patients.map((p) => (
                             <SelectItem key={p.id} value={p.id}>
                               {p.name} ({p.mrn})
                             </SelectItem>
@@ -74,6 +74,7 @@ export default function PatientAssessment() {
                         </SelectContent>
                       </Select>
                     </div>
+
                     <div>
                       <Label>Assessment Type</Label>
                       <Select>
@@ -81,16 +82,20 @@ export default function PatientAssessment() {
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {assessmentTypes.map(t => (
-                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          {assessmentTypes.map((t) => (
+                            <SelectItem key={t} value={t}>
+                              {t}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
+
                     <div>
                       <Label>Assessment Date</Label>
                       <Input type="date" />
                     </div>
+
                     <div>
                       <Label>Assessor Name</Label>
                       <Input placeholder="Your name" />
@@ -113,7 +118,7 @@ export default function PatientAssessment() {
                     <div className="col-span-2 md:col-span-3 lg:col-span-5">
                       <Label>Diet/Nutrition</Label>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-1">
-                        {["Regular","Low Salt","Diabetic","Renal","Soft","NPO"].map(opt => (
+                        {["Regular","Low Salt","Diabetic","Renal","Soft","NPO"].map((opt) => (
                           <label key={opt} className="flex items-center space-x-2">
                             <Checkbox id={opt} />
                             <span>{opt}</span>
@@ -157,7 +162,7 @@ export default function PatientAssessment() {
                     <div>
                       <Label>Recent Changes</Label>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 mt-1">
-                        {["Medications","Hospitalizations","Falls","ER Visits","New Symptoms","Other"].map(c => (
+                        {["Medications","Hospitalizations","Falls","ER Visits","New Symptoms","Other"].map((c) => (
                           <label key={c} className="flex items-center space-x-2">
                             <Checkbox id={c} />
                             <span>{c}</span>
@@ -182,7 +187,7 @@ export default function PatientAssessment() {
                           <SelectValue placeholder="Select frequency" />
                         </SelectTrigger>
                         <SelectContent>
-                          {["Never","Walking >20ft","Moderate exertion","Minimal exertion","At rest"].map(opt => (
+                          {["Never","Walking >20ft","Moderate exertion","Minimal exertion","At rest"].map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
@@ -191,7 +196,7 @@ export default function PatientAssessment() {
                     <div>
                       <Label>Respiratory Treatments</Label>
                       <div className="grid grid-cols-2 gap-2 mt-1">
-                        {["Oxygen","Nebulizer","Ventilator","CPAP/BIPAP"].map(t => (
+                        {["Oxygen","Nebulizer","Ventilator","CPAP/BIPAP"].map((t) => (
                           <label key={t} className="flex items-center space-x-2">
                             <Checkbox id={t} />
                             <span>{t}</span>
@@ -215,7 +220,72 @@ export default function PatientAssessment() {
                           <SelectValue placeholder="Select frequency" />
                         </SelectTrigger>
                         <SelectContent>
-                          {["No pain","Less than daily","Daily","Constant"].map(opt => (
+                          {["No pain","Less than daily","Daily","Constant"].map((opt) => (
                             <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                           ))}
                         </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Pain Location</Label>
+                      <Input placeholder="Where is the pain?" />
+                    </div>
+                    <div>
+                      <Label>Pain Intensity</Label>
+                      <RadioGroup defaultValue="mild" className="flex gap-4 mt-1">
+                        {["Mild","Moderate","Severe"].map((level) => (
+                          <div key={level} className="flex items-center space-x-2">
+                            <RadioGroupItem value={level.toLowerCase()} id={`pain-${level.toLowerCase()}`} />
+                            <Label htmlFor={`pain-${level.toLowerCase()}`}>{level}</Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    </div>
+                    <div>
+                      <Label>Current Treatment</Label>
+                      <Input placeholder="Current pain management" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Signatures */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Signatures</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label>RN Name</Label><Input />
+                      <Label>RN Signature</Label><Input />
+                      <Label>Date</Label><Input type="date" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Patient/Guardian Name</Label><Input />
+                      <Label>Signature</Label><Input />
+                      <Label>Date</Label><Input type="date" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Disclaimers */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Disclaimers</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <p>
+                      <strong>MANDATED REPORTING:</strong> Any suspicion of abuse, neglect, or exploitation must be immediately reported to Adult Protective Services at 1-800-XXX-XXXX.
+                    </p>
+                    <p>
+                      <strong>Case Manager Contact:</strong> Immediately contact your Case Manager to report any health and safety concerns. This form must be submitted within 10 days of assessment completion.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </main>
+          </SidebarInset>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+}
