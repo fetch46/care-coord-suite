@@ -229,9 +229,11 @@ export default function SkinAssessmentForm() {
               </Card>
             </div>
 
-            <Button onClick={() => window.print()}>
-              <Printer className="w-4 h-4 mr-2" />Print / Export
-            </Button>
+            <div className="flex justify-end">
+              <Button onClick={() => window.print()} className="ml-auto">
+                <Printer className="w-4 h-4 mr-2" />Print / Export
+              </Button>
+            </div>
           </main>
         </SidebarInset>
       </div>
