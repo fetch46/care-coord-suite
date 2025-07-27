@@ -1,27 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 
 const bodyAreas = [
@@ -35,41 +22,6 @@ const bodyAreas = [
   "Back of the Head",
 ];
 
-// Coordinates for predefined dots per body area and view
-const annotationCoordinates: Record<
-  string,
-  { front?: { x: number; y: number }; back?: { x: number; y: number } }
-> = {
-  "Shoulder Blades": {
-    back: { x: 130, y: 80 },
-  },
-  Elbows: {
-    front: { x: 120, y: 140 },
-    back: { x: 120, y: 140 },
-  },
-  Sacrum: {
-    back: { x: 130, y: 200 },
-  },
-  Ischium: {
-    front: { x: 130, y: 220 },
-  },
-  Trochanters: {
-    front: { x: 100, y: 210 },
-    back: { x: 100, y: 210 },
-  },
-  Heels: {
-    front: { x: 130, y: 320 },
-    back: { x: 130, y: 320 },
-  },
-  Ankles: {
-    front: { x: 110, y: 330 },
-    back: { x: 110, y: 330 },
-  },
-  "Back of the Head": {
-    back: { x: 130, y: 30 },
-  },
-};
-
 interface FormData {
   name: string;
   observations: string;
@@ -82,8 +34,9 @@ interface Record {
 }
 
 export default function SkinAssessmentForm() {
-  const { register, handleSubmit, watch } = useForm<FormData>();
+  const [dots, setDots] = useState<{ x: number; y: number; view: string }[]>([]);
   const [bodyView, setBodyView] = useState<"front" | "back">("front");
+  const { register, handleSubmit, watch } = useForm<FormData>();
   const [records, setRecords] = useState<Record[]>(
     bodyAreas.map((area) => ({
       area,
@@ -92,48 +45,17 @@ export default function SkinAssessmentForm() {
     }))
   );
 
-  const [dots, setDots] = useState<
-    { x: number; y: number; view: string; fromArea?: string }[]
-  >([]);
+  const updateRecord = (area: string, data: Partial<Record>) => {
+    setRecords((prev) =>
+      prev.map((r) => (r.area === area ? { ...r, ...data } : r))
+    );
+  };
 
-  const handleImageClick = (
-    e: React.MouseEvent<HTMLImageElement>
-  ) => {
+  const handleImageClick = (e: React.MouseEvent<HTMLImageElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    setDots((prev) => [...prev, { x, y, view: bodyView }]);
-  };
-
-  const updateRecord = (area: string, data: Partial<Record>) => {
-    setRecords((prev) =>
-      prev.map((r) =>
-        r.area === area ? { ...r, ...data } : r
-      )
-    );
-
-    const coords = annotationCoordinates[area];
-
-    // Remove existing dot from area
-    setDots((prevDots) =>
-      prevDots.filter((d) => d.fromArea !== area)
-    );
-
-    // Add new annotation if status is Abnormal
-    if (data.status === "Abnormal") {
-      const viewCoords = coords?.[bodyView];
-      if (viewCoords) {
-        setDots((prevDots) => [
-          ...prevDots,
-          {
-            x: viewCoords.x,
-            y: viewCoords.y,
-            view: bodyView,
-            fromArea: area,
-          },
-        ]);
-      }
-    }
+    setDots([...dots, { x, y, view: bodyView }]);
   };
 
   const handleSaveSubmit = () => {
@@ -154,13 +76,8 @@ export default function SkinAssessmentForm() {
             <Input id="name" {...register("name")} />
           </div>
           <div>
-            <Label htmlFor="observations">
-              General Observations
-            </Label>
-            <Textarea
-              id="observations"
-              {...register("observations")}
-            />
+            <Label htmlFor="observations">General Observations</Label>
+            <Textarea id="observations" {...register("observations")} />
           </div>
         </CardContent>
       </Card>
@@ -168,34 +85,22 @@ export default function SkinAssessmentForm() {
       {/* Body Diagram */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            Body Diagram (
-            {bodyView.charAt(0).toUpperCase() + bodyView.slice(1)} View)
-          </CardTitle>
+          <CardTitle>Body Diagram ({bodyView.charAt(0).toUpperCase() + bodyView.slice(1)} View)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  {bodyView === "front"
-                    ? "Front View"
-                    : "Back View"}
+                <Button variant="outline" className="flex items-center gap-2">
+                  {bodyView === "front" ? "Front View" : "Back View"}
                   <ChevronDown size={16} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center">
-                <DropdownMenuItem
-                  onClick={() => setBodyView("front")}
-                >
+                <DropdownMenuItem onClick={() => setBodyView("front")}>
                   Front View
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setBodyView("back")}
-                >
+                <DropdownMenuItem onClick={() => setBodyView("back")}>
                   Back View
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -203,11 +108,7 @@ export default function SkinAssessmentForm() {
           </div>
           <div className="relative flex justify-center">
             <img
-              src={
-                bodyView === "front"
-                  ? "/front-body.svg"
-                  : "/back-body.svg"
-              }
+              src={bodyView === "front" ? "/front-body.svg" : "/back-body.svg"}
               alt={`${bodyView} view`}
               className="w-64 h-auto border rounded"
               onClick={handleImageClick}
@@ -227,10 +128,7 @@ export default function SkinAssessmentForm() {
               ))}
           </div>
           <div className="flex justify-center">
-            <Button
-              variant="destructive"
-              onClick={() => setDots([])}
-            >
+            <Button variant="destructive" onClick={() => setDots([])}>
               Clear Annotations
             </Button>
           </div>
@@ -240,44 +138,27 @@ export default function SkinAssessmentForm() {
       {/* Pressure Sore Checklist */}
       <Card className="md:col-span-2">
         <CardHeader>
-          <CardTitle>
-            Areas Most Prone to Pressure Sores
-          </CardTitle>
+          <CardTitle>Areas Most Prone to Pressure Sores</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {records.map(({ area, status, notes }) => (
-            <div
-              key={area}
-              className="border rounded p-4 space-y-2"
-            >
+            <div key={area} className="border rounded p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-semibold">{area}</span>
                 <RadioGroup
                   value={status}
-                  onValueChange={(val) =>
-                    updateRecord(area, {
-                      status: val as "Normal" | "Abnormal",
-                    })
+                  onValueChange={(val: "Normal" | "Abnormal") =>
+                    updateRecord(area, { status: val })
                   }
                   className="flex gap-4"
                 >
                   <div className="flex items-center gap-2">
-                    <RadioGroupItem
-                      value="Normal"
-                      id={`${area}-normal`}
-                    />
-                    <Label htmlFor={`${area}-normal`}>
-                      Normal
-                    </Label>
+                    <RadioGroupItem value="Normal" id={`${area}-normal`} />
+                    <Label htmlFor={`${area}-normal`}>Normal</Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <RadioGroupItem
-                      value="Abnormal"
-                      id={`${area}-abnormal`}
-                    />
-                    <Label htmlFor={`${area}-abnormal`}>
-                      Abnormal
-                    </Label>
+                    <RadioGroupItem value="Abnormal" id={`${area}-abnormal`} />
+                    <Label htmlFor={`${area}-abnormal`}>Abnormal</Label>
                   </div>
                 </RadioGroup>
               </div>
@@ -285,9 +166,7 @@ export default function SkinAssessmentForm() {
                 <Textarea
                   value={notes}
                   onChange={(e) =>
-                    updateRecord(area, {
-                      notes: e.target.value,
-                    })
+                    updateRecord(area, { notes: e.target.value })
                   }
                   placeholder="Describe any broken, bruised or reddened areas"
                   rows={2}
