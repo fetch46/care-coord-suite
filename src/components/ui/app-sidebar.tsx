@@ -99,17 +99,24 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   {item.submenu ? (
                     <Collapsible defaultOpen={item.submenu.some(sub => isActive(sub.url))}>
-                      <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className={getNavCls(item.url)}>
-                          <item.icon className="w-5 h-5 flex-shrink-0" />
-                          {!isCollapsed && (
-                            <>
-                              <span className="ml-3 flex-1">{item.title}</span>
-                              <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
-                            </>
-                          )}
+                      <div className="flex items-center">
+                        <SidebarMenuButton asChild className="flex-1">
+                          <NavLink 
+                            to={item.url}
+                            className={getNavCls(item.url)}
+                          >
+                            <item.icon className="w-5 h-5 flex-shrink-0" />
+                            {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                          </NavLink>
                         </SidebarMenuButton>
-                      </CollapsibleTrigger>
+                        {!isCollapsed && (
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton size="sm" className="w-8 h-8 p-0">
+                              <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
+                        )}
+                      </div>
                       <CollapsibleContent>
                         <SidebarMenuSub>
                           {item.submenu.map((subItem) => (
