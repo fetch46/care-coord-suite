@@ -40,7 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function ClientIntake() {
+export default function PatientRegistration() {
   const { toast } = useToast();
 
   // State to manage all form data
@@ -172,10 +172,10 @@ export default function ClientIntake() {
             <div className="w-full max-w-screen-2xl mx-auto space-y-8">
               <div className="text-center space-y-2">
                 <h1 className="text-3xl font-bold text-foreground">
-                  Client Intake Form
+                  Patient Registration
                 </h1>
                 <p className="text-muted-foreground">
-                  Complete all sections to register a new client
+                  Complete all sections to register a new patient
                 </p>
               </div>
 
@@ -654,16 +654,7 @@ export default function ClientIntake() {
               </Tabs>
 
               {/* Form Buttons */}
-              <div className="flex justify-between items-center pt-6">
-                <Button
-                  onClick={handleSaveDraft}
-                  variant="outline"
-                  size="lg"
-                  className="min-w-40"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Back
-                </Button>
+              <div className="flex justify-end items-center pt-6">
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

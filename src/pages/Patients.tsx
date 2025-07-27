@@ -125,9 +125,11 @@ export default function Patients() {
                   <h1 className="text-3xl font-bold text-foreground">Patients</h1>
                   <p className="text-muted-foreground mt-1">Manage patient information and care details</p>
                 </div>
-                <Button className="bg-gradient-primary text-white hover:opacity-90">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Patient
+                <Button className="bg-gradient-primary text-white hover:opacity-90" asChild>
+                  <Link to="/patient-registration">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Patient
+                  </Link>
                 </Button>
               </div>
 

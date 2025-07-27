@@ -23,14 +23,24 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Patients", url: "/patients", icon: Users },
-  { title: "Client Intake", url: "/client-intake", icon: UserPlus },
+  { 
+    title: "Patients", 
+    url: "/patients", 
+    icon: Users,
+    submenu: [
+      { title: "Patient Registration", url: "/patient-registration", icon: UserPlus }
+    ]
+  },
   { title: "Scheduling", url: "/scheduling", icon: Calendar },
   { title: "Staff", url: "/staff", icon: UserCheck },
   { title: "Assessments", url: "/assessments", icon: FileText },
@@ -87,16 +97,49 @@ export function AppSidebar() {
             <SidebarMenu className="space-y-1">
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      end={item.url === "/"}
-                      className={getNavCls(item.url)}
-                    >
-                      <item.icon className="w-5 h-5 flex-shrink-0" />
-                      {!isCollapsed && <span className="ml-3">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
+                  {item.submenu ? (
+                    <Collapsible defaultOpen={item.submenu.some(sub => isActive(sub.url))}>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton className={getNavCls(item.url)}>
+                          <item.icon className="w-5 h-5 flex-shrink-0" />
+                          {!isCollapsed && (
+                            <>
+                              <span className="ml-3 flex-1">{item.title}</span>
+                              <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
+                            </>
+                          )}
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.submenu.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton asChild>
+                                <NavLink 
+                                  to={subItem.url}
+                                  className={getNavCls(subItem.url)}
+                                >
+                                  <subItem.icon className="w-4 h-4 flex-shrink-0" />
+                                  {!isCollapsed && <span className="ml-3">{subItem.title}</span>}
+                                </NavLink>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ) : (
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url} 
+                        end={item.url === "/"}
+                        className={getNavCls(item.url)}
+                      >
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
