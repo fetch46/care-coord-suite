@@ -5,10 +5,26 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
 const reports = [
-  { title: "Staff Reports", url: "/staff-reports" },
-  { title: "Assessment Reports", url: "/assessment-reports" },
-  { title: "Timesheet Reports", url: "/timesheet-reports" },
-  { title: "Patient Reports", url: "/patient-reports" },
+  {
+    title: "Staff Reports",
+    url: "/staff-reports",
+    description: "View staff performance, attendance, and assignment details."
+  },
+  {
+    title: "Assessment Reports",
+    url: "/assessment-reports",
+    description: "Analyze patient assessments, outcomes, and care recommendations."
+  },
+  {
+    title: "Timesheet Reports",
+    url: "/timesheet-reports",
+    description: "Review submitted timesheets, overtime, and shift histories."
+  },
+  {
+    title: "Patient Reports",
+    url: "/patient-reports",
+    description: "Access individual patient histories, demographics, and medical records."
+  },
 ];
 
 export default function Reports() {
@@ -18,26 +34,21 @@ export default function Reports() {
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="p-8 flex flex-col items-center">
-            <Card className="w-full max-w-2xl">
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold">Available Reports</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-4">
-                  {reports.map((report) => (
-                    <li key={report.title}>
-                      <Link
-                        to={report.url}
-                        className="text-lg font-semibold text-primary hover:underline"
-                      >
-                        {report.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+          <main className="p-8 grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
+            {reports.map((report) => (
+              <Card key={report.title} className="flex flex-col justify-between h-full">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold">
+                    <Link to={report.url} className="hover:underline text-primary">
+                      {report.title}
+                    </Link>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600">{report.description}</p>
+                </CardContent>
+              </Card>
+            ))}
           </main>
         </SidebarInset>
       </div>
