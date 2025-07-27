@@ -23,11 +23,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 // --- Reusable Components ---
 
 // Component for a group of checkboxes
-function FormCheckboxGroup({ label, options, selectedValues, onValueChange }) {
+function FormCheckboxGroup({ label, options, selectedValues, onValueChange, className = "" }) {
   return (
     <div>
-      <Label>{label}</Label>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+      {label && <Label>{label}</Label>}
+      <div className={`grid gap-2 mt-1 ${className}`}>
         {options.map((option) => (
           <label key={option.id} className="flex items-center space-x-2">
             <Checkbox
@@ -47,7 +47,7 @@ function FormCheckboxGroup({ label, options, selectedValues, onValueChange }) {
 function FormRadioGroup({ label, options, selectedValue, onValueChange, className = "" }) {
   return (
     <div>
-      <Label>{label}</Label>
+      {label && <Label>{label}</Label>}
       <RadioGroup value={selectedValue} onValueChange={onValueChange} className={`mt-1 ${className}`}>
         {options.map((option) => (
           <label key={option.id} className="flex items-center space-x-2">
@@ -570,7 +570,7 @@ export default function PatientAssessment() {
       bathingLevel,
       personalHygieneLevel,
       toiletingLevel,
-      toiletingIncontinentBladder,
+      toiletingIncontinentBlader,
       toiletingIncontinentBowel,
       dressingLevel,
       eatingDrinkingLevel,
@@ -677,305 +677,318 @@ export default function PatientAssessment() {
                   </CardContent>
                 </Card>
 
-                {/* GENERAL HEALTH */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>General Health</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                      <div>
-                        <Label htmlFor="temp">Temp (°F)</Label>
-                        <Input id="temp" value={temp} onChange={(e) => setTemp(e.target.value)} />
+                {/* General Health and Respiratory Side-by-Side */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* GENERAL HEALTH */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>General Health</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div>
+                          <Label htmlFor="temp">Temp (°F)</Label>
+                          <Input id="temp" value={temp} onChange={(e) => setTemp(e.target.value)} />
+                        </div>
+                        <div>
+                          <Label htmlFor="pulse">Pulse (bpm)</Label>
+                          <Input id="pulse" value={pulse} onChange={(e) => setPulse(e.target.value)} />
+                        </div>
+                        <div>
+                          <Label htmlFor="respiration">Respiration (rpm)</Label>
+                          <Input id="respiration" value={respiration} onChange={(e) => setRespiration(e.target.value)} />
+                        </div>
+                        <div>
+                          <Label htmlFor="bp">Blood Pressure</Label>
+                          <Input id="bp" value={bloodPressure} onChange={(e) => setBloodPressure(e.target.value)} />
+                        </div>
+                        <div>
+                          <Label htmlFor="weight">Weight (lbs)</Label>
+                          <Input id="weight" value={weight} onChange={(e) => setWeight(e.target.value)} />
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="pulse">Pulse (bpm)</Label>
-                        <Input id="pulse" value={pulse} onChange={(e) => setPulse(e.target.value)} />
-                      </div>
-                      <div>
-                        <Label htmlFor="respiration">Respiration (rpm)</Label>
-                        <Input id="respiration" value={respiration} onChange={(e) => setRespiration(e.target.value)} />
-                      </div>
-                      <div>
-                        <Label htmlFor="bp">Blood Pressure</Label>
-                        <Input id="bp" value={bloodPressure} onChange={(e) => setBloodPressure(e.target.value)} />
-                      </div>
-                      <div>
-                        <Label htmlFor="weight">Weight (lbs)</Label>
-                        <Input id="weight" value={weight} onChange={(e) => setWeight(e.target.value)} />
-                      </div>
-                    </div>
 
-                    <FormCheckboxGroup
-                      label="Diet / Nutrition"
-                      options={dietOptions}
-                      selectedValues={selectedDiets}
-                      onValueChange={handleCheckboxChange(setSelectedDiets)}
-                    />
-                    {selectedDiets.includes("other") && (
-                      <Input
-                        placeholder="Other diet details"
-                        className="mt-2"
-                        value={otherDietDetails}
-                        onChange={(e) => setOtherDietDetails(e.target.value)}
+                      <FormCheckboxGroup
+                        label="Diet / Nutrition"
+                        options={dietOptions}
+                        selectedValues={selectedDiets}
+                        onValueChange={handleCheckboxChange(setSelectedDiets)}
+                        className="grid-cols-2 md:grid-cols-2"
                       />
-                    )}
-
-                    <div>
-                      <Label>Fluid</Label>
-                      <RadioGroup value={fluidIntake} onValueChange={setFluidIntake} className="flex items-center gap-4 mt-1">
-                        <label className="flex items-center space-x-2">
-                          <RadioGroupItem value="unlimited" />
-                          <span>Unlimited</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                          <RadioGroupItem value="restricted" />
-                          <span>Restricted</span>
-                        </label>
-                        {fluidIntake === "restricted" && (
-                          <Input placeholder="Amount (mL)" className="w-32" value={fluidAmount} onChange={(e) => setFluidAmount(e.target.value)} />
-                        )}
-                      </RadioGroup>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="recent-changes">
-                        Identify any changes over the past month (Diagnosis,
-                        Medications, Health Status, Hospitalization, Falls,
-                        Incidents, Other)
-                      </Label>
-                      <Textarea id="recent-changes" rows={3} value={recentChanges} onChange={(e) => setRecentChanges(e.target.value)} />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* RESPIRATORY */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Respiratory</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormCheckboxGroup
-                      label="Findings"
-                      options={respiratoryFindingsOptions}
-                      selectedValues={selectedRespiratoryFindings}
-                      onValueChange={handleCheckboxChange(setSelectedRespiratoryFindings)}
-                    />
-                    {selectedRespiratoryFindings.includes("other") && (
-                      <Input
-                        placeholder="Other findings"
-                        className="mt-2"
-                        value={otherRespiratoryFindings}
-                        onChange={(e) => setOtherRespiratoryFindings(e.target.value)}
-                      />
-                    )}
-
-                    <div>
-                      <Label htmlFor="shortness-of-breath">Shortness of Breath</Label>
-                      <Select value={shortnessOfBreath} onValueChange={setShortnessOfBreath} id="shortness-of-breath">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {shortnessOfBreathOptions.map((opt) => (
-                            <SelectItem key={opt.id} value={opt.id}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <FormCheckboxGroup
-                      label="Respiratory treatments at home"
-                      options={respiratoryTreatmentOptions}
-                      selectedValues={selectedRespiratoryTreatments}
-                      onValueChange={handleCheckboxChange(setSelectedRespiratoryTreatments)}
-                    />
-                  </CardContent>
-                </Card>
-
-                {/* PAIN */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Pain / Discomfort</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="pain-frequency">Pain Frequency</Label>
-                      <Select value={painFrequency} onValueChange={setPainFrequency} id="pain-frequency">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {painFrequencyOptions.map((opt) => (
-                            <SelectItem key={opt.id} value={opt.id}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="pain-sites">Pain Sites</Label>
-                      <Textarea id="pain-sites" rows={2} value={painSites} onChange={(e) => setPainSites(e.target.value)} />
-                    </div>
-                    <FormRadioGroup
-                      label="Pain Intensity"
-                      options={painIntensityOptions}
-                      selectedValue={painIntensity}
-                      onValueChange={handleRadioChange(setPainIntensity)}
-                      className="flex items-center gap-4"
-                    />
-                    <div>
-                      <label htmlFor="pain-affects-life" className="flex items-center space-x-2">
-                        <Checkbox
-                          id="pain-affects-life"
-                          checked={painAffectsLife}
-                          onCheckedChange={setPainAffectsLife}
+                      {selectedDiets.includes("other") && (
+                        <Input
+                          placeholder="Other diet details"
+                          className="mt-2"
+                          value={otherDietDetails}
+                          onChange={(e) => setOtherDietDetails(e.target.value)}
                         />
-                        <span>
-                          Person is experiencing pain that is not easily relieved,
-                          occurs at least daily, and affects the ability to sleep,
-                          appetite, physical or emotional energy, concentration,
-                          personal relationships, emotions, or ability or desire to
-                          perform physical activity
-                        </span>
-                      </label>
-                    </div>
-                    <div>
-                      <Label htmlFor="pain-cause">Cause (if known)</Label>
-                      <Input id="pain-cause" value={painCause} onChange={(e) => setPainCause(e.target.value)} />
-                    </div>
-                    <div>
-                      <Label htmlFor="pain-treatment">Treatment</Label>
-                      <Input id="pain-treatment" value={painTreatment} onChange={(e) => setPainTreatment(e.target.value)} />
-                    </div>
-                  </CardContent>
-                </Card>
+                      )}
 
-                {/* GENITOURINARY */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Genitourinary Status</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label htmlFor="catheter" className="flex items-center space-x-2">
-                        <Checkbox id="catheter" checked={catheter} onCheckedChange={setCatheter} />
-                        <span>Catheter</span>
-                      </label>
-                    </div>
-                    <div>
-                      <Label htmlFor="urine-frequency">Urine Frequency</Label>
-                      <Input id="urine-frequency" value={urineFrequency} onChange={(e) => setUrineFrequency(e.target.value)} />
-                    </div>
-                    <FormCheckboxGroup
-                      label=""
-                      options={genitourinaryOptions}
-                      selectedValues={selectedGenitourinaryIssues}
-                      onValueChange={handleCheckboxChange(setSelectedGenitourinaryIssues)}
-                      className="grid-cols-2 md:grid-cols-3"
-                    />
-                    <div>
-                      <Label htmlFor="other-genitourinary">Other</Label>
-                      <Input id="other-genitourinary" value={otherGenitourinary} onChange={(e) => setOtherGenitourinary(e.target.value)} />
-                    </div>
-                    <div>
-                      <label htmlFor="uti-treated" className="flex items-center space-x-2">
-                        <Checkbox id="uti-treated" checked={utiTreated} onCheckedChange={setUtiTreated} />
-                        <span>Person has been treated for a UTI in the past month</span>
-                      </label>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <div>
+                        <Label>Fluid</Label>
+                        <RadioGroup value={fluidIntake} onValueChange={setFluidIntake} className="flex items-center gap-4 mt-1">
+                          <label className="flex items-center space-x-2">
+                            <RadioGroupItem value="unlimited" />
+                            <span>Unlimited</span>
+                          </label>
+                          <label className="flex items-center space-x-2">
+                            <RadioGroupItem value="restricted" />
+                            <span>Restricted</span>
+                          </label>
+                          {fluidIntake === "restricted" && (
+                            <Input placeholder="Amount (mL)" className="w-32" value={fluidAmount} onChange={(e) => setFluidAmount(e.target.value)} />
+                          )}
+                        </RadioGroup>
+                      </div>
 
-                {/* CARDIOVASCULAR */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Cardiovascular</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label htmlFor="bp-pulse-normal" className="flex items-center space-x-2">
-                        <Checkbox id="bp-pulse-normal" checked={bpPulseNormal} onCheckedChange={setBpPulseNormal} />
-                        <span>BP and Pulse within normal limits</span>
-                      </label>
-                    </div>
-                    <FormRadioGroup
-                      label="Rhythm"
-                      options={rhythmOptions}
-                      selectedValue={rhythm}
-                      onValueChange={handleRadioChange(setRhythm)}
-                      className="flex items-center gap-4"
-                    />
-                    <FormCheckboxGroup
-                      label="Edema"
-                      options={edemaOptions}
-                      selectedValues={selectedEdema}
-                      onValueChange={handleCheckboxChange(setSelectedEdema)}
-                    />
-                    <div>
-                      <Label htmlFor="other-cardiovascular">Other</Label>
-                      <Input id="other-cardiovascular" value={otherCardiovascular} onChange={(e) => setOtherCardiovascular(e.target.value)} />
-                    </div>
-                  </CardContent>
-                </Card>
+                      <div>
+                        <Label htmlFor="recent-changes">
+                          Identify any changes over the past month (Diagnosis,
+                          Medications, Health Status, Hospitalization, Falls,
+                          Incidents, Other)
+                        </Label>
+                        <Textarea id="recent-changes" rows={3} value={recentChanges} onChange={(e) => setRecentChanges(e.target.value)} />
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                {/* GASTROINTESTINAL */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Gastrointestinal Status</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="bowels-frequency">Bowels: frequency</Label>
-                      <Input id="bowels-frequency" value={bowelsFrequency} onChange={(e) => setBowelsFrequency(e.target.value)} />
-                    </div>
-                    <FormCheckboxGroup
-                      label=""
-                      options={gastrointestinalOptions}
-                      selectedValues={selectedGastrointestinalIssues}
-                      onValueChange={handleCheckboxChange(setSelectedGastrointestinalIssues)}
-                      className="grid-cols-2 md:grid-cols-3"
-                    />
-                    <div>
-                      <Label htmlFor="swallowing-issues">Swallowing issues</Label>
-                      <Input id="swallowing-issues" value={swallowingIssues} onChange={(e) => setSwallowingIssues(e.target.value)} />
-                    </div>
-                    <div>
-                      <Label htmlFor="pain-gastrointestinal">Pain</Label>
-                      <Input id="pain-gastrointestinal" placeholder="abdominal / epigastric" value={painGastrointestinal} onChange={(e) => setPainGastrointestinal(e.target.value)} />
-                    </div>
-                    <div>
-                      <Label htmlFor="other-gastrointestinal">Other</Label>
-                      <Input id="other-gastrointestinal" value={otherGastrointestinal} onChange={(e) => setOtherGastrointestinal(e.target.value)} />
-                    </div>
-                    <div>
-                      <Label htmlFor="bowel-incontinence-frequency">Bowel incontinence frequency</Label>
-                      <Select value={bowelIncontinenceFrequency} onValueChange={setBowelIncontinenceFrequency} id="bowel-incontinence-frequency">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {bowelIncontinenceFrequencyOptions.map((opt) => (
-                            <SelectItem key={opt.id} value={opt.id}>
-                              {opt.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label htmlFor="ostomy-bowel-elimination" className="flex items-center space-x-2">
-                        <Checkbox id="ostomy-bowel-elimination" checked={ostomyBowelElimination} onCheckedChange={setOstomyBowelElimination} />
-                        <span>Person has ostomy for bowel elimination</span>
-                      </label>
-                    </div>
-                  </CardContent>
-                </Card>
+                  {/* RESPIRATORY */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Respiratory</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <FormCheckboxGroup
+                        label="Findings"
+                        options={respiratoryFindingsOptions}
+                        selectedValues={selectedRespiratoryFindings}
+                        onValueChange={handleCheckboxChange(setSelectedRespiratoryFindings)}
+                        className="grid-cols-2 md:grid-cols-2"
+                      />
+                      {selectedRespiratoryFindings.includes("other") && (
+                        <Input
+                          placeholder="Other findings"
+                          className="mt-2"
+                          value={otherRespiratoryFindings}
+                          onChange={(e) => setOtherRespiratoryFindings(e.target.value)}
+                        />
+                      )}
 
-                {/* NEUROLOGICAL */}
+                      <div>
+                        <Label htmlFor="shortness-of-breath">Shortness of Breath</Label>
+                        <Select value={shortnessOfBreath} onValueChange={setShortnessOfBreath} id="shortness-of-breath">
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {shortnessOfBreathOptions.map((opt) => (
+                              <SelectItem key={opt.id} value={opt.id}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <FormCheckboxGroup
+                        label="Respiratory treatments at home"
+                        options={respiratoryTreatmentOptions}
+                        selectedValues={selectedRespiratoryTreatments}
+                        onValueChange={handleCheckboxChange(setSelectedRespiratoryTreatments)}
+                        className="grid-cols-1 md:grid-cols-2"
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Pain and Genitourinary Side-by-Side */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* PAIN */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Pain / Discomfort</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="pain-frequency">Pain Frequency</Label>
+                        <Select value={painFrequency} onValueChange={setPainFrequency} id="pain-frequency">
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {painFrequencyOptions.map((opt) => (
+                              <SelectItem key={opt.id} value={opt.id}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="pain-sites">Pain Sites</Label>
+                        <Textarea id="pain-sites" rows={2} value={painSites} onChange={(e) => setPainSites(e.target.value)} />
+                      </div>
+                      <FormRadioGroup
+                        label="Pain Intensity"
+                        options={painIntensityOptions}
+                        selectedValue={painIntensity}
+                        onValueChange={handleRadioChange(setPainIntensity)}
+                        className="flex items-center gap-4"
+                      />
+                      <div>
+                        <label htmlFor="pain-affects-life" className="flex items-center space-x-2">
+                          <Checkbox
+                            id="pain-affects-life"
+                            checked={painAffectsLife}
+                            onCheckedChange={setPainAffectsLife}
+                          />
+                          <span>
+                            Person is experiencing pain that is not easily relieved,
+                            occurs at least daily, and affects the ability to sleep,
+                            appetite, physical or emotional energy, concentration,
+                            personal relationships, emotions, or ability or desire to
+                            perform physical activity
+                          </span>
+                        </label>
+                      </div>
+                      <div>
+                        <Label htmlFor="pain-cause">Cause (if known)</Label>
+                        <Input id="pain-cause" value={painCause} onChange={(e) => setPainCause(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="pain-treatment">Treatment</Label>
+                        <Input id="pain-treatment" value={painTreatment} onChange={(e) => setPainTreatment(e.target.value)} />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* GENITOURINARY */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Genitourinary Status</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <label htmlFor="catheter" className="flex items-center space-x-2">
+                          <Checkbox id="catheter" checked={catheter} onCheckedChange={setCatheter} />
+                          <span>Catheter</span>
+                        </label>
+                      </div>
+                      <div>
+                        <Label htmlFor="urine-frequency">Urine Frequency</Label>
+                        <Input id="urine-frequency" value={urineFrequency} onChange={(e) => setUrineFrequency(e.target.value)} />
+                      </div>
+                      <FormCheckboxGroup
+                        label=""
+                        options={genitourinaryOptions}
+                        selectedValues={selectedGenitourinaryIssues}
+                        onValueChange={handleCheckboxChange(setSelectedGenitourinaryIssues)}
+                        className="grid-cols-2 md:grid-cols-2"
+                      />
+                      <div>
+                        <Label htmlFor="other-genitourinary">Other</Label>
+                        <Input id="other-genitourinary" value={otherGenitourinary} onChange={(e) => setOtherGenitourinary(e.target.value)} />
+                      </div>
+                      <div>
+                        <label htmlFor="uti-treated" className="flex items-center space-x-2">
+                          <Checkbox id="uti-treated" checked={utiTreated} onCheckedChange={setUtiTreated} />
+                          <span>Person has been treated for a UTI in the past month</span>
+                        </label>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Cardiovascular and Gastrointestinal Side-by-Side */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* CARDIOVASCULAR */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Cardiovascular</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <label htmlFor="bp-pulse-normal" className="flex items-center space-x-2">
+                          <Checkbox id="bp-pulse-normal" checked={bpPulseNormal} onCheckedChange={setBpPulseNormal} />
+                          <span>BP and Pulse within normal limits</span>
+                        </label>
+                      </div>
+                      <FormRadioGroup
+                        label="Rhythm"
+                        options={rhythmOptions}
+                        selectedValue={rhythm}
+                        onValueChange={handleRadioChange(setRhythm)}
+                        className="flex items-center gap-4"
+                      />
+                      <FormCheckboxGroup
+                        label="Edema"
+                        options={edemaOptions}
+                        selectedValues={selectedEdema}
+                        onValueChange={handleCheckboxChange(setSelectedEdema)}
+                        className="grid-cols-1 md:grid-cols-2"
+                      />
+                      <div>
+                        <Label htmlFor="other-cardiovascular">Other</Label>
+                        <Input id="other-cardiovascular" value={otherCardiovascular} onChange={(e) => setOtherCardiovascular(e.target.value)} />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* GASTROINTESTINAL */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Gastrointestinal Status</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="bowels-frequency">Bowels: frequency</Label>
+                        <Input id="bowels-frequency" value={bowelsFrequency} onChange={(e) => setBowelsFrequency(e.target.value)} />
+                      </div>
+                      <FormCheckboxGroup
+                        label=""
+                        options={gastrointestinalOptions}
+                        selectedValues={selectedGastrointestinalIssues}
+                        onValueChange={handleCheckboxChange(setSelectedGastrointestinalIssues)}
+                        className="grid-cols-2 md:grid-cols-2"
+                      />
+                      <div>
+                        <Label htmlFor="swallowing-issues">Swallowing issues</Label>
+                        <Input id="swallowing-issues" value={swallowingIssues} onChange={(e) => setSwallowingIssues(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="pain-gastrointestinal">Pain</Label>
+                        <Input id="pain-gastrointestinal" placeholder="abdominal / epigastric" value={painGastrointestinal} onChange={(e) => setPainGastrointestinal(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="other-gastrointestinal">Other</Label>
+                        <Input id="other-gastrointestinal" value={otherGastrointestinal} onChange={(e) => setOtherGastrointestinal(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="bowel-incontinence-frequency">Bowel incontinence frequency</Label>
+                        <Select value={bowelIncontinenceFrequency} onValueChange={setBowelIncontinenceFrequency} id="bowel-incontinence-frequency">
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {bowelIncontinenceFrequencyOptions.map((opt) => (
+                              <SelectItem key={opt.id} value={opt.id}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label htmlFor="ostomy-bowel-elimination" className="flex items-center space-x-2">
+                          <Checkbox id="ostomy-bowel-elimination" checked={ostomyBowelElimination} onCheckedChange={setOstomyBowelElimination} />
+                          <span>Person has ostomy for bowel elimination</span>
+                        </label>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Neurological (Full Width) - This section has too many complex inputs to easily halve without reducing usability */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Neurological</CardTitle>
@@ -1014,11 +1027,12 @@ export default function PatientAssessment() {
                       options={extremityOptions}
                       selectedValues={selectedExtremities}
                       onValueChange={handleCheckboxChange(setSelectedExtremities)}
+                      className="grid-cols-2 md:grid-cols-3"
                     />
                   </CardContent>
                 </Card>
 
-                {/* SENSORY */}
+                {/* Sensory (Full Width) - Keeping full width for better readability of long options */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Sensory</CardTitle>
@@ -1041,119 +1055,127 @@ export default function PatientAssessment() {
                   </CardContent>
                 </Card>
 
-                {/* PSYCHOSOCIAL */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Psychosocial</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormCheckboxGroup
-                      label="Behaviors reported or observed"
-                      options={behaviorOptions}
-                      selectedValues={selectedBehaviors}
-                      onValueChange={handleCheckboxChange(setSelectedBehaviors)}
-                      className="grid-cols-2 md:grid-cols-3"
-                    />
-                    <FormRadioGroup
-                      label="Is this person receiving psychological counseling?"
-                      options={yesNoOptions}
-                      selectedValue={psychologicalCounseling}
-                      onValueChange={handleRadioChange(setPsychologicalCounseling)}
-                      className="flex items-center gap-4"
-                    />
-                  </CardContent>
-                </Card>
+                {/* Psychosocial and Musculoskeletal Side-by-Side */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* PSYCHOSOCIAL */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Psychosocial</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <FormCheckboxGroup
+                        label="Behaviors reported or observed"
+                        options={behaviorOptions}
+                        selectedValues={selectedBehaviors}
+                        onValueChange={handleCheckboxChange(setSelectedBehaviors)}
+                        className="grid-cols-1 md:grid-cols-2" // Adjusting grid for better fit
+                      />
+                      <FormRadioGroup
+                        label="Is this person receiving psychological counseling?"
+                        options={yesNoOptions}
+                        selectedValue={psychologicalCounseling}
+                        onValueChange={handleRadioChange(setPsychologicalCounseling)}
+                        className="flex items-center gap-4"
+                      />
+                    </CardContent>
+                  </Card>
 
-                {/* MUSCULOSKELETAL */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Musculoskeletal</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormCheckboxGroup
-                      label=""
-                      options={musculoskeletalOptions}
-                      selectedValues={selectedMusculoskeletalIssues}
-                      onValueChange={handleCheckboxChange(setSelectedMusculoskeletalIssues)}
-                      className="grid-cols-2 md:grid-cols-3"
-                    />
-                    <div>
-                      <Label htmlFor="other-musculoskeletal">Other</Label>
-                      <Input id="other-musculoskeletal" value={otherMusculoskeletal} onChange={(e) => setOtherMusculoskeletal(e.target.value)} />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* MENTAL HEALTH */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Mental Health</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormCheckboxGroup
-                      label=""
-                      options={mentalHealthOptions}
-                      selectedValues={selectedMentalHealthIssues}
-                      onValueChange={handleCheckboxChange(setSelectedMentalHealthIssues)}
-                    />
-                  </CardContent>
-                </Card>
-
-                {/* SKIN */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Skin</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormCheckboxGroup
-                      label="Color"
-                      options={skinColorOptions}
-                      selectedValues={selectedSkinColors}
-                      onValueChange={handleCheckboxChange(setSelectedSkinColors)}
-                    />
-                    <FormRadioGroup
-                      label="Skin Intact"
-                      options={yesNoOptions}
-                      selectedValue={skinIntact}
-                      onValueChange={handleRadioChange(setSkinIntact)}
-                      className="flex items-center gap-4"
-                    />
-                    <div>
-                      <Label>Pressure Ulcers</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                        {[1, 2, 3, 4].map((s) => (
-                          <div key={s} className="flex items-center space-x-2">
-                            <Label htmlFor={`pressure-ulcer-stage-${s}`}>Stage {s}</Label>
-                            <Input
-                              id={`pressure-ulcer-stage-${s}`}
-                              type="number"
-                              placeholder="Count"
-                              className="w-20"
-                              value={eval(`pressureUlcersStage${s}`)} // Using eval for simplicity, consider a map or object for better practice
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                if (s === 1) setPressureUlcersStage1(value);
-                                else if (s === 2) setPressureUlcersStage2(value);
-                                else if (s === 3) setPressureUlcersStage3(value);
-                                else if (s === 4) setPressureUlcersStage4(value);
-                              }}
-                            />
-                          </div>
-                        ))}
+                  {/* MUSCULOSKELETAL */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Musculoskeletal</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <FormCheckboxGroup
+                        label=""
+                        options={musculoskeletalOptions}
+                        selectedValues={selectedMusculoskeletalIssues}
+                        onValueChange={handleCheckboxChange(setSelectedMusculoskeletalIssues)}
+                        className="grid-cols-2 md:grid-cols-2"
+                      />
+                      <div>
+                        <Label htmlFor="other-musculoskeletal">Other</Label>
+                        <Input id="other-musculoskeletal" value={otherMusculoskeletal} onChange={(e) => setOtherMusculoskeletal(e.target.value)} />
                       </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="ulcer-locations">Location of ulcers</Label>
-                      <Textarea id="ulcer-locations" rows={2} value={ulcerLocations} onChange={(e) => setUlcerLocations(e.target.value)} />
-                    </div>
-                    <div>
-                      <Label htmlFor="surgical-wounds">Surgical or other wounds (describe location, size, nature)</Label>
-                      <Textarea id="surgical-wounds" rows={3} value={surgicalWounds} onChange={(e) => setSurgicalWounds(e.target.value)} />
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </div>
 
-                {/* MOBILITY & TRANSFERS */}
+                {/* Mental Health and Skin Side-by-Side */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* MENTAL HEALTH */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Mental Health</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <FormCheckboxGroup
+                        label=""
+                        options={mentalHealthOptions}
+                        selectedValues={selectedMentalHealthIssues}
+                        onValueChange={handleCheckboxChange(setSelectedMentalHealthIssues)}
+                        className="grid-cols-2 md:grid-cols-2"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* SKIN */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Skin</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <FormCheckboxGroup
+                        label="Color"
+                        options={skinColorOptions}
+                        selectedValues={selectedSkinColors}
+                        onValueChange={handleCheckboxChange(setSelectedSkinColors)}
+                        className="grid-cols-2 md:grid-cols-2"
+                      />
+                      <FormRadioGroup
+                        label="Skin Intact"
+                        options={yesNoOptions}
+                        selectedValue={skinIntact}
+                        onValueChange={handleRadioChange(setSkinIntact)}
+                        className="flex items-center gap-4"
+                      />
+                      <div>
+                        <Label>Pressure Ulcers</Label>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {[1, 2, 3, 4].map((s) => (
+                            <div key={s} className="flex items-center space-x-2">
+                              <Label htmlFor={`pressure-ulcer-stage-${s}`}>Stage {s}</Label>
+                              <Input
+                                id={`pressure-ulcer-stage-${s}`}
+                                type="number"
+                                placeholder="Count"
+                                className="w-20"
+                                value={eval(`pressureUlcersStage${s}`)}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  if (s === 1) setPressureUlcersStage1(value);
+                                  else if (s === 2) setPressureUlcersStage2(value);
+                                  else if (s === 3) setPressureUlcersStage3(value);
+                                  else if (s === 4) setPressureUlcersStage4(value);
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="ulcer-locations">Location of ulcers</Label>
+                        <Textarea id="ulcer-locations" rows={2} value={ulcerLocations} onChange={(e) => setUlcerLocations(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="surgical-wounds">Surgical or other wounds (describe location, size, nature)</Label>
+                        <Textarea id="surgical-wounds" rows={3} value={surgicalWounds} onChange={(e) => setSurgicalWounds(e.target.value)} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* MOBILITY & TRANSFERS (Full Width) */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Mobility & Transfers</CardTitle>
@@ -1185,43 +1207,120 @@ export default function PatientAssessment() {
                   </CardContent>
                 </Card>
 
-                {/* ADLs */}
-                {[
-                  { label: "Bathing", state: bathingLevel, setter: setBathingLevel },
-                  { label: "Personal Hygiene (hair, nails, skin, oral care)", state: personalHygieneLevel, setter: setPersonalHygieneLevel },
-                  { label: "Toileting (bladder, bowel routine, ability to access toilet)", state: toiletingLevel, setter: setToiletingLevel },
-                  { label: "Dressing", state: dressingLevel, setter: setDressingLevel },
-                  { label: "Eating and Drinking", state: eatingDrinkingLevel, setter: setEatingDrinkingLevel },
-                ].map((adl) => (
-                  <Card key={adl.label}>
+                {/* ADLs: Bathing, Personal Hygiene, Toileting (3 in a row) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Bathing */}
+                  <Card>
                     <CardHeader>
-                      <CardTitle>{adl.label}</CardTitle>
+                      <CardTitle>Bathing</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <FormRadioGroup
                         label=""
                         options={adlLevels}
-                        selectedValue={adl.state}
-                        onValueChange={handleRadioChange(adl.setter)}
-                        className="grid grid-cols-2 md:grid-cols-4 gap-4"
+                        selectedValue={bathingLevel}
+                        onValueChange={handleRadioChange(setBathingLevel)}
+                        className="grid grid-cols-2 gap-4"
                       />
-                      {adl.label.includes("Toileting") && (
-                        <div className="mt-4 space-y-2">
-                          <label htmlFor="incontinent-bladder" className="flex items-center">
-                            <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBladder} onCheckedChange={setToiletingIncontinentBladder} />
-                            <span className="ml-2">Incontinent bladder</span>
-                          </label>
-                          <label htmlFor="incontinent-bowel" className="flex items-center">
-                            <Checkbox id="incontinent-bowel" checked={toiletingIncontinentBowel} onCheckedChange={setToiletingIncontinentBowel} />
-                            <span className="ml-2">Incontinent bowel</span>
-                          </label>
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
-                ))}
 
-                {/* HEALTH MAINTENANCE NEEDS */}
+                  {/* Personal Hygiene */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Personal Hygiene (hair, nails, skin, oral care)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <FormRadioGroup
+                        label=""
+                        options={adlLevels}
+                        selectedValue={personalHygieneLevel}
+                        onValueChange={handleRadioChange(setPersonalHygieneLevel)}
+                        className="grid grid-cols-2 gap-4"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* Toileting */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Toileting (bladder, bowel routine, ability to access toilet)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <FormRadioGroup
+                        label=""
+                        options={adlLevels}
+                        selectedValue={toiletingLevel}
+                        onValueChange={handleRadioChange(setToiletingLevel)}
+                        className="grid grid-cols-2 gap-4"
+                      />
+                      <div className="mt-4 space-y-2">
+                        <label htmlFor="incontinent-bladder" className="flex items-center">
+                          <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBladder} onCheckedChange={setToiletingIncontinentBladder} />
+                          <span className="ml-2">Incontinent bladder</span>
+                        </label>
+                        <label htmlFor="incontinent-bowel" className="flex items-center">
+                          <Checkbox id="incontinent-bowel" checked={toiletingIncontinentBowel} onCheckedChange={setToiletingIncontinentBowel} />
+                          <span className="ml-2">Incontinent bowel</span>
+                        </label>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* ADLs: Eating, Dressing, General Physical Condition (3 in a row) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Eating and Drinking */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Eating and Drinking</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <FormRadioGroup
+                        label=""
+                        options={adlLevels}
+                        selectedValue={eatingDrinkingLevel}
+                        onValueChange={handleRadioChange(setEatingDrinkingLevel)}
+                        className="grid grid-cols-2 gap-4"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* Dressing */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Dressing</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <FormRadioGroup
+                        label=""
+                        options={adlLevels}
+                        selectedValue={dressingLevel}
+                        onValueChange={handleRadioChange(setDressingLevel)}
+                        className="grid grid-cols-2 gap-4"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* GENERAL PHYSICAL CONDITION */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>General Physical Condition</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <FormRadioGroup
+                        label=""
+                        options={generalPhysicalConditionOptions}
+                        selectedValue={generalPhysicalCondition}
+                        onValueChange={handleRadioChange(setGeneralPhysicalCondition)}
+                        className="space-y-2"
+                      />
+                      <Input placeholder="Other" className="mt-2" value={otherPhysicalCondition} onChange={(e) => setOtherPhysicalCondition(e.target.value)} />
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* HEALTH MAINTENANCE NEEDS (Full Width) */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Health Maintenance Needs</CardTitle>
@@ -1232,30 +1331,13 @@ export default function PatientAssessment() {
                       options={healthMaintenanceNeedsOptions}
                       selectedValues={selectedHealthMaintenanceNeeds}
                       onValueChange={handleCheckboxChange(setSelectedHealthMaintenanceNeeds)}
-                      className="grid-cols-1 md:grid-cols-2" // Adjust grid for smaller options count
+                      className="grid-cols-1 md:grid-cols-2"
                     />
                     <Textarea rows={2} placeholder="Other needs or notes" value={otherHealthNeedsNotes} onChange={(e) => setOtherHealthNeedsNotes(e.target.value)} />
                   </CardContent>
                 </Card>
 
-                {/* GENERAL PHYSICAL CONDITION */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>General Physical Condition</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <FormRadioGroup
-                      label=""
-                      options={generalPhysicalConditionOptions}
-                      selectedValue={generalPhysicalCondition}
-                      onValueChange={handleRadioChange(setGeneralPhysicalCondition)}
-                      className="space-y-2"
-                    />
-                    <Input placeholder="Other" className="mt-2" value={otherPhysicalCondition} onChange={(e) => setOtherPhysicalCondition(e.target.value)} />
-                  </CardContent>
-                </Card>
-
-                {/* MEDICATION MANAGEMENT */}
+                {/* MEDICATION MANAGEMENT (Full Width) */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Medication Management</CardTitle>
@@ -1276,7 +1358,7 @@ export default function PatientAssessment() {
                   </CardContent>
                 </Card>
 
-                {/* NURSE MONITOR VISIT */}
+                {/* NURSE MONITOR VISIT (Full Width) */}
                 <Card>
                   <CardHeader>
                     <CardTitle>Nurse Monitor Visit</CardTitle>
@@ -1320,7 +1402,7 @@ export default function PatientAssessment() {
                       <Label htmlFor="rn-name">RN Name (Print)</Label>
                       <Input id="rn-name" value={rnName} onChange={(e) => setRnName(e.target.value)} />
                       <Label htmlFor="rn-signature">RN Signature</Label>
-                      <Input id="rn-signature" value={rnSignature} onChange={(e) => setRnSignature(e.target.value)} /> {/* In a real app, this might be a signature pad or image upload */}
+                      <Input id="rn-signature" value={rnSignature} onChange={(e) => setRnSignature(e.target.value)} />
                       <Label htmlFor="rn-date">Date</Label>
                       <Input id="rn-date" type="date" value={rnDate} onChange={(e) => setRnDate(e.target.value)} />
                     </div>
@@ -1328,7 +1410,7 @@ export default function PatientAssessment() {
                       <Label htmlFor="participant-guardian-name">Participant / Guardian Name</Label>
                       <Input id="participant-guardian-name" value={participantGuardianName} onChange={(e) => setParticipantGuardianName(e.target.value)} />
                       <Label htmlFor="participant-guardian-signature">Signature</Label>
-                      <Input id="participant-guardian-signature" value={participantGuardianSignature} onChange={(e) => setParticipantGuardianSignature(e.target.value)} /> {/* Similarly, for real signatures */}
+                      <Input id="participant-guardian-signature" value={participantGuardianSignature} onChange={(e) => setParticipantGuardianSignature(e.target.value)} />
                       <Label htmlFor="participant-guardian-date">Date</Label>
                       <Input id="participant-guardian-date" type="date" value={participantGuardianDate} onChange={(e) => setParticipantGuardianDate(e.target.value)} />
                     </div>
