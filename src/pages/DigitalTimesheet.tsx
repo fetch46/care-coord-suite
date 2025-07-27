@@ -91,6 +91,7 @@ export default function DigitalTimesheet() {
   }, []);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const [caregiversResponse, patientsResponse] = await Promise.all([
         supabase.from("caregivers").select("id, first_name, last_name, role").eq("status", "Active"),
@@ -102,6 +103,9 @@ export default function DigitalTimesheet() {
 
       setCaregivers(caregiversResponse.data || []);
       setPatients(patientsResponse.data || []);
+      // Debug
+      console.log("Caregivers:", caregiversResponse.data);
+      console.log("Patients:", patientsResponse.data);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast({
@@ -109,6 +113,8 @@ export default function DigitalTimesheet() {
         description: "Failed to load caregivers and patients",
         variant: "destructive",
       });
+      setCaregivers([]);
+      setPatients([]);
     } finally {
       setLoading(false);
     }
@@ -221,16 +227,21 @@ export default function DigitalTimesheet() {
                         <Select
                           value={watch("caregiverId")}
                           onValueChange={value => setValue("caregiverId", value)}
+                          disabled={loading || caregivers.length === 0}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select caregiver" />
                           </SelectTrigger>
                           <SelectContent>
-                            {caregivers.map((caregiver) => (
-                              <SelectItem key={caregiver.id} value={caregiver.id}>
-                                {caregiver.first_name} {caregiver.last_name} - {caregiver.role}
-                              </SelectItem>
-                            ))}
+                            {caregivers.length === 0 ? (
+                              <SelectItem value="" disabled>No caregivers found</SelectItem>
+                            ) : (
+                              caregivers.map((caregiver) => (
+                                <SelectItem key={caregiver.id} value={caregiver.id}>
+                                  {caregiver.first_name} {caregiver.last_name} - {caregiver.role}
+                                </SelectItem>
+                              ))
+                            )}
                           </SelectContent>
                         </Select>
                       </div>
@@ -243,16 +254,21 @@ export default function DigitalTimesheet() {
                             const patient = patients.find(p => p.id === value);
                             setSelectedPatient(patient || null);
                           }}
+                          disabled={loading || patients.length === 0}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Select patient" />
                           </SelectTrigger>
                           <SelectContent>
-                            {patients.map((patient) => (
-                              <SelectItem key={patient.id} value={patient.id}>
-                                {patient.first_name} {patient.last_name} - Room {patient.room_number}
-                              </SelectItem>
-                            ))}
+                            {patients.length === 0 ? (
+                              <SelectItem value="" disabled>No patients found</SelectItem>
+                            ) : (
+                              patients.map((patient) => (
+                                <SelectItem key={patient.id} value={patient.id}>
+                                  {patient.first_name} {patient.last_name} - Room {patient.room_number}
+                                </SelectItem>
+                              ))
+                            )}
                           </SelectContent>
                         </Select>
                         {selectedPatient?.allergies && (
