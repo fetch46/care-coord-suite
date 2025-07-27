@@ -43,6 +43,15 @@ const navigationItems = [
   },
   { title: "Scheduling", url: "/scheduling", icon: Calendar },
   { title: "Staff", url: "/staff", icon: UserCheck },
+  { 
+    title: "Timesheets", 
+    url: "/timesheets", 
+    icon: Clock,
+    submenu: [
+      { title: "Digital Timesheet", url: "/digital-timesheet", icon: FileText },
+      { title: "Timesheet Reports", url: "/timesheet-reports", icon: Activity }
+    ]
+  },
   { title: "Assessments", url: "/assessments", icon: FileText },
   { title: "Reports", url: "/reports", icon: Activity },
   { title: "Notifications", url: "/notifications", icon: Bell },

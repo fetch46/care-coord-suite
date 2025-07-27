@@ -10,6 +10,8 @@ import Staff from "./pages/Staff";
 import StaffDetails from "./pages/StaffDetails";
 import PatientRegistration from "./pages/PatientRegistration";
 import Timesheet from "./pages/Timesheet";
+import DigitalTimesheet from "./pages/DigitalTimesheet";
+import TimesheetReports from "./pages/TimesheetReports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,8 @@ const App = () => (
           <Route path="/staff/:id" element={<StaffDetails />} />
           <Route path="/patient-registration" element={<PatientRegistration />} />
           <Route path="/timesheet" element={<Timesheet />} />
+          <Route path="/digital-timesheet" element={<DigitalTimesheet />} />
+          <Route path="/timesheet-reports" element={<TimesheetReports />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
