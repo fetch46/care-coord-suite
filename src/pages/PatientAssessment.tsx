@@ -19,6 +19,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"; // Import Table components
 
 // --- Reusable Components ---
 
@@ -425,7 +433,7 @@ export default function PatientAssessment() {
   const [bathingLevel, setBathingLevel] = useState("");
   const [personalHygieneLevel, setPersonalHygieneLevel] = useState("");
   const [toiletingLevel, setToiletingLevel] = useState("");
-  const [toiletingIncontinentBladder, setToiletingIncontinentBladder] = useState(false);
+  const [toiletingIncontinentBladder, setToiletingIncontinentBlatter] = useState(false);
   const [toiletingIncontinentBowel, setToiletingIncontinentBowel] = useState(false);
   const [dressingLevel, setDressingLevel] = useState("");
   const [eatingDrinkingLevel, setEatingDrinkingLevel] = useState("");
@@ -1068,7 +1076,7 @@ export default function PatientAssessment() {
                         options={behaviorOptions}
                         selectedValues={selectedBehaviors}
                         onValueChange={handleCheckboxChange(setSelectedBehaviors)}
-                        className="grid-cols-1 md:grid-cols-2"
+                        className="grid-cols-1 md:grid-cols-2" // Adjusting grid for better fit
                       />
                       <FormRadioGroup
                         label="Is this person receiving psychological counseling?"
@@ -1101,7 +1109,7 @@ export default function PatientAssessment() {
                   </Card>
                 </div>
 
-                {/* Mental Health and Skin Side-by-Side */}
+                {/* Mental Health and Health Maintenance Needs Side-by-Side */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* MENTAL HEALTH */}
                   <Card>
@@ -1119,61 +1127,133 @@ export default function PatientAssessment() {
                     </CardContent>
                   </Card>
 
-                  {/* SKIN */}
+                  {/* HEALTH MAINTENANCE NEEDS */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>Skin</CardTitle>
+                      <CardTitle>Health Maintenance Needs</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-2">
                       <FormCheckboxGroup
-                        label="Color"
-                        options={skinColorOptions}
-                        selectedValues={selectedSkinColors}
-                        onValueChange={handleCheckboxChange(setSelectedSkinColors)}
-                        className="grid-cols-2 md:grid-cols-2"
+                        label=""
+                        options={healthMaintenanceNeedsOptions}
+                        selectedValues={selectedHealthMaintenanceNeeds}
+                        onValueChange={handleCheckboxChange(setSelectedHealthMaintenanceNeeds)}
+                        className="grid-cols-1 md:grid-cols-2"
                       />
-                      <FormRadioGroup
-                        label="Skin Intact"
-                        options={yesNoOptions}
-                        selectedValue={skinIntact}
-                        onValueChange={handleRadioChange(setSkinIntact)}
-                        className="flex items-center gap-4"
-                      />
-                      <div>
-                        <Label>Pressure Ulcers</Label>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                          {[1, 2, 3, 4].map((s) => (
-                            <div key={s} className="flex items-center space-x-2">
-                              <Label htmlFor={`pressure-ulcer-stage-${s}`}>Stage {s}</Label>
-                              <Input
-                                id={`pressure-ulcer-stage-${s}`}
-                                type="number"
-                                placeholder="Count"
-                                className="w-20"
-                                value={eval(`pressureUlcersStage${s}`)}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  if (s === 1) setPressureUlcersStage1(value);
-                                  else if (s === 2) setPressureUlcersStage2(value);
-                                  else if (s === 3) setPressureUlcersStage3(value);
-                                  else if (s === 4) setPressureUlcersStage4(value);
-                                }}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="ulcer-locations">Location of ulcers</Label>
-                        <Textarea id="ulcer-locations" rows={2} value={ulcerLocations} onChange={(e) => setUlcerLocations(e.target.value)} />
-                      </div>
-                      <div>
-                        <Label htmlFor="surgical-wounds">Surgical or other wounds (describe location, size, nature)</Label>
-                        <Textarea id="surgical-wounds" rows={3} value={surgicalWounds} onChange={(e) => setSurgicalWounds(e.target.value)} />
-                      </div>
+                      <Textarea rows={2} placeholder="Other needs or notes" value={otherHealthNeedsNotes} onChange={(e) => setOtherHealthNeedsNotes(e.target.value)} />
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* SKIN (Full Width with Table) */}
+                <Card className="col-span-full"> {/* Make Skin card full width */}
+                  <CardHeader>
+                    <CardTitle>Skin</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <FormCheckboxGroup
+                      label="Color"
+                      options={skinColorOptions}
+                      selectedValues={selectedSkinColors}
+                      onValueChange={handleCheckboxChange(setSelectedSkinColors)}
+                      className="grid-cols-2 md:grid-cols-3"
+                    />
+                    <FormRadioGroup
+                      label="Skin Intact"
+                      options={yesNoOptions}
+                      selectedValue={skinIntact}
+                      onValueChange={handleRadioChange(setSkinIntact)}
+                      className="flex items-center gap-4"
+                    />
+
+                    {/* Pressure Ulcer Stages Table */}
+                    {skinIntact === "no" && ( // Only show if Skin Intact is "No"
+                      <div className="mt-4">
+                        <Label>Pressure Ulcer Stages</Label>
+                        <Table className="border mt-2">
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="w-[60%]">Description</TableHead>
+                              <TableHead className="text-center w-[40%]">Number of Pressure Ulcers</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            <TableRow>
+                              <TableCell className="font-medium">
+                                Stage 1: Redness of intact skin; warmth, edema, hardness, or discolored skin may be indicators
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  placeholder="0"
+                                  className="w-20 text-center mx-auto"
+                                  value={pressureUlcersStage1}
+                                  onChange={(e) => setPressureUlcersStage1(e.target.value)}
+                                />
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">
+                                Stage 2: Partial thickness skin loss of epidermis and/or dermis. The ulcer is superficial and appears as an abrasion, blister, or shallow crater.
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  placeholder="0"
+                                  className="w-20 text-center mx-auto"
+                                  value={pressureUlcersStage2}
+                                  onChange={(e) => setPressureUlcersStage2(e.target.value)}
+                                />
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">
+                                Stage 3: Full thickness skin loss; damage or necrosis of subcutaneous tissue; deep crater
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  placeholder="0"
+                                  className="w-20 text-center mx-auto"
+                                  value={pressureUlcersStage3}
+                                  onChange={(e) => setPressureUlcersStage3(e.target.value)}
+                                />
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell className="font-medium">
+                                Stage 4: Full thickness skin loss with extensive destruction, tissue necrosis or damage to muscle, bone or supporting structures
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  placeholder="0"
+                                  className="w-20 text-center mx-auto"
+                                  value={pressureUlcersStage4}
+                                  onChange={(e) => setPressureUlcersStage4(e.target.value)}
+                                />
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+
+                    <div>
+                      <Label htmlFor="ulcer-locations">Location of ulcers:</Label>
+                      <Textarea id="ulcer-locations" rows={2} value={ulcerLocations} onChange={(e) => setUlcerLocations(e.target.value)} />
+                    </div>
+                    <div>
+                      <Label htmlFor="surgical-wounds">Surgical or other types of wounds (describe location, size and nature of wound)</Label>
+                      <Textarea id="surgical-wounds" rows={3} value={surgicalWounds} onChange={(e) => setSurgicalWounds(e.target.value)} />
+                    </div>
+                  </CardContent>
+                </Card>
+
 
                 {/* MOBILITY & TRANSFERS (Full Width) */}
                 <Card>
@@ -1256,7 +1336,7 @@ export default function PatientAssessment() {
                       />
                       <div className="mt-4 space-y-2">
                         <label htmlFor="incontinent-bladder" className="flex items-center">
-                          <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBladder} onCheckedChange={setToiletingIncontinentBladder} />
+                          <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBlatter} onCheckedChange={setToiletingIncontinentBlatter} />
                           <span className="ml-2">Incontinent bladder</span>
                         </label>
                         <label htmlFor="incontinent-bowel" className="flex items-center">
@@ -1320,22 +1400,6 @@ export default function PatientAssessment() {
                   </Card>
                 </div>
 
-                {/* HEALTH MAINTENANCE NEEDS (Full Width) */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Health Maintenance Needs</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <FormCheckboxGroup
-                      label=""
-                      options={healthMaintenanceNeedsOptions}
-                      selectedValues={selectedHealthMaintenanceNeeds}
-                      onValueChange={handleCheckboxChange(setSelectedHealthMaintenanceNeeds)}
-                      className="grid-cols-1 md:grid-cols-2"
-                    />
-                    <Textarea rows={2} placeholder="Other needs or notes" value={otherHealthNeedsNotes} onChange={(e) => setOtherHealthNeedsNotes(e.target.value)} />
-                  </CardContent>
-                </Card>
 
                 {/* MEDICATION MANAGEMENT (Full Width) */}
                 <Card>
