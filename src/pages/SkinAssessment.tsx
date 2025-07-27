@@ -51,8 +51,18 @@ export default function SkinAssessmentForm() {
       setRecords(records); setDots(d || []); setBodyView(bv || "front");
     }
   }, []);
-  useEffect(() => {
-    localStorage.setItem("skinAssessment", JSON.stringify({ date, patientName, physician, room, records, dots, bodyView }));
+
+  const handleSave = useCallback(() => {
+    localStorage.setItem("skinAssessment", JSON.stringify({ 
+      date, 
+      patientName, 
+      physician, 
+      room, 
+      records, 
+      dots, 
+      bodyView 
+    }));
+    alert("Assessment saved successfully!");
   }, [date, patientName, physician, room, records, dots, bodyView]);
 
   const updateRecord = (area: HotSpot, patch: Partial<HotSpotRecord>) =>
@@ -210,6 +220,11 @@ export default function SkinAssessmentForm() {
                       )}
                     </div>
                   ))}
+                  <div className="flex justify-end mt-4">
+                    <Button onClick={handleSave}>
+                      Save Assessment
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
