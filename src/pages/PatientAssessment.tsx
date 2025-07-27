@@ -39,7 +39,7 @@ export default function PatientAssessment() {
     <SidebarProvider>
       <div className="flex h-screen w-screen">
         <AppSidebar />
-        
+        <div className="flex flex-col w-full">
           <AppHeader />
           <SidebarInset>
             <main className="flex-1 p-4 md:p-6 overflow-auto">
@@ -284,7 +284,7 @@ export default function PatientAssessment() {
               </div>
             </main>
           </SidebarInset>
-       
+       </div>
       </div>
     </SidebarProvider>
   );
