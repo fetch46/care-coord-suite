@@ -197,20 +197,7 @@ export default function DigitalTimesheet() {
           <main className="flex-1 overflow-auto p-6">
             <div className="w-full space-y-8">
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-                {/* Header */}
-                <Card className="bg-primary text-primary-foreground">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold">American Care Team</CardTitle>
-                    <div className="space-y-1">
-                      <p className="text-lg font-semibold">Provider Timesheet For Home Health Care</p>
-                      <p className="text-sm">240-581-2918</p>
-                      <p className="text-sm">1503 East North Ave, Baltimore MD 21213</p>
-                      <p className="text-sm">www.AmericanCareTeam.com</p>
-                    </div>
-                  </CardHeader>
-                </Card>
-
-                {/* Important Notice */}
+               {/* Important Notice */}
                 <Card className="border-orange-200 bg-orange-50">
                   <CardContent className="p-4">
                     <p className="text-sm font-medium text-orange-800 text-center">
@@ -231,7 +218,10 @@ export default function DigitalTimesheet() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="caregiverId">Care Giver</Label>
-                        <Select onValueChange={(value) => setValue("caregiverId", value)}>
+                        <Select
+                          value={watch("caregiverId")}
+                          onValueChange={value => setValue("caregiverId", value)}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Select caregiver" />
                           </SelectTrigger>
@@ -246,11 +236,14 @@ export default function DigitalTimesheet() {
                       </div>
                       <div>
                         <Label htmlFor="patientId">Patient</Label>
-                        <Select onValueChange={(value) => {
-                          setValue("patientId", value);
-                          const patient = patients.find(p => p.id === value);
-                          setSelectedPatient(patient || null);
-                        }}>
+                        <Select
+                          value={watch("patientId")}
+                          onValueChange={value => {
+                            setValue("patientId", value);
+                            const patient = patients.find(p => p.id === value);
+                            setSelectedPatient(patient || null);
+                          }}
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Select patient" />
                           </SelectTrigger>
@@ -368,64 +361,66 @@ export default function DigitalTimesheet() {
                       For this shift, please check which items you worked on with the patient
                     </p>
                   </CardHeader>
-                  <CardContent className="space-y-8">
-                    {/* Personal Care Tasks */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Personal Care Tasks</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          {personalCareTasks.map(task => (
-                            <div key={task} className="flex items-center">
-                              <Checkbox
-                                checked={duties.personalCare[task] || false}
-                                onCheckedChange={(checked) => handleDutyChange("personalCare", task, !!checked)}
-                              />
-                              <Label className="ml-2">{task}</Label>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                    {/* Home Management Tasks */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Home Management Tasks</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          {homeManagementTasks.map(task => (
-                            <div key={task} className="flex items-center">
-                              <Checkbox
-                                checked={duties.homeManagement[task] || false}
-                                onCheckedChange={(checked) => handleDutyChange("homeManagement", task, !!checked)}
-                              />
-                              <Label className="ml-2">{task}</Label>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                    {/* Activities */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Activities</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          {activitiesTasks.map(task => (
-                            <div key={task} className="flex items-center">
-                              <Checkbox
-                                checked={duties.activities[task] || false}
-                                onCheckedChange={(checked) => handleDutyChange("activities", task, !!checked)}
-                              />
-                              <Label className="ml-2">{task}</Label>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
+                  <CardContent>
+                    <div className="flex flex-col md:flex-row gap-4">
+                      {/* Personal Care Tasks */}
+                      <Card className="flex-1">
+                        <CardHeader>
+                          <CardTitle>Personal Care Tasks</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            {personalCareTasks.map(task => (
+                              <div key={task} className="flex items-center">
+                                <Checkbox
+                                  checked={duties.personalCare[task] || false}
+                                  onCheckedChange={checked => handleDutyChange("personalCare", task, !!checked)}
+                                />
+                                <Label className="ml-2">{task}</Label>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                      {/* Home Management Tasks */}
+                      <Card className="flex-1">
+                        <CardHeader>
+                          <CardTitle>Home Management Tasks</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            {homeManagementTasks.map(task => (
+                              <div key={task} className="flex items-center">
+                                <Checkbox
+                                  checked={duties.homeManagement[task] || false}
+                                  onCheckedChange={checked => handleDutyChange("homeManagement", task, !!checked)}
+                                />
+                                <Label className="ml-2">{task}</Label>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                      {/* Activities */}
+                      <Card className="flex-1">
+                        <CardHeader>
+                          <CardTitle>Activities</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            {activitiesTasks.map(task => (
+                              <div key={task} className="flex items-center">
+                                <Checkbox
+                                  checked={duties.activities[task] || false}
+                                  onCheckedChange={checked => handleDutyChange("activities", task, !!checked)}
+                                />
+                                <Label className="ml-2">{task}</Label>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </CardContent>
                 </Card>
 
