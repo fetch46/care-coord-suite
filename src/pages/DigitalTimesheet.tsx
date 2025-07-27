@@ -236,7 +236,8 @@ export default function DigitalTimesheet() {
         <SidebarInset>
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
-            <div className="w-full max-w-6xl mx-auto space-y-8">
+            <div className="w-full space-y-8">
+              {/* <div className="w-full max-w-6xl mx-auto space-y-8"> ----Andrew */}
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                 {/* Header */}
                 <Card className="bg-primary text-primary-foreground">
