@@ -10,7 +10,7 @@ import Staff from "./pages/Staff";
 import StaffDetails from "./pages/StaffDetails";
 import PatientRegistration from "./pages/PatientRegistration";
 import Timesheet from "./pages/Timesheet";
-import Timesheet from "./pages/SkinAssessment";
+import SkinAssessment from "./pages/SkinAssessment";
 import DigitalTimesheet from "./pages/DigitalTimesheet";
 import TimesheetReports from "./pages/TimesheetReports";
 import NotFound from "./pages/NotFound";
