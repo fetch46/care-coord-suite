@@ -25,26 +25,26 @@ export function StatsCard({
   const getVariantStyles = () => {
     switch (variant) {
       case "primary":
-        return "border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10"
+        return "border-primary/20 bg-primary/5"
       case "teal":
-        return "border-healthcare-teal/20 bg-gradient-to-br from-healthcare-teal/5 to-healthcare-teal/10"
+        return "border-healthcare-teal/20 bg-healthcare-teal/5"
       case "coral":
-        return "border-healthcare-coral/20 bg-gradient-to-br from-healthcare-coral/5 to-healthcare-coral/10"
+        return "border-healthcare-coral/20 bg-healthcare-coral/5"
       default:
-        return "border-border"
+        return "border-border bg-muted/10"
     }
   }
 
   const getIconStyles = () => {
     switch (variant) {
       case "primary":
-        return "bg-gradient-primary text-white"
+        return "text-primary"
       case "teal":
-        return "bg-gradient-teal text-white"
+        return "text-healthcare-teal"
       case "coral":
-        return "bg-gradient-coral text-white"
+        return "text-healthcare-coral"
       default:
-        return "bg-muted text-muted-foreground"
+        return "text-muted-foreground"
     }
   }
 
@@ -61,31 +61,31 @@ export function StatsCard({
 
   return (
     <Card className={cn(
-      "w-full shadow-card hover:shadow-elevated transition-all duration-200 animate-fade-in",
+      "w-full shadow-sm hover:shadow-md transition-all",
       getVariantStyles(),
       className
     )}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between p-4 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
         <div className={cn(
-          "w-10 h-10 rounded-lg flex items-center justify-center",
+          "w-8 h-8 rounded-md flex items-center justify-center",
           getIconStyles()
         )}>
-          <Icon className="h-5 w-5" />
+          <Icon className="h-4 w-4" />
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="text-3xl font-bold text-foreground">
+      <CardContent className="p-4 pt-0">
+        <div className="text-2xl font-semibold text-foreground">
           {value}
         </div>
         {change && (
-          <div className="flex items-center gap-1 mt-2">
-            <span className={cn("text-sm font-medium", getTrendColor())}>
-              {change.trend === "up" ? "↗" : change.trend === "down" ? "↘" : "→"} {change.value}
+          <div className="flex items-center gap-1 mt-1">
+            <span className={cn("text-xs font-medium", getTrendColor())}>
+              {change.trend === "up" ? "↑" : change.trend === "down" ? "↓" : "→"} {change.value}
             </span>
-            <span className="text-sm text-muted-foreground">from last month</span>
+            <span className="text-xs text-muted-foreground">vs last month</span>
           </div>
         )}
       </CardContent>
