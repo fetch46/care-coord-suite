@@ -452,7 +452,7 @@ export default function DigitalTimesheet() {
                     <p>I declare that I have sustained no injury on this assigned job.</p>
                     <p>By signing this time sheet, I certify that all services have been provided in accordance with the Patient's healthcare assessment and I have delivered all service hours shown on the time sheet.</p>
                     <p className="font-semibold">In order to be paid, I understand this time sheet must be completed and signed by both me and the patient.</p>
-                    <p className="font-semibold text-red-600">All completed time sheets must be returned by Mondays at 12:00 PM.</p>
+                    <p className="font-semibold text-red-600">All completed time sheets must be submitted daily after shift.</p>
                   </CardContent>
                 </Card>
 
