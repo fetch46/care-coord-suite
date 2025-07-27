@@ -1,13 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function PatientAssessment() {
   return (
@@ -18,122 +22,162 @@ export default function PatientAssessment() {
           <AppHeader />
           <SidebarInset>
             <main className="flex-1 p-6 md:p-10">
-              {/* Increased max-width and removed space-y-6 to control spacing individually */}
-              <div className="w-full max-w-6xl mx-auto space-y-8"> {/* Increased max-width */}
-                
-                {/* General Health - Wider Card */}
-                <Card className="w-full">
+              <div className="w-full max-w-6xl mx-auto space-y-8">
+                {/* Header with Print Button */}
+                <div className="flex justify-between items-center">
+                  <h1 className="text-2xl font-bold">Patient Assessment Form</h1>
+                  <Button variant="outline">
+                    <Printer className="mr-2 h-4 w-4" />
+                    Print Form
+                  </Button>
+                </div>
+
+                {/* General Health Section */}
+                <Card>
                   <CardHeader>
                     <CardTitle>General Health</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6"> {/* Increased columns */}
-                    <Input placeholder="Temperature (°F)" className="col-span-1" />
-                    <Input placeholder="Pulse (bpm)" className="col-span-1" />
-                    <Input placeholder="Respiration (rpm)" className="col-span-1" />
-                    <Input placeholder="Blood Pressure" className="col-span-1" />
-                    <Input placeholder="Weight (lbs)" className="col-span-1" />
-                    <div className="col-span-1" /> {/* Spacer */}
+                  <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                      <Label>Temperature (°F)</Label>
+                      <Input placeholder="98.6" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Pulse (bpm)</Label>
+                      <Input placeholder="72" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Respiration (rpm)</Label>
+                      <Input placeholder="16" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Blood Pressure</Label>
+                      <Input placeholder="120/80" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Weight (lbs)</Label>
+                      <Input placeholder="150" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Target Weight (lbs)</Label>
+                      <Input placeholder="155" />
+                    </div>
 
-                    <div className="col-span-3"> {/* Full width section */}
-                      <p className="mb-3 font-medium">Diet/Nutrition:</p>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> {/* More columns for options */}
-                        {[
-                          "Regular",
-                          "Low Salt",
-                          "Diabetic",
-                          "Renal",
-                          "Soft",
-                          "NPO",
-                          "Other",
-                        ].map((label) => (
-                          <label key={label} className="flex items-center space-x-3"> {/* Increased spacing */}
-                            <Checkbox id={label} />
-                            <span>{label}</span>
-                          </label>
-                        ))}
+                    <div className="col-span-3 space-y-4">
+                      <div>
+                        <Label>Diet/Nutrition</Label>
+                        <ToggleGroup type="multiple" className="flex-wrap justify-start">
+                          <ToggleGroupItem value="regular">Regular</ToggleGroupItem>
+                          <ToggleGroupItem value="low-salt">Low Salt</ToggleGroupItem>
+                          <ToggleGroupItem value="diabetic">Diabetic</ToggleGroupItem>
+                          <ToggleGroupItem value="renal">Renal</ToggleGroupItem>
+                          <ToggleGroupItem value="soft">Soft</ToggleGroupItem>
+                          <ToggleGroupItem value="npo">NPO</ToggleGroupItem>
+                        </ToggleGroup>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <Label>Fluid Restrictions:</Label>
+                        <RadioGroup defaultValue="no" className="flex gap-4">
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="no" id="no-restriction" />
+                            <Label htmlFor="no-restriction">No</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="yes" id="yes-restriction" />
+                            <Label htmlFor="yes-restriction">Yes</Label>
+                          </div>
+                        </RadioGroup>
+                        <Input placeholder="Amount (mL)" className="w-32" />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Recent Health Changes</Label>
+                        <Textarea placeholder="Describe any changes..." />
                       </div>
                     </div>
-
-                    <div className="col-span-3 flex items-center gap-6"> {/* Wider fluid restrictions */}
-                      <label className="flex items-center space-x-3">
-                        <Checkbox id="fluid-restrictions" />
-                        <span>Fluid Restrictions?</span>
-                      </label>
-                      <Input
-                        placeholder="If yes, amount in mL"
-                        className="w-64" {/* Wider input */}
-                      />
-                    </div>
-
-                    <Textarea
-                      placeholder="Recent Health Changes"
-                      className="col-span-3 h-24" {/* Wider and taller */}
-                    />
                   </CardContent>
                 </Card>
 
-                {/* Diagnosis & Health Status - Wider */}
-                <Card className="w-full">
+                {/* Diagnosis Section */}
+                <Card>
                   <CardHeader>
                     <CardTitle>Diagnosis & Health Status</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid gap-6"> {/* Increased gap */}
+                  <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Input placeholder="Primary Diagnosis" />
-                      <Input placeholder="Secondary Diagnoses" />
+                      <div className="space-y-2">
+                        <Label>Primary Diagnosis</Label>
+                        <Input placeholder="Enter primary diagnosis" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Secondary Diagnoses</Label>
+                        <Input placeholder="Enter secondary diagnoses" />
+                      </div>
                     </div>
 
-                    <div className="space-y-3">
-                      <p className="font-medium text-lg">Recent Changes:</p> {/* Larger text */}
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4"> {/* Multi-column layout */}
-                        {[
-                          "Medications",
-                          "Hospitalizations",
-                          "Falls",
-                          "ER Visits",
-                          "New Symptoms",
-                          "Other",
-                        ].map((label) => (
-                          <label key={label} className="flex items-center space-x-3">
-                            <Checkbox id={label} />
-                            <span>{label}</span>
-                          </label>
+                    <div className="space-y-4">
+                      <Label>Recent Changes</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {["Medications", "Hospitalizations", "Falls", "ER Visits", "New Symptoms", "Other"].map((item) => (
+                          <div key={item} className="flex items-center space-x-2">
+                            <Checkbox id={item.toLowerCase()} />
+                            <Label htmlFor={item.toLowerCase()}>{item}</Label>
+                          </div>
                         ))}
                       </div>
                     </div>
 
-                    <Textarea 
-                      placeholder="Details" 
-                      className="min-h-32" {/* Taller textarea */}
-                    />
+                    <div className="space-y-2">
+                      <Label>Details</Label>
+                      <Textarea placeholder="Provide additional details..." className="min-h-32" />
+                    </div>
                   </CardContent>
                 </Card>
 
-                {/* Signatures - Wider layout */}
-                <Card className="w-full">
+                {/* Signatures Section */}
+                <Card>
                   <CardHeader>
                     <CardTitle>Signatures</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8"> {/* Increased gap */}
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
-                      <Input placeholder="RN Name (Print)" className="w-full" />
-                      <Input placeholder="RN Signature" className="w-full" />
-                      <Input type="date" className="w-full" />
+                      <div className="space-y-2">
+                        <Label>RN Name</Label>
+                        <Input placeholder="Registered Nurse Name" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>RN Signature</Label>
+                        <Input placeholder="Nurse signature" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Date</Label>
+                        <Input type="date" />
+                      </div>
                     </div>
                     <div className="space-y-4">
-                      <Input placeholder="Participant/Guardian Name" className="w-full" />
-                      <Input placeholder="Participant/Guardian Signature" className="w-full" />
-                      <Input type="date" className="w-full" />
+                      <div className="space-y-2">
+                        <Label>Participant/Guardian Name</Label>
+                        <Input placeholder="Patient or guardian name" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Signature</Label>
+                        <Input placeholder="Patient/guardian signature" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Date</Label>
+                        <Input type="date" />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Disclaimers - Full width */}
-                <Card className="w-full">
+                {/* Disclaimers Section */}
+                <Card>
                   <CardHeader>
                     <CardTitle>Disclaimers</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4 text-base"> {/* Larger text */}
+                  <CardContent className="space-y-4 text-sm">
                     <p>
                       <strong>MANDATED REPORTING:</strong> Any suspicion of abuse,
                       neglect, or exploitation must be immediately reported to Adult Protective
