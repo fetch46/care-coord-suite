@@ -124,19 +124,11 @@ export default function PatientAssessment() {
                       <Input />
                     </div>
                     <div>
-                      <Label>BP Systolic/Diastolic</Label>
+                      <Label>Blood Pressure</Label>
                       <Input />
                     </div>
                     <div>
-                      <Label>Current Weight (lbs)</Label>
-                      <Input />
-                    </div>
-                    <div>
-                      <Label>Gain / Loss</Label>
-                      <Input placeholder="+/- lbs" />
-                    </div>
-                    <div>
-                      <Label>Target Weight (lbs)</Label>
+                      <Label>Weight (lbs)</Label>
                       <Input />
                     </div>
                   </div>
@@ -194,21 +186,23 @@ export default function PatientAssessment() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label>Within Normal Limits</Label>
-                    <Checkbox />
+                    <Label>Findings</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {[
+                        "Within Normal Limits",
+                        "Cough",
+                        "Wheezing",
+                        "Other",
+                      ].map((f) => (
+                        <label key={f} className="flex items-center space-x-2">
+                          <Checkbox id={`resp-${f}`} />
+                          <span>{f}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <Input placeholder="Other findings" className="mt-2" />
                   </div>
-                  <div>
-                    <Label>Cough</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Wheezing</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Other respiratory findings</Label>
-                    <Input />
-                  </div>
+
                   <div>
                     <Label>Shortness of Breath</Label>
                     <Select>
@@ -230,9 +224,10 @@ export default function PatientAssessment() {
                       </SelectContent>
                     </Select>
                   </div>
+
                   <div>
-                    <Label>Respiratory treatments utilized at home</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                    <Label>Respiratory treatments at home</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                       {[
                         "Oxygen (intermittent or continuous)",
                         "Aerosol or nebulizer treatments",
@@ -241,7 +236,7 @@ export default function PatientAssessment() {
                         "None",
                       ].map((t) => (
                         <label key={t} className="flex items-center space-x-2">
-                          <Checkbox id={`resp-${t}`} />
+                          <Checkbox id={`resp-tx-${t}`} />
                           <span>{t}</span>
                         </label>
                       ))}
@@ -250,7 +245,7 @@ export default function PatientAssessment() {
                 </CardContent>
               </Card>
 
-              {/* PAIN / DISCOMFORT */}
+              {/* PAIN */}
               <Card>
                 <CardHeader>
                   <CardTitle>Pain / Discomfort</CardTitle>
@@ -278,23 +273,17 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Pain Sites</Label>
-                    <Textarea rows={3} />
+                    <Textarea rows={2} />
                   </div>
                   <div>
                     <Label>Pain Intensity</Label>
-                    <div className="flex items-center gap-4 mt-1">
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="high" />
-                        <span>High</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="medium" />
-                        <span>Medium</span>
-                      </label>
-                      <label className="flex items-center space-x-2">
-                        <RadioGroupItem value="low" />
-                        <span>Low</span>
-                      </label>
+                    <div className="flex items-center gap-4">
+                      {["High", "Medium", "Low"].map((level) => (
+                        <label key={level} className="flex items-center space-x-2">
+                          <RadioGroupItem value={level} />
+                          <span>{level}</span>
+                        </label>
+                      ))}
                     </div>
                   </div>
                   <div>
@@ -318,7 +307,7 @@ export default function PatientAssessment() {
                 </CardContent>
               </Card>
 
-              {/* GENITOURINARY STATUS */}
+              {/* GENITOURINARY */}
               <Card>
                 <CardHeader>
                   <CardTitle>Genitourinary Status</CardTitle>
@@ -332,25 +321,19 @@ export default function PatientAssessment() {
                     <Label>Urine Frequency</Label>
                     <Input />
                   </div>
-                  <div>
-                    <Label>Pain/Burning</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Discharge</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Distention/Retention</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Hesitancy</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Hematuria</Label>
-                    <Checkbox />
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {[
+                      "Pain/Burning",
+                      "Discharge",
+                      "Distention/Retention",
+                      "Hesitancy",
+                      "Hematuria",
+                    ].map((g) => (
+                      <label key={g} className="flex items-center space-x-2">
+                        <Checkbox id={`gu-${g}`} />
+                        <span>{g}</span>
+                      </label>
+                    ))}
                   </div>
                   <div>
                     <Label>Other</Label>
@@ -375,7 +358,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Rhythm</Label>
-                    <div className="flex items-center gap-4 mt-1">
+                    <div className="flex items-center gap-4">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="regular" />
                         <span>Regular</span>
@@ -388,7 +371,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Edema</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                       {[
                         "RUE: Non-pitting",
                         "RUE: Pitting",
@@ -413,7 +396,7 @@ export default function PatientAssessment() {
                 </CardContent>
               </Card>
 
-              {/* GASTROINTESTINAL STATUS */}
+              {/* GASTROINTESTINAL */}
               <Card>
                 <CardHeader>
                   <CardTitle>Gastrointestinal Status</CardTitle>
@@ -423,21 +406,19 @@ export default function PatientAssessment() {
                     <Label>Bowels: frequency</Label>
                     <Input />
                   </div>
-                  <div>
-                    <Label>Diarrhea</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Constipation</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Nausea</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Vomiting</Label>
-                    <Checkbox />
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {[
+                      "Diarrhea",
+                      "Constipation",
+                      "Nausea",
+                      "Vomiting",
+                      "Anorexia",
+                    ].map((g) => (
+                      <label key={g} className="flex items-center space-x-2">
+                        <Checkbox id={`gi-${g}`} />
+                        <span>{g}</span>
+                      </label>
+                    ))}
                   </div>
                   <div>
                     <Label>Swallowing issues</Label>
@@ -445,11 +426,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Pain</Label>
-                    <Input />
-                  </div>
-                  <div>
-                    <Label>Anorexia</Label>
-                    <Checkbox />
+                    <Input placeholder="abdominal / epigastric" />
                   </div>
                   <div>
                     <Label>Other</Label>
@@ -492,7 +469,7 @@ export default function PatientAssessment() {
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Cognitive functioning</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                    <div className="space-y-1">
                       {[
                         "Alert/oriented, able to focus and shift attention, comprehends and recalls task directions independently",
                         "Requires prompting (cueing, repetition, reminders) only under stressful or unfamiliar situations",
@@ -500,8 +477,8 @@ export default function PatientAssessment() {
                         "Requires considerable assistance in routine situations. Is not alert and oriented or is unable to shift attention and recall more than half the time.",
                         "Totally dependent due to coma or delirium",
                       ].map((c) => (
-                        <label key={c} className="flex items-center space-x-2">
-                          <Checkbox id={`cog-${c}`} />
+                        <label key={c} className="flex items-start space-x-2">
+                          <RadioGroupItem value={c} />
                           <span>{c}</span>
                         </label>
                       ))}
@@ -509,7 +486,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Speech</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                       {[
                         "Clear and understandable",
                         "Slurred",
@@ -526,7 +503,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Pupils</Label>
-                    <div className="flex items-center gap-4 mt-1">
+                    <div className="flex items-center gap-4">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="equal" />
                         <span>Equal</span>
@@ -539,7 +516,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Movements</Label>
-                    <div className="flex items-center gap-4 mt-1">
+                    <div className="flex items-center gap-4">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="coordinated" />
                         <span>Coordinated</span>
@@ -552,7 +529,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Extremities</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                       {[
                         "Right upper Strong",
                         "Right upper Weak",
@@ -588,30 +565,30 @@ export default function PatientAssessment() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label>Vision with corrective lenses if applicable</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                    <Label>Vision with corrective lenses</Label>
+                    <div className="space-y-1">
                       {[
                         "Normal vision in most situations; can see medication labels, newsprint",
                         "Partially impaired; can't see medication labels, but can see objects in path; can count fingers at arms length",
                         "Severely impaired; cannot locate objects without hearing or touching or person non-responsive",
                       ].map((v) => (
-                        <label key={v} className="flex items-center space-x-2">
-                          <Checkbox id={`vision-${v}`} />
+                        <label key={v} className="flex items-start space-x-2">
+                          <RadioGroupItem value={v} />
                           <span>{v}</span>
                         </label>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <Label>Hearing with corrective device if applicable</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                    <Label>Hearing with corrective device</Label>
+                    <div className="space-y-1">
                       {[
                         "Normal hearing in most situations, can hear normal conversational tone",
                         "Partially impaired; can't hear normal conversational tone",
                         "Severely impaired; cannot hear even with an elevated tone",
                       ].map((h) => (
-                        <label key={h} className="flex items-center space-x-2">
-                          <Checkbox id={`hearing-${h}`} />
+                        <label key={h} className="flex items-start space-x-2">
+                          <RadioGroupItem value={h} />
                           <span>{h}</span>
                         </label>
                       ))}
@@ -628,7 +605,7 @@ export default function PatientAssessment() {
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Behaviors reported or observed</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                       {[
                         "Indecisiveness",
                         "Diminished interest in most activities",
@@ -647,7 +624,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Is this person receiving psychological counseling?</Label>
-                    <div className="flex items-center gap-4 mt-1">
+                    <div className="flex items-center gap-4">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="yes" />
                         <span>Yes</span>
@@ -667,41 +644,23 @@ export default function PatientAssessment() {
                   <CardTitle>Musculoskeletal</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <Label>Within Normal limits</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Deformity</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Unsteady Gait</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Contracture</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Poor endurance</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Impaired ROM</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Altered Balance</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Poor coordination</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Weakness</Label>
-                    <Checkbox />
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {[
+                      "Within Normal limits",
+                      "Deformity",
+                      "Unsteady Gait",
+                      "Contracture",
+                      "Poor endurance",
+                      "Impaired ROM",
+                      "Altered Balance",
+                      "Poor coordination",
+                      "Weakness",
+                    ].map((m) => (
+                      <label key={m} className="flex items-center space-x-2">
+                        <Checkbox id={`msk-${m}`} />
+                        <span>{m}</span>
+                      </label>
+                    ))}
                   </div>
                   <div>
                     <Label>Other</Label>
@@ -716,64 +675,29 @@ export default function PatientAssessment() {
                   <CardTitle>Mental Health</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div>
-                    <Label>Angry</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Depressed</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Uncooperative</Label>
-                                      </div>
-                  <div>
-                    <Label>Hostile</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Panic</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Flat affect</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Anxious</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Phobia</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Agitated</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Obsessive/Compulsive</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Tics</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Spasms</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Mood swings</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>Depressive feeling reported or observed</Label>
-                    <Checkbox />
-                  </div>
-                  <div>
-                    <Label>None of above</Label>
-                    <Checkbox />
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {[
+                      "Angry",
+                      "Depressed",
+                      "Uncooperative",
+                      "Hostile",
+                      "Panic",
+                      "Flat affect",
+                      "Anxious",
+                      "Phobia",
+                      "Agitated",
+                      "Obsessive/Compulsive",
+                      "Tics",
+                      "Spasms",
+                      "Mood swings",
+                      "Depressive feeling reported or observed",
+                      "None of above",
+                    ].map((mh) => (
+                      <label key={mh} className="flex items-center space-x-2">
+                        <Checkbox id={`mh-${mh}`} />
+                        <span>{mh}</span>
+                      </label>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -786,7 +710,7 @@ export default function PatientAssessment() {
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Color</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                       {["Normal", "Pale", "Red", "Irritation", "Rash"].map((c) => (
                         <label key={c} className="flex items-center space-x-2">
                           <Checkbox id={`skin-${c}`} />
@@ -797,7 +721,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Skin Intact</Label>
-                    <div className="flex items-center gap-4 mt-1">
+                    <div className="flex items-center gap-4">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="yes" />
                         <span>Yes</span>
@@ -809,13 +733,12 @@ export default function PatientAssessment() {
                     </div>
                   </div>
 
-                  {/* Pressure Ulcers */}
                   <div>
-                    <Label>Pressure Ulcer Staging</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-1">
-                      {[1, 2, 3, 4].map((stage) => (
-                        <div key={stage} className="flex items-center space-x-2">
-                          <Label>Stage {stage}</Label>
+                    <Label>Pressure Ulcers</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {[1, 2, 3, 4].map((s) => (
+                        <div key={s} className="flex items-center space-x-2">
+                          <Label>Stage {s}</Label>
                           <Input type="number" placeholder="Count" className="w-20" />
                         </div>
                       ))}
@@ -839,7 +762,7 @@ export default function PatientAssessment() {
                 <CardHeader>
                   <CardTitle>Mobility & Transfers</CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="space-y-4">
                   <div>
                     <Label>Mobility</Label>
                     <Select>
@@ -847,24 +770,16 @@ export default function PatientAssessment() {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        {["Dependent", "Independent", "Assist", "Stand-by"].map((m) => (
+                        {[
+                          "Dependent",
+                          "Independent",
+                          "Assist",
+                          "Stand-by",
+                          "One person assist",
+                          "Two person assist with transfer",
+                        ].map((m) => (
                           <SelectItem key={m} value={m}>
                             {m}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Transfer</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {["One person assist", "Two person assist"].map((t) => (
-                          <SelectItem key={t} value={t}>
-                            {t}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -881,7 +796,7 @@ export default function PatientAssessment() {
                 </CardContent>
               </Card>
 
-              {/* BATHING / PERSONAL HYGIENE / TOILETING / DRESSING / EATING */}
+              {/* ADLs */}
               {[
                 "Bathing",
                 "Personal Hygiene (hair, nails, skin, oral care)",
@@ -977,7 +892,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Medication Administration</Label>
-                    <div className="space-y-2 mt-1">
+                    <div className="space-y-2">
                       {[
                         "Able to independently take the correct medications at the correct times",
                         "Able to take medications at the correct time if individual doses are prepared in advance by another person and given daily reminders",
@@ -1022,7 +937,7 @@ export default function PatientAssessment() {
                   </Select>
 
                   <Label className="mt-4 block">Activities of Visit</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {[
                       "Developed Caregiver Support Plan",
                       "Provided Information and Training to Caregiver",
@@ -1057,7 +972,9 @@ export default function PatientAssessment() {
                     <Input type="date" />
                   </div>
                   <div className="space-y-2">
-                    <Label>Participant Signature</Label>
+                    <Label>Participant / Guardian Name</Label>
+                    <Input />
+                    <Label>Signature</Label>
                     <Input />
                     <Label>Date</Label>
                     <Input type="date" />
@@ -1091,4 +1008,3 @@ export default function PatientAssessment() {
     </SidebarProvider>
   );
 }
-
