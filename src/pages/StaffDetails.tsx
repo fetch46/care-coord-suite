@@ -260,8 +260,9 @@ export default function StaffDetails() {
               <Tabs defaultValue="assignments" className="w-full">
                 <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="assignments">Patient Assignments</TabsTrigger>
+                  <TabsTrigger value="availability">Availability</TabsTrigger>
+                  <TabsTrigger value="timesheets">Timesheets</TabsTrigger>
                   <TabsTrigger value="assessments">Assessments</TabsTrigger>
-                  <TabsTrigger value="schedule">Schedule</TabsTrigger>
                   <TabsTrigger value="performance">Performance</TabsTrigger>
                 </TabsList>
 
@@ -329,21 +330,98 @@ export default function StaffDetails() {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="assessments" className="space-y-4">
-                  <CaregiverAssessments caregiverId={id!} />
-                </TabsContent>
-
-                <TabsContent value="schedule" className="space-y-4">
+                <TabsContent value="availability" className="space-y-4">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Work Schedule</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        <Calendar className="w-5 h-5" />
+                        Weekly Availability
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center py-8 text-muted-foreground">
-                        Schedule management coming soon
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 gap-4">
+                          {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
+                            <div key={day} className="flex items-center justify-between p-4 border rounded-lg">
+                              <div className="font-medium w-24">{day}</div>
+                              <div className="flex gap-6">
+                                <label className="flex items-center gap-2">
+                                  <input type="checkbox" className="rounded" />
+                                  <span className="text-sm">7AM–3PM</span>
+                                </label>
+                                <label className="flex items-center gap-2">
+                                  <input type="checkbox" className="rounded" />
+                                  <span className="text-sm">3PM–11PM</span>
+                                </label>
+                                <label className="flex items-center gap-2">
+                                  <input type="checkbox" className="rounded" />
+                                  <span className="text-sm">11PM–7AM</span>
+                                </label>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex justify-end">
+                          <Button>Save Availability</Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
+                </TabsContent>
+
+                <TabsContent value="timesheets" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Clock className="w-5 h-5" />
+                        Submitted Timesheets
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Week Ending</TableHead>
+                            <TableHead>Client</TableHead>
+                            <TableHead>Total Hours</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Submitted Date</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell>2024-01-21</TableCell>
+                            <TableCell>John Smith</TableCell>
+                            <TableCell>40.0 hrs</TableCell>
+                            <TableCell>
+                              <Badge className="bg-green-100 text-green-800">Approved</Badge>
+                            </TableCell>
+                            <TableCell>2024-01-22</TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="sm">View</Button>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>2024-01-14</TableCell>
+                            <TableCell>Mary Johnson</TableCell>
+                            <TableCell>35.5 hrs</TableCell>
+                            <TableCell>
+                              <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>
+                            </TableCell>
+                            <TableCell>2024-01-15</TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="sm">View</Button>
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="assessments" className="space-y-4">
+                  <CaregiverAssessments caregiverId={id!} />
                 </TabsContent>
 
                 <TabsContent value="performance" className="space-y-4">
