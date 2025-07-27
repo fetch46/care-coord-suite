@@ -155,7 +155,7 @@ export default function PatientAssessment() {
 
                   <div>
                     <Label>Fluid</Label>
-                    <div className="flex items-center gap-4 mt-1">
+                    <RadioGroup className="flex items-center gap-4 mt-1">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="unlimited" />
                         <span>Unlimited</span>
@@ -165,7 +165,7 @@ export default function PatientAssessment() {
                         <span>Restricted</span>
                       </label>
                       <Input placeholder="Amount (mL)" className="w-32" />
-                    </div>
+                    </RadioGroup>
                   </div>
 
                   <div>
@@ -277,14 +277,14 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Pain Intensity</Label>
-                    <div className="flex items-center gap-4">
+                    <RadioGroup className="flex items-center gap-4">
                       {["High", "Medium", "Low"].map((level) => (
                         <label key={level} className="flex items-center space-x-2">
                           <RadioGroupItem value={level} />
                           <span>{level}</span>
                         </label>
                       ))}
-                    </div>
+                    </RadioGroup>
                   </div>
                   <div>
                     <Label>
@@ -358,7 +358,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Rhythm</Label>
-                    <div className="flex items-center gap-4">
+                    <RadioGroup className="flex items-center gap-4">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="regular" />
                         <span>Regular</span>
@@ -367,7 +367,7 @@ export default function PatientAssessment() {
                         <RadioGroupItem value="irregular" />
                         <span>Irregular</span>
                       </label>
-                    </div>
+                    </RadioGroup>
                   </div>
                   <div>
                     <Label>Edema</Label>
@@ -469,7 +469,7 @@ export default function PatientAssessment() {
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Cognitive functioning</Label>
-                    <div className="space-y-1">
+                    <RadioGroup className="space-y-1">
                       {[
                         "Alert/oriented, able to focus and shift attention, comprehends and recalls task directions independently",
                         "Requires prompting (cueing, repetition, reminders) only under stressful or unfamiliar situations",
@@ -482,7 +482,7 @@ export default function PatientAssessment() {
                           <span>{c}</span>
                         </label>
                       ))}
-                    </div>
+                    </RadioGroup>
                   </div>
                   <div>
                     <Label>Speech</Label>
@@ -503,7 +503,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Pupils</Label>
-                    <div className="flex items-center gap-4">
+                    <RadioGroup className="flex items-center gap-4">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="equal" />
                         <span>Equal</span>
@@ -512,11 +512,11 @@ export default function PatientAssessment() {
                         <RadioGroupItem value="unequal" />
                         <span>Unequal</span>
                       </label>
-                    </div>
+                    </RadioGroup>
                   </div>
                   <div>
                     <Label>Movements</Label>
-                    <div className="flex items-center gap-4">
+                    <RadioGroup className="flex items-center gap-4">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="coordinated" />
                         <span>Coordinated</span>
@@ -525,7 +525,7 @@ export default function PatientAssessment() {
                         <RadioGroupItem value="uncoordinated" />
                         <span>Uncoordinated</span>
                       </label>
-                    </div>
+                    </RadioGroup>
                   </div>
                   <div>
                     <Label>Extremities</Label>
@@ -566,7 +566,7 @@ export default function PatientAssessment() {
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Vision with corrective lenses</Label>
-                    <div className="space-y-1">
+                    <RadioGroup className="space-y-1">
                       {[
                         "Normal vision in most situations; can see medication labels, newsprint",
                         "Partially impaired; can't see medication labels, but can see objects in path; can count fingers at arms length",
@@ -577,11 +577,11 @@ export default function PatientAssessment() {
                           <span>{v}</span>
                         </label>
                       ))}
-                    </div>
+                    </RadioGroup>
                   </div>
                   <div>
                     <Label>Hearing with corrective device</Label>
-                    <div className="space-y-1">
+                    <RadioGroup className="space-y-1">
                       {[
                         "Normal hearing in most situations, can hear normal conversational tone",
                         "Partially impaired; can't hear normal conversational tone",
@@ -592,7 +592,7 @@ export default function PatientAssessment() {
                           <span>{h}</span>
                         </label>
                       ))}
-                    </div>
+                    </RadioGroup>
                   </div>
                 </CardContent>
               </Card>
@@ -624,7 +624,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Is this person receiving psychological counseling?</Label>
-                    <div className="flex items-center gap-4">
+                    <RadioGroup className="flex items-center gap-4">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="yes" />
                         <span>Yes</span>
@@ -633,7 +633,7 @@ export default function PatientAssessment() {
                         <RadioGroupItem value="no" />
                         <span>No</span>
                       </label>
-                    </div>
+                    </RadioGroup>
                   </div>
                 </CardContent>
               </Card>
@@ -721,7 +721,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Skin Intact</Label>
-                    <div className="flex items-center gap-4">
+                    <RadioGroup className="flex items-center gap-4">
                       <label className="flex items-center space-x-2">
                         <RadioGroupItem value="yes" />
                         <span>Yes</span>
@@ -730,7 +730,7 @@ export default function PatientAssessment() {
                         <RadioGroupItem value="no" />
                         <span>No</span>
                       </label>
-                    </div>
+                    </RadioGroup>
                   </div>
 
                   <div>
@@ -809,14 +809,14 @@ export default function PatientAssessment() {
                     <CardTitle>{label}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <RadioGroup className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {["Dependent", "Independent", "Assist", "Cue"].map((level) => (
                         <label key={level} className="flex items-center space-x-2">
                           <RadioGroupItem value={level} />
                           <span>{level}</span>
                         </label>
                       ))}
-                    </div>
+                    </RadioGroup>
                     {label.includes("Toileting") && (
                       <div className="mt-4 space-y-2">
                         <label>
@@ -892,7 +892,7 @@ export default function PatientAssessment() {
                   </div>
                   <div>
                     <Label>Medication Administration</Label>
-                    <div className="space-y-2">
+                    <RadioGroup className="space-y-2">
                       {[
                         "Able to independently take the correct medications at the correct times",
                         "Able to take medications at the correct time if individual doses are prepared in advance by another person and given daily reminders",
@@ -904,7 +904,7 @@ export default function PatientAssessment() {
                           <span>{opt}</span>
                         </label>
                       ))}
-                    </div>
+                    </RadioGroup>
                   </div>
                   <Input placeholder="Other" />
                 </CardContent>
