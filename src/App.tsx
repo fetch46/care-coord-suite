@@ -13,7 +13,8 @@ import Timesheet from "./pages/Timesheet";
 import DigitalTimesheet from "./pages/DigitalTimesheet";
 import TimesheetReports from "./pages/TimesheetReports";
 import NotFound from "./pages/NotFound";
-
+import Reports from "./pages/Reports";
+  
 const queryClient = new QueryClient();
 
 const App = () => (
