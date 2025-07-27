@@ -151,8 +151,8 @@ export default function StaffDetails() {
         <AppSidebar />
         <SidebarInset className="w-full">
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-none w-full space-y-8">
+          <main className="flex-1 overflow-auto p-6 space-y-6"> {/* Added p-6 and space-y-6 here */}
+            <div className="max-w-none w-full space-y-8"> {/* Adjusted this wrapper to control max-width */}
               {/* Header */}
               <div className="flex items-center gap-4">
                 <Link to="/staff">
@@ -171,7 +171,7 @@ export default function StaffDetails() {
 
               {/* Staff Overview Card */}
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-6"> {/* Ensure card content has padding */}
                   <div className="flex flex-col lg:flex-row gap-6">
                     <div className="flex flex-col items-center text-center space-y-4">
                       <Avatar className="w-24 h-24">
@@ -258,7 +258,7 @@ export default function StaffDetails() {
 
               {/* Tabs */}
               <Tabs defaultValue="assignments" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-4 md:grid-cols-5"> {/* Adjusted for more tabs */}
                   <TabsTrigger value="assignments">Patient Assignments</TabsTrigger>
                   <TabsTrigger value="availability">Availability</TabsTrigger>
                   <TabsTrigger value="timesheets">Timesheets</TabsTrigger>
@@ -274,7 +274,7 @@ export default function StaffDetails() {
                         Current Patient Assignments
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-6"> {/* Ensure card content has padding */}
                       {assignments.length > 0 ? (
                         <Table>
                           <TableHeader>
@@ -338,7 +338,7 @@ export default function StaffDetails() {
                         Weekly Availability
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-6"> {/* Ensure card content has padding */}
                       <div className="space-y-4">
                         <div className="grid grid-cols-1 gap-4">
                           {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
@@ -377,7 +377,7 @@ export default function StaffDetails() {
                         Submitted Timesheets
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-6"> {/* Ensure card content has padding */}
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -429,7 +429,7 @@ export default function StaffDetails() {
                     <CardHeader>
                       <CardTitle>Performance Metrics</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-6"> {/* Ensure card content has padding */}
                       <div className="text-center py-8 text-muted-foreground">
                         Performance tracking coming soon
                       </div>
