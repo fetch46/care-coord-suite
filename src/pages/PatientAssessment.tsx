@@ -635,7 +635,7 @@ export default function PatientAssessment() {
                 </div>
 
                 {/* Patient Details */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Patient Details</CardTitle>
                   </CardHeader>
@@ -687,7 +687,7 @@ export default function PatientAssessment() {
                 {/* General Health and Respiratory Side-by-Side */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
                   {/* GENERAL HEALTH */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>General Health</CardTitle>
                     </CardHeader>
@@ -760,7 +760,7 @@ export default function PatientAssessment() {
                   </Card>
 
                   {/* RESPIRATORY */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Respiratory</CardTitle>
                     </CardHeader>
@@ -811,7 +811,7 @@ export default function PatientAssessment() {
                 {/* Pain and Genitourinary Side-by-Side */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
                   {/* PAIN */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Pain / Discomfort</CardTitle>
                     </CardHeader>
@@ -870,7 +870,7 @@ export default function PatientAssessment() {
                   </Card>
 
                   {/* GENITOURINARY */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Genitourinary Status</CardTitle>
                     </CardHeader>
@@ -909,7 +909,7 @@ export default function PatientAssessment() {
                 {/* Cardiovascular and Gastrointestinal Side-by-Side */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
                   {/* CARDIOVASCULAR */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Cardiovascular</CardTitle>
                     </CardHeader>
@@ -942,7 +942,7 @@ export default function PatientAssessment() {
                   </Card>
 
                   {/* GASTROINTESTINAL */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Gastrointestinal Status</CardTitle>
                     </CardHeader>
@@ -996,7 +996,7 @@ export default function PatientAssessment() {
                 </div>
 
                 {/* Neurological (Full Width) */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Neurological</CardTitle>
                   </CardHeader>
@@ -1040,7 +1040,7 @@ export default function PatientAssessment() {
                 </Card>
 
                 {/* Sensory (Full Width) */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Sensory</CardTitle>
                   </CardHeader>
@@ -1065,7 +1065,7 @@ export default function PatientAssessment() {
                 {/* Psychosocial and Musculoskeletal Side-by-Side */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
                   {/* PSYCHOSOCIAL */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Psychosocial</CardTitle>
                     </CardHeader>
@@ -1088,7 +1088,7 @@ export default function PatientAssessment() {
                   </Card>
 
                   {/* MUSCULOSKELETAL */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Musculoskeletal</CardTitle>
                     </CardHeader>
@@ -1111,7 +1111,7 @@ export default function PatientAssessment() {
                 {/* Mental Health and Health Maintenance Needs Side-by-Side */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
                   {/* MENTAL HEALTH */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Mental Health</CardTitle>
                     </CardHeader>
@@ -1127,7 +1127,7 @@ export default function PatientAssessment() {
                   </Card>
 
                   {/* HEALTH MAINTENANCE NEEDS */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Health Maintenance Needs</CardTitle>
                     </CardHeader>
@@ -1145,229 +1145,225 @@ export default function PatientAssessment() {
                 </div>
 
                 {/* Skin and Medication Management Side-by-Side */}
-                <div className="grid grid-cols-10 gap-x-6 gap-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
                   {/* Skin Card */}
-                  <div className="col-span-4">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Skin</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <FormCheckboxGroup
-                          label="Color"
-                          options={skinColorOptions}
-                          selectedValues={selectedSkinColors}
-                          onValueChange={handleCheckboxChange(setSelectedSkinColors)}
-                          className="grid-cols-2 md:grid-cols-3"
-                        />
-                        <FormRadioGroup
-                          label="Skin Intact"
-                          options={yesNoOptions}
-                          selectedValue={skinIntact}
-                          onValueChange={handleRadioChange(setSkinIntact)}
-                          className="flex items-center gap-4"
-                        />
+                  <Card className="w-full">
+                    <CardHeader>
+                      <CardTitle>Skin</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <FormCheckboxGroup
+                        label="Color"
+                        options={skinColorOptions}
+                        selectedValues={selectedSkinColors}
+                        onValueChange={handleCheckboxChange(setSelectedSkinColors)}
+                        className="grid-cols-2 md:grid-cols-3"
+                      />
+                      <FormRadioGroup
+                        label="Skin Intact"
+                        options={yesNoOptions}
+                        selectedValue={skinIntact}
+                        onValueChange={handleRadioChange(setSkinIntact)}
+                        className="flex items-center gap-4"
+                      />
 
-                        {skinIntact === "no" && (
-                          <div className="mt-4">
-                            <Label>Number of Pressure Ulcers</Label>
-                            <Table className="border mt-2">
-                              <TableHeader>
-                                <TableRow>
-                                  <TableHead className="w-[60%]">Pressure Ulcer Stages</TableHead>
-                                  <TableHead className="text-center w-[40%]">Number of Pressure Ulcers</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                <TableRow>
-                                  <TableCell className="font-medium">
-                                    Stage 1: Redness of intact skin; warmth, edema, hardness, or discolored skin may be indicators
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    <RadioGroup
-                                      value={pressureUlcersStage1}
-                                      onValueChange={setPressureUlcersStage1}
-                                      className="flex justify-center space-x-4"
-                                    >
-                                      {pressureUlcerCountOptions.map((opt) => (
-                                        <label key={`stage1-${opt.id}`} className="flex items-center space-x-1">
-                                          <RadioGroupItem value={opt.id} />
-                                          <span>{opt.label}</span>
-                                        </label>
-                                      ))}
-                                    </RadioGroup>
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="font-medium">
-                                    Stage 2: Partial thickness skin loss of epidermis and/or dermis. The ulcer is superficial and appears as an abrasion, blister, or shallow crater.
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    <RadioGroup
-                                      value={pressureUlcersStage2}
-                                      onValueChange={setPressureUlcersStage2}
-                                      className="flex justify-center space-x-4"
-                                    >
-                                      {pressureUlcerCountOptions.map((opt) => (
-                                        <label key={`stage2-${opt.id}`} className="flex items-center space-x-1">
-                                          <RadioGroupItem value={opt.id} />
-                                          <span>{opt.label}</span>
-                                        </label>
-                                      ))}
-                                    </RadioGroup>
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="font-medium">
-                                    Stage 3: Full thickness skin loss; damage or necrosis of subcutaneous tissue; deep crater
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    <RadioGroup
-                                      value={pressureUlcersStage3}
-                                      onValueChange={setPressureUlcersStage3}
-                                      className="flex justify-center space-x-4"
-                                    >
-                                      {pressureUlcerCountOptions.map((opt) => (
-                                        <label key={`stage3-${opt.id}`} className="flex items-center space-x-1">
-                                          <RadioGroupItem value={opt.id} />
-                                          <span>{opt.label}</span>
-                                        </label>
-                                      ))}
-                                    </RadioGroup>
-                                  </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                  <TableCell className="font-medium">
-                                    Stage 4: Full thickness skin loss with extensive destruction, tissue necrosis or damage to muscle, bone or supporting structures
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    <RadioGroup
-                                      value={pressureUlcersStage4}
-                                      onValueChange={setPressureUlcersStage4}
-                                      className="flex justify-center space-x-4"
-                                    >
-                                      {pressureUlcerCountOptions.map((opt) => (
-                                        <label key={`stage4-${opt.id}`} className="flex items-center space-x-1">
-                                          <RadioGroupItem value={opt.id} />
-                                          <span>{opt.label}</span>
-                                        </label>
-                                      ))}
-                                    </RadioGroup>
-                                  </TableCell>
-                                </TableRow>
-                              </TableBody>
-                            </Table>
-                          </div>
-                        )}
+                      {skinIntact === "no" && (
+                        <div className="mt-4">
+                          <Label>Number of Pressure Ulcers</Label>
+                          <Table className="border mt-2">
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-[60%]">Pressure Ulcer Stages</TableHead>
+                                <TableHead className="text-center w-[40%]">Number of Pressure Ulcers</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell className="font-medium">
+                                  Stage 1: Redness of intact skin; warmth, edema, hardness, or discolored skin may be indicators
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <RadioGroup
+                                    value={pressureUlcersStage1}
+                                    onValueChange={setPressureUlcersStage1}
+                                    className="flex justify-center space-x-4"
+                                  >
+                                    {pressureUlcerCountOptions.map((opt) => (
+                                      <label key={`stage1-${opt.id}`} className="flex items-center space-x-1">
+                                        <RadioGroupItem value={opt.id} />
+                                        <span>{opt.label}</span>
+                                      </label>
+                                    ))}
+                                  </RadioGroup>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="font-medium">
+                                  Stage 2: Partial thickness skin loss of epidermis and/or dermis. The ulcer is superficial and appears as an abrasion, blister, or shallow crater.
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <RadioGroup
+                                    value={pressureUlcersStage2}
+                                    onValueChange={setPressureUlcersStage2}
+                                    className="flex justify-center space-x-4"
+                                  >
+                                    {pressureUlcerCountOptions.map((opt) => (
+                                      <label key={`stage2-${opt.id}`} className="flex items-center space-x-1">
+                                        <RadioGroupItem value={opt.id} />
+                                        <span>{opt.label}</span>
+                                      </label>
+                                    ))}
+                                  </RadioGroup>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="font-medium">
+                                  Stage 3: Full thickness skin loss; damage or necrosis of subcutaneous tissue; deep crater
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <RadioGroup
+                                    value={pressureUlcersStage3}
+                                    onValueChange={setPressureUlcersStage3}
+                                    className="flex justify-center space-x-4"
+                                  >
+                                    {pressureUlcerCountOptions.map((opt) => (
+                                      <label key={`stage3-${opt.id}`} className="flex items-center space-x-1">
+                                        <RadioGroupItem value={opt.id} />
+                                        <span>{opt.label}</span>
+                                      </label>
+                                    ))}
+                                  </RadioGroup>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="font-medium">
+                                  Stage 4: Full thickness skin loss with extensive destruction, tissue necrosis or damage to muscle, bone or supporting structures
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  <RadioGroup
+                                    value={pressureUlcersStage4}
+                                    onValueChange={setPressureUlcersStage4}
+                                    className="flex justify-center space-x-4"
+                                  >
+                                    {pressureUlcerCountOptions.map((opt) => (
+                                      <label key={`stage4-${opt.id}`} className="flex items-center space-x-1">
+                                        <RadioGroupItem value={opt.id} />
+                                        <span>{opt.label}</span>
+                                      </label>
+                                    ))}
+                                  </RadioGroup>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
+                      )}
 
-                        <div>
-                          <Label htmlFor="ulcer-locations">Location of ulcers:</Label>
-                          <Textarea id="ulcer-locations" rows={2} value={ulcerLocations} onChange={(e) => setUlcerLocations(e.target.value)} />
-                        </div>
-                        <div>
-                          <Label htmlFor="surgical-wounds">Surgical or other types of wounds (describe location, size and nature of wound)</Label>
-                          <Textarea id="surgical-wounds" rows={3} value={surgicalWounds} onChange={(e) => setSurgicalWounds(e.target.value)} />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                      <div>
+                        <Label htmlFor="ulcer-locations">Location of ulcers:</Label>
+                        <Textarea id="ulcer-locations" rows={2} value={ulcerLocations} onChange={(e) => setUlcerLocations(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="surgical-wounds">Surgical or other types of wounds (describe location, size and nature of wound)</Label>
+                        <Textarea id="surgical-wounds" rows={3} value={surgicalWounds} onChange={(e) => setSurgicalWounds(e.target.value)} />
+                      </div>
+                    </CardContent>
+                  </Card>
 
                   {/* Medication Management Card */}
-                  <div className="col-span-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Medication Management</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {/* Medications subform moved to top */}
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold">Current Medications</h3>
-                          {medications.map((med) => (
-                            <div
-                              key={med.id}
-                              className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start border p-4 rounded-md relative"
-                            >
-                              <div>
-                                <Label htmlFor={`medication-${med.id}`}>Medication</Label>
-                                <Input
-                                  id={`medication-${med.id}`}
-                                  value={med.medication}
-                                  onChange={(e) => handleMedicationChange(med.id, "medication", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`dose-${med.id}`}>Dose</Label>
-                                <Input
-                                  id={`dose-${med.id}`}
-                                  value={med.dose}
-                                  onChange={(e) => handleMedicationChange(med.id, "dose", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`frequency-${med.id}`}>Frequency</Label>
-                                <Input
-                                  id={`frequency-${med.id}`}
-                                  value={med.frequency}
-                                  onChange={(e) => handleMedicationChange(med.id, "frequency", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`physician-${med.id}`}>Physician</Label>
-                                <Input
-                                  id={`physician-${med.id}`}
-                                  value={med.physician}
-                                  onChange={(e) => handleMedicationChange(med.id, "physician", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`purpose-${med.id}`}>Purpose</Label>
-                                <Textarea
-                                  id={`purpose-${med.id}`}
-                                  rows={1}
-                                  value={med.purpose}
-                                  onChange={(e) => handleMedicationChange(med.id, "purpose", e.target.value)}
-                                />
-                              </div>
-                              {medications.length > 1 && (
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => removeMedication(med.id)}
-                                  className="absolute top-2 right-2"
-                                >
-                                  <X className="h-4 w-4 text-red-500" />
-                                </Button>
-                              )}
+                  <Card className="w-full">
+                    <CardHeader>
+                      <CardTitle>Medication Management</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Medications subform moved to top */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">Current Medications</h3>
+                        {medications.map((med) => (
+                          <div
+                            key={med.id}
+                            className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start border p-4 rounded-md relative"
+                          >
+                            <div>
+                              <Label htmlFor={`medication-${med.id}`}>Medication</Label>
+                              <Input
+                                id={`medication-${med.id}`}
+                                value={med.medication}
+                                onChange={(e) => handleMedicationChange(med.id, "medication", e.target.value)}
+                              />
                             </div>
-                          ))}
-                          <Button type="button" onClick={addMedication}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Medication
-                          </Button>
-                        </div>
+                            <div>
+                              <Label htmlFor={`dose-${med.id}`}>Dose</Label>
+                              <Input
+                                id={`dose-${med.id}`}
+                                value={med.dose}
+                                onChange={(e) => handleMedicationChange(med.id, "dose", e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`frequency-${med.id}`}>Frequency</Label>
+                              <Input
+                                id={`frequency-${med.id}`}
+                                value={med.frequency}
+                                onChange={(e) => handleMedicationChange(med.id, "frequency", e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`physician-${med.id}`}>Physician</Label>
+                              <Input
+                                id={`physician-${med.id}`}
+                                value={med.physician}
+                                onChange={(e) => handleMedicationChange(med.id, "physician", e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`purpose-${med.id}`}>Purpose</Label>
+                              <Textarea
+                                id={`purpose-${med.id}`}
+                                rows={1}
+                                value={med.purpose}
+                                onChange={(e) => handleMedicationChange(med.id, "purpose", e.target.value)}
+                              />
+                            </div>
+                            {medications.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeMedication(med.id)}
+                                className="absolute top-2 right-2"
+                              >
+                                <X className="h-4 w-4 text-red-500" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        <Button type="button" onClick={addMedication}>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add Medication
+                        </Button>
+                      </div>
 
-                        <hr className="my-4" />
+                      <hr className="my-4" />
 
-                        <FormRadioGroup
-                          label="Medication Administration"
-                          options={medicationAdministrationOptions}
-                          selectedValue={medicationAdministration}
-                          onValueChange={handleRadioChange(setMedicationAdministration)}
-                          className="space-y-2"
-                        />
-                        <Input
-                          placeholder="Other"
-                          value={otherMedicationManagement}
-                          onChange={(e) => setOtherMedicationManagement(e.target.value)}
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
+                      <FormRadioGroup
+                        label="Medication Administration"
+                        options={medicationAdministrationOptions}
+                        selectedValue={medicationAdministration}
+                        onValueChange={handleRadioChange(setMedicationAdministration)}
+                        className="space-y-2"
+                      />
+                      <Input
+                        placeholder="Other"
+                        value={otherMedicationManagement}
+                        onChange={(e) => setOtherMedicationManagement(e.target.value)}
+                      />
+                    </CardContent>
+                  </Card>
                 </div>
 
                 {/* MOBILITY & TRANSFERS (Full Width) */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Mobility & Transfers</CardTitle>
                   </CardHeader>
@@ -1401,7 +1397,7 @@ export default function PatientAssessment() {
                 {/* ADLs: Bathing, Personal Hygiene, Toileting (3 in a row) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Bathing */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Bathing</CardTitle>
                     </CardHeader>
@@ -1417,7 +1413,7 @@ export default function PatientAssessment() {
                   </Card>
 
                   {/* Personal Hygiene */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Personal Hygiene (hair, nails, skin, oral care)</CardTitle>
                     </CardHeader>
@@ -1433,7 +1429,7 @@ export default function PatientAssessment() {
                   </Card>
 
                   {/* Toileting */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Toileting (bladder, bowel routine, ability to access toilet)</CardTitle>
                     </CardHeader>
@@ -1462,7 +1458,7 @@ export default function PatientAssessment() {
                 {/* ADLs: Eating, Dressing, General Physical Condition (3 in a row) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Eating and Drinking */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Eating and Drinking</CardTitle>
                     </CardHeader>
@@ -1478,7 +1474,7 @@ export default function PatientAssessment() {
                   </Card>
 
                   {/* Dressing */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>Dressing</CardTitle>
                     </CardHeader>
@@ -1494,7 +1490,7 @@ export default function PatientAssessment() {
                   </Card>
 
                   {/* GENERAL PHYSICAL CONDITION */}
-                  <Card>
+                  <Card className="w-full">
                     <CardHeader>
                       <CardTitle>General Physical Condition</CardTitle>
                     </CardHeader>
@@ -1512,7 +1508,7 @@ export default function PatientAssessment() {
                 </div>
 
                 {/* NURSE MONITOR VISIT (Full Width) */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Nurse Monitor Visit</CardTitle>
                   </CardHeader>
@@ -1546,7 +1542,7 @@ export default function PatientAssessment() {
                 </Card>
 
                 {/* SIGNATURES */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Signatures</CardTitle>
                   </CardHeader>
@@ -1571,7 +1567,7 @@ export default function PatientAssessment() {
                 </Card>
 
                 {/* DISCLAIMERS */}
-                <Card>
+                <Card className="w-full">
                   <CardHeader>
                     <CardTitle>Disclaimers</CardTitle>
                   </CardHeader>
