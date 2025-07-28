@@ -433,7 +433,7 @@ export default function PatientAssessment() {
   const [bathingLevel, setBathingLevel] = useState("");
   const [personalHygieneLevel, setPersonalHygieneLevel] = useState("");
   const [toiletingLevel, setToiletingLevel] = useState("");
-  const [toiletingIncontinentBladder, setToiletingIncontinentBlatter] = useState(false);
+  const [toiletingIncontinentBladder, setToiletingIncontinentBladder] = useState(false); // FIXED TYPO HERE
   const [toiletingIncontinentBowel, setToiletingIncontinentBowel] = useState(false);
   const [dressingLevel, setDressingLevel] = useState("");
   const [eatingDrinkingLevel, setEatingDrinkingLevel] = useState("");
@@ -1336,7 +1336,7 @@ export default function PatientAssessment() {
                       />
                       <div className="mt-4 space-y-2">
                         <label htmlFor="incontinent-bladder" className="flex items-center">
-                          <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBlatter} onCheckedChange={setToiletingIncontinentBlatter} />
+                          <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBladder} onCheckedChange={setToiletingIncontinentBladder} /> {/* FIXED HERE */}
                           <span className="ml-2">Incontinent bladder</span>
                         </label>
                         <label htmlFor="incontinent-bowel" className="flex items-center">
