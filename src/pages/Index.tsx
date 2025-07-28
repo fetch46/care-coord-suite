@@ -5,13 +5,11 @@ import { AppSidebar } from "@/components/ui/app-sidebar"
 import { AppHeader } from "@/components/ui/app-header"
 import { StatsCard } from "@/components/dashboard/stats-card"
 import { QuickActions } from "@/components/dashboard/quick-actions"
-import { FinancesStats } from "@/components/dashboard/finances-stats"
 import { RecentActivity } from "@/components/dashboard/recent-activity"
+import { FinancesStats } from "@/components/dashboard/finances-stats"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton" // <-- new
+import { Skeleton } from "@/components/ui/skeleton"
 import heroImage from "@/assets/healthcare-hero.jpg"
-
-// Optional Recharts (remove <ResponsiveContainer> + <BarChart> if you don’t want charts)
 import { BarChart, Bar, ResponsiveContainer } from "recharts"
 
 const statusData = [
@@ -21,7 +19,6 @@ const statusData = [
   { name: "Outpatient", count: 234 },
 ]
 
-// Re-usable progress bar
 const MetricProgress = ({ label, value, percent, colorClass }: {
   label: string
   value: string | number
@@ -40,7 +37,7 @@ const MetricProgress = ({ label, value, percent, colorClass }: {
 )
 
 const Index = () => {
-  const isLoading = false // <-- flip to true to see skeletons
+  const isLoading = false
 
   return (
     <SidebarProvider>
@@ -57,7 +54,7 @@ const Index = () => {
                   backgroundImage: `linear-gradient(135deg, hsl(var(--primary) / 0.9), hsl(var(--healthcare-teal) / 0.8)), url(${heroImage})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
-                  backgroundColor: "hsl(var(--primary))", // fallback
+                  backgroundColor: "hsl(var(--primary))",
                 }}
               >
                 <div className="z-10">
@@ -105,23 +102,17 @@ const Index = () => {
 
             {/* Dashboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
+              {/* Left Column: Quick Actions + Finance */}
+              <div className="lg:col-span-1 space-y-6">
                 <QuickActions />
+                <FinancesStats />
               </div>
-              <div className="lg:col-span-2">
-                <RecentActivity />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <QuickActions />
-              </div>
-              <div className="lg:col-span-2">
-                <RecentActivity />
-              </div>
-            </div>
 
+              {/* Recent Activity */}
+              <div className="lg:col-span-2">
+                <RecentActivity />
+              </div>
+            </div>
 
             {/* Additional Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
