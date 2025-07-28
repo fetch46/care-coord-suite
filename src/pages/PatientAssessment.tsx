@@ -336,6 +336,15 @@ const nurseVisitActivities = [
   { id: "assessed-monitored-participant", label: "Assessed/Monitored Participant" },
 ];
 
+// Options for the pressure ulcer radio buttons
+const pressureUlcerCountOptions = [
+  { id: "0", label: "0" },
+  { id: "1", label: "1" },
+  { id: "2", label: "2" },
+  { id: "3", label: "3" },
+  { id: "4+", label: "4 or more" },
+];
+
 
 export default function PatientAssessment() {
   // --- State Management ---
@@ -417,10 +426,11 @@ export default function PatientAssessment() {
   // Skin
   const [selectedSkinColors, setSelectedSkinColors] = useState([]);
   const [skinIntact, setSkinIntact] = useState("");
-  const [pressureUlcersStage1, setPressureUlcersStage1] = useState("");
-  const [pressureUlcersStage2, setPressureUlcersStage2] = useState("");
-  const [pressureUlcersStage3, setPressureUlcersStage3] = useState("");
-  const [pressureUlcersStage4, setPressureUlcersStage4] = useState("");
+  // Changed state for pressure ulcers to string for radio buttons
+  const [pressureUlcersStage1, setPressureUlcersStage1] = useState("0");
+  const [pressureUlcersStage2, setPressureUlcersStage2] = useState("0");
+  const [pressureUlcersStage3, setPressureUlcersStage3] = useState("0");
+  const [pressureUlcersStage4, setPressureUlcersStage4] = useState("0");
   const [ulcerLocations, setUlcerLocations] = useState("");
   const [surgicalWounds, setSurgicalWounds] = useState("");
 
@@ -433,7 +443,7 @@ export default function PatientAssessment() {
   const [bathingLevel, setBathingLevel] = useState("");
   const [personalHygieneLevel, setPersonalHygieneLevel] = useState("");
   const [toiletingLevel, setToiletingLevel] = useState("");
-  const [toiletingIncontinentBladder, setToiletingIncontinentBladder] = useState(false); // FIXED TYPO HERE
+  const [toiletingIncontinentBladder, setToiletingIncontinentBladder] = useState(false);
   const [toiletingIncontinentBowel, setToiletingIncontinentBowel] = useState(false);
   const [dressingLevel, setDressingLevel] = useState("");
   const [eatingDrinkingLevel, setEatingDrinkingLevel] = useState("");
@@ -560,7 +570,7 @@ export default function PatientAssessment() {
       // Skin
       selectedSkinColors,
       skinIntact,
-      pressureUlcers: {
+      pressureUlcers: { // Now stores string values from radio buttons
         stage1: pressureUlcersStage1,
         stage2: pressureUlcersStage2,
         stage3: pressureUlcersStage3,
@@ -1169,12 +1179,12 @@ export default function PatientAssessment() {
                     {/* Pressure Ulcer Stages Table */}
                     {skinIntact === "no" && ( // Only show if Skin Intact is "No"
                       <div className="mt-4">
-                        <Label>Pressure Ulcer Stages</Label>
+                        <Label>Number of Pressure Ulcers</Label> {/* Adjusted label */}
                         <Table className="border mt-2">
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="w-[60%]">Description</TableHead>
-                              <TableHead className="text-center w-[40%]">Number of Pressure Ulcers</TableHead>
+                              <TableHead className="w-[60%]">Pressure Ulcer Stages</TableHead> {/* Column 1 Heading */}
+                              <TableHead className="text-center w-[40%]">Number of Pressure Ulcers</TableHead> {/* Column 2 Heading */}
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -1183,14 +1193,18 @@ export default function PatientAssessment() {
                                 Stage 1: Redness of intact skin; warmth, edema, hardness, or discolored skin may be indicators
                               </TableCell>
                               <TableCell className="text-center">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  placeholder="0"
-                                  className="w-20 text-center mx-auto"
+                                <RadioGroup
                                   value={pressureUlcersStage1}
-                                  onChange={(e) => setPressureUlcersStage1(e.target.value)}
-                                />
+                                  onValueChange={setPressureUlcersStage1}
+                                  className="flex justify-center space-x-4" // Align radio buttons
+                                >
+                                  {pressureUlcerCountOptions.map((opt) => (
+                                    <label key={`stage1-${opt.id}`} className="flex items-center space-x-1">
+                                      <RadioGroupItem value={opt.id} />
+                                      <span>{opt.label}</span>
+                                    </label>
+                                  ))}
+                                </RadioGroup>
                               </TableCell>
                             </TableRow>
                             <TableRow>
@@ -1198,14 +1212,18 @@ export default function PatientAssessment() {
                                 Stage 2: Partial thickness skin loss of epidermis and/or dermis. The ulcer is superficial and appears as an abrasion, blister, or shallow crater.
                               </TableCell>
                               <TableCell className="text-center">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  placeholder="0"
-                                  className="w-20 text-center mx-auto"
+                                <RadioGroup
                                   value={pressureUlcersStage2}
-                                  onChange={(e) => setPressureUlcersStage2(e.target.value)}
-                                />
+                                  onValueChange={setPressureUlcersStage2}
+                                  className="flex justify-center space-x-4"
+                                >
+                                  {pressureUlcerCountOptions.map((opt) => (
+                                    <label key={`stage2-${opt.id}`} className="flex items-center space-x-1">
+                                      <RadioGroupItem value={opt.id} />
+                                      <span>{opt.label}</span>
+                                    </label>
+                                  ))}
+                                </RadioGroup>
                               </TableCell>
                             </TableRow>
                             <TableRow>
@@ -1213,14 +1231,18 @@ export default function PatientAssessment() {
                                 Stage 3: Full thickness skin loss; damage or necrosis of subcutaneous tissue; deep crater
                               </TableCell>
                               <TableCell className="text-center">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  placeholder="0"
-                                  className="w-20 text-center mx-auto"
+                                <RadioGroup
                                   value={pressureUlcersStage3}
-                                  onChange={(e) => setPressureUlcersStage3(e.target.value)}
-                                />
+                                  onValueChange={setPressureUlcersStage3}
+                                  className="flex justify-center space-x-4"
+                                >
+                                  {pressureUlcerCountOptions.map((opt) => (
+                                    <label key={`stage3-${opt.id}`} className="flex items-center space-x-1">
+                                      <RadioGroupItem value={opt.id} />
+                                      <span>{opt.label}</span>
+                                    </label>
+                                  ))}
+                                </RadioGroup>
                               </TableCell>
                             </TableRow>
                             <TableRow>
@@ -1228,14 +1250,18 @@ export default function PatientAssessment() {
                                 Stage 4: Full thickness skin loss with extensive destruction, tissue necrosis or damage to muscle, bone or supporting structures
                               </TableCell>
                               <TableCell className="text-center">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  placeholder="0"
-                                  className="w-20 text-center mx-auto"
+                                <RadioGroup
                                   value={pressureUlcersStage4}
-                                  onChange={(e) => setPressureUlcersStage4(e.target.value)}
-                                />
+                                  onValueChange={setPressureUlcersStage4}
+                                  className="flex justify-center space-x-4"
+                                >
+                                  {pressureUlcerCountOptions.map((opt) => (
+                                    <label key={`stage4-${opt.id}`} className="flex items-center space-x-1">
+                                      <RadioGroupItem value={opt.id} />
+                                      <span>{opt.label}</span>
+                                    </label>
+                                  ))}
+                                </RadioGroup>
                               </TableCell>
                             </TableRow>
                           </TableBody>
@@ -1336,7 +1362,7 @@ export default function PatientAssessment() {
                       />
                       <div className="mt-4 space-y-2">
                         <label htmlFor="incontinent-bladder" className="flex items-center">
-                          <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBladder} onCheckedChange={setToiletingIncontinentBladder} /> {/* FIXED HERE */}
+                          <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBladder} onCheckedChange={setToiletingIncontinentBladder} />
                           <span className="ml-2">Incontinent bladder</span>
                         </label>
                         <label htmlFor="incontinent-bowel" className="flex items-center">
