@@ -1362,37 +1362,74 @@ export default function PatientAssessment() {
                   </Card>
                 </div>
 
-                {/* MOBILITY & TRANSFERS (Full Width) */}
-                <Card className="w-full">
-                  <CardHeader>
-                    <CardTitle>Mobility & Transfers</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="mobility">Mobility</Label>
-                      <Select value={mobility} onValueChange={setMobility} id="mobility">
+                {/* MOBILITY & TRANSFERS AND NURSE MONITOR VISIT (Side-by-Side) */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-x-6 gap-y-8">
+                  {/* MOBILITY & TRANSFERS */}
+                  <Card className="w-full lg:col-span-2">
+                    <CardHeader>
+                      <CardTitle>Mobility & Transfers</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="mobility">Mobility</Label>
+                        <Select value={mobility} onValueChange={setMobility} id="mobility">
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {mobilityOptions.map((m) => (
+                              <SelectItem key={m.id} value={m.id}>
+                                {m.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="ambulating-aid">Uses ___ to aid in ambulating</Label>
+                        <Input id="ambulating-aid" value={ambulatingAid} onChange={(e) => setAmbulatingAid(e.target.value)} />
+                      </div>
+                      <div>
+                        <Label htmlFor="transfer-aid">Uses ___ to aid in transfer</Label>
+                        <Input id="transfer-aid" value={transferAid} onChange={(e) => setTransferAid(e.target.value)} />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* NURSE MONITOR VISIT */}
+                  <Card className="w-full lg:col-span-3">
+                    <CardHeader>
+                      <CardTitle>Nurse Monitor Visit</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Label htmlFor="nurse-visit-type">Visit type</Label>
+                      <Select value={nurseVisitType} onValueChange={setNurseVisitType} id="nurse-visit-type">
                         <SelectTrigger>
-                          <SelectValue placeholder="Select" />
+                          <SelectValue placeholder="Visit type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {mobilityOptions.map((m) => (
-                            <SelectItem key={m.id} value={m.id}>
-                              {m.label}
+                          {nurseVisitTypes.map((v) => (
+                            <SelectItem key={v.id} value={v.id}>
+                              {v.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="ambulating-aid">Uses ___ to aid in ambulating</Label>
-                      <Input id="ambulating-aid" value={ambulatingAid} onChange={(e) => setAmbulatingAid(e.target.value)} />
-                    </div>
-                    <div>
-                      <Label htmlFor="transfer-aid">Uses ___ to aid in transfer</Label>
-                      <Input id="transfer-aid" value={transferAid} onChange={(e) => setTransferAid(e.target.value)} />
-                    </div>
-                  </CardContent>
-                </Card>
+
+                      <Label className="mt-4 block">Activities of Visit</Label>
+                      <FormCheckboxGroup
+                        label=""
+                        options={nurseVisitActivities}
+                        selectedValues={selectedNurseVisitActivities}
+                        onValueChange={handleCheckboxChange(setSelectedNurseVisitActivities)}
+                        className="grid-cols-1 md:grid-cols-2"
+                      />
+
+                      <Label htmlFor="caregiver-names" className="mt-4 block">Caregiver Names</Label>
+                      <Textarea id="caregiver-names" rows={2} placeholder="List all caregivers" value={caregiverNames} onChange={(e) => setCaregiverNames(e.target.value)} />
+                    </CardContent>
+                  </Card>
+                </div>
 
                 {/* ADLs: Bathing, Personal Hygiene, Toileting (3 in a row) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1506,40 +1543,6 @@ export default function PatientAssessment() {
                     </CardContent>
                   </Card>
                 </div>
-
-                {/* NURSE MONITOR VISIT (Full Width) */}
-                <Card className="w-full">
-                  <CardHeader>
-                    <CardTitle>Nurse Monitor Visit</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Label htmlFor="nurse-visit-type">Visit type</Label>
-                    <Select value={nurseVisitType} onValueChange={setNurseVisitType} id="nurse-visit-type">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Visit type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {nurseVisitTypes.map((v) => (
-                          <SelectItem key={v.id} value={v.id}>
-                            {v.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <Label className="mt-4 block">Activities of Visit</Label>
-                    <FormCheckboxGroup
-                      label=""
-                      options={nurseVisitActivities}
-                      selectedValues={selectedNurseVisitActivities}
-                      onValueChange={handleCheckboxChange(setSelectedNurseVisitActivities)}
-                      className="grid-cols-1 md:grid-cols-2"
-                    />
-
-                    <Label htmlFor="caregiver-names" className="mt-4 block">Caregiver Names</Label>
-                    <Textarea id="caregiver-names" rows={2} placeholder="List all caregivers" value={caregiverNames} onChange={(e) => setCaregiverNames(e.target.value)} />
-                  </CardContent>
-                </Card>
 
                 {/* SIGNATURES */}
                 <Card className="w-full">
