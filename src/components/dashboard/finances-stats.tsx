@@ -19,6 +19,9 @@ type StatCard = {
   color?: string;
 };
 
+
+{/* Remove this Hard Code later ---- 20072025 */}
+
 export function FinanceStats() {
   const stats: StatCard[] = [
     {
