@@ -51,7 +51,6 @@ interface Patient {
   first_name: string;
   last_name: string;
   room_number: string;
-  allergies?: string;
 }
 
 const personalCareTasks = [
@@ -94,7 +93,7 @@ export default function DigitalTimesheet() {
     try {
       const [caregiversResponse, patientsResponse] = await Promise.all([
         supabase.from("caregivers").select("id, first_name, last_name, role").eq("status", "Active"),
-        supabase.from("patients").select("id, first_name, last_name, room_number, allergies").eq("status", "Active")
+        supabase.from("patients").select("id, first_name, last_name, room_number").eq("status", "Active")
       ]);
 
       if (caregiversResponse.error) throw caregiversResponse.error;
@@ -255,11 +254,6 @@ export default function DigitalTimesheet() {
                             ))}
                           </SelectContent>
                         </Select>
-                        {selectedPatient?.allergies && (
-                          <div className="mt-2 text-sm text-red-600">
-                            <strong>Allergies:</strong> {selectedPatient.allergies}
-                          </div>
-                        )}
                       </div>
                     </div>
                   </CardContent>

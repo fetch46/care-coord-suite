@@ -605,10 +605,10 @@ export default function PatientAssessment() {
       <div className="flex h-screen w-full">
         <AppSidebar />
         <div className="flex flex-col flex-1 min-w-0">
-          <AppHeader className="print:hidden" />
+          <AppHeader />
           <SidebarInset>
             <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 print:p-4">
-              <style jsx global>{`
+              <style>{`
                 @media print {
                   body {
                     -webkit-print-color-adjust: exact;
@@ -642,7 +642,7 @@ export default function PatientAssessment() {
                   <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6">
                     <div className="space-y-1">
                       <Label htmlFor="patient-select">Select Patient</Label>
-                      <Select value={selectedPatient} onValueChange={setSelectedPatient} id="patient-select">
+                      <Select value={selectedPatient} onValueChange={setSelectedPatient}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select patient" />
                         </SelectTrigger>
@@ -658,7 +658,7 @@ export default function PatientAssessment() {
 
                     <div className="space-y-1">
                       <Label htmlFor="assessment-type-select">Assessment Type</Label>
-                      <Select value={assessmentType} onValueChange={setAssessmentType} id="assessment-type-select">
+                      <Select value={assessmentType} onValueChange={setAssessmentType}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
@@ -783,7 +783,7 @@ export default function PatientAssessment() {
 
                       <div>
                         <Label htmlFor="shortness-of-breath">Shortness of Breath</Label>
-                        <Select value={shortnessOfBreath} onValueChange={setShortnessOfBreath} id="shortness-of-breath">
+                        <Select value={shortnessOfBreath} onValueChange={setShortnessOfBreath}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
@@ -818,7 +818,7 @@ export default function PatientAssessment() {
                     <CardContent className="space-y-4">
                       <div>
                         <Label htmlFor="pain-frequency">Pain Frequency</Label>
-                        <Select value={painFrequency} onValueChange={setPainFrequency} id="pain-frequency">
+                        <Select value={painFrequency} onValueChange={setPainFrequency}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
@@ -847,7 +847,7 @@ export default function PatientAssessment() {
                           <Checkbox
                             id="pain-affects-life"
                             checked={painAffectsLife}
-                            onCheckedChange={setPainAffectsLife}
+                            onCheckedChange={(checked) => setPainAffectsLife(!!checked)}
                           />
                           <span>
                             Person is experiencing pain that is not easily relieved,
@@ -877,7 +877,7 @@ export default function PatientAssessment() {
                     <CardContent className="space-y-4">
                       <div>
                         <label htmlFor="catheter" className="flex items-center space-x-2">
-                          <Checkbox id="catheter" checked={catheter} onCheckedChange={setCatheter} />
+                          <Checkbox id="catheter" checked={catheter} onCheckedChange={(checked) => setCatheter(!!checked)} />
                           <span>Catheter</span>
                         </label>
                       </div>
@@ -898,7 +898,7 @@ export default function PatientAssessment() {
                       </div>
                       <div>
                         <label htmlFor="uti-treated" className="flex items-center space-x-2">
-                          <Checkbox id="uti-treated" checked={utiTreated} onCheckedChange={setUtiTreated} />
+                          <Checkbox id="uti-treated" checked={utiTreated} onCheckedChange={(checked) => setUtiTreated(!!checked)} />
                           <span>Person has been treated for a UTI in the past month</span>
                         </label>
                       </div>
@@ -916,7 +916,7 @@ export default function PatientAssessment() {
                     <CardContent className="space-y-4">
                       <div>
                         <label htmlFor="bp-pulse-normal" className="flex items-center space-x-2">
-                          <Checkbox id="bp-pulse-normal" checked={bpPulseNormal} onCheckedChange={setBpPulseNormal} />
+                          <Checkbox id="bp-pulse-normal" checked={bpPulseNormal} onCheckedChange={(checked) => setBpPulseNormal(!!checked)} />
                           <span>BP and Pulse within normal limits</span>
                         </label>
                       </div>
@@ -972,7 +972,7 @@ export default function PatientAssessment() {
                       </div>
                       <div>
                         <Label htmlFor="bowel-incontinence-frequency">Bowel incontinence frequency</Label>
-                        <Select value={bowelIncontinenceFrequency} onValueChange={setBowelIncontinenceFrequency} id="bowel-incontinence-frequency">
+                        <Select value={bowelIncontinenceFrequency} onValueChange={setBowelIncontinenceFrequency}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
@@ -987,7 +987,7 @@ export default function PatientAssessment() {
                       </div>
                       <div>
                         <label htmlFor="ostomy-bowel-elimination" className="flex items-center space-x-2">
-                          <Checkbox id="ostomy-bowel-elimination" checked={ostomyBowelElimination} onCheckedChange={setOstomyBowelElimination} />
+                          <Checkbox id="ostomy-bowel-elimination" checked={ostomyBowelElimination} onCheckedChange={(checked) => setOstomyBowelElimination(!!checked)} />
                           <span>Person has ostomy for bowel elimination</span>
                         </label>
                       </div>
@@ -1374,7 +1374,7 @@ export default function PatientAssessment() {
                   <CardContent className="space-y-4">
                     <div>
                       <Label htmlFor="mobility">Mobility</Label>
-                      <Select value={mobility} onValueChange={setMobility} id="mobility">
+                      <Select value={mobility} onValueChange={setMobility}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
@@ -1447,11 +1447,11 @@ export default function PatientAssessment() {
                       />
                       <div className="mt-4 space-y-2">
                         <label htmlFor="incontinent-bladder" className="flex items-center">
-                          <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBladder} onCheckedChange={setToiletingIncontinentBladder} />
+                          <Checkbox id="incontinent-bladder" checked={toiletingIncontinentBladder} onCheckedChange={(checked) => setToiletingIncontinentBladder(!!checked)} />
                           <span className="ml-2">Incontinent bladder</span>
                         </label>
                         <label htmlFor="incontinent-bowel" className="flex items-center">
-                          <Checkbox id="incontinent-bowel" checked={toiletingIncontinentBowel} onCheckedChange={setToiletingIncontinentBowel} />
+                          <Checkbox id="incontinent-bowel" checked={toiletingIncontinentBowel} onCheckedChange={(checked) => setToiletingIncontinentBowel(!!checked)} />
                           <span className="ml-2">Incontinent bowel</span>
                         </label>
                       </div>
@@ -1518,7 +1518,7 @@ export default function PatientAssessment() {
                   </CardHeader>
                   <CardContent>
                     <Label htmlFor="nurse-visit-type">Visit type</Label>
-                    <Select value={nurseVisitType} onValueChange={setNurseVisitType} id="nurse-visit-type">
+                    <Select value={nurseVisitType} onValueChange={setNurseVisitType}>
                       <SelectTrigger>
                         <SelectValue placeholder="Visit type" />
                       </SelectTrigger>

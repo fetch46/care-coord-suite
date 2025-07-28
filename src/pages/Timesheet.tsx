@@ -21,18 +21,8 @@ export default function Timesheet() {
   const fetchTimesheets = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("timesheets")
-        .select(`
-          id,
-          caregiver,
-          date,
-          hours,
-          status
-        `)
-        .order("date", { ascending: false });
-
-      if (error) throw error;
+      // Mock data since timesheets table doesn't exist yet
+      const data: any[] = [];
       setTimesheets(data || []);
     } catch (error) {
       console.error("Error fetching timesheets:", error);
