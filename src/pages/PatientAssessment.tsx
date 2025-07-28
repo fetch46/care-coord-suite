@@ -26,11 +26,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"; // Import Table components
+} from "@/components/ui/table";
 
 // --- Reusable Components ---
-
-// Component for a group of checkboxes
 function FormCheckboxGroup({ label, options, selectedValues, onValueChange, className = "" }) {
   return (
     <div>
@@ -51,7 +49,6 @@ function FormCheckboxGroup({ label, options, selectedValues, onValueChange, clas
   );
 }
 
-// Component for a group of radio buttons
 function FormRadioGroup({ label, options, selectedValue, onValueChange, className = "" }) {
   return (
     <div>
@@ -69,7 +66,6 @@ function FormRadioGroup({ label, options, selectedValue, onValueChange, classNam
 }
 
 // --- Static Data Definitions ---
-
 const patients = [
   { id: "1", name: "John Doe", mrn: "MRN12345" },
   { id: "2", name: "Jane Smith", mrn: "MRN67890" },
@@ -336,7 +332,6 @@ const nurseVisitActivities = [
   { id: "assessed-monitored-participant", label: "Assessed/Monitored Participant" },
 ];
 
-// Options for the pressure ulcer radio buttons
 const pressureUlcerCountOptions = [
   { id: "0", label: "0" },
   { id: "1", label: "1" },
@@ -344,7 +339,6 @@ const pressureUlcerCountOptions = [
   { id: "3", label: "3" },
   { id: "4+", label: "4 or more" },
 ];
-
 
 export default function PatientAssessment() {
   // --- State Management ---
@@ -426,7 +420,6 @@ export default function PatientAssessment() {
   // Skin
   const [selectedSkinColors, setSelectedSkinColors] = useState([]);
   const [skinIntact, setSkinIntact] = useState("");
-  // Changed state for pressure ulcers to string for radio buttons
   const [pressureUlcersStage1, setPressureUlcersStage1] = useState("0");
   const [pressureUlcersStage2, setPressureUlcersStage2] = useState("0");
   const [pressureUlcersStage3, setPressureUlcersStage3] = useState("0");
@@ -453,7 +446,7 @@ export default function PatientAssessment() {
   const [otherHealthNeedsNotes, setOtherHealthNeedsNotes] = useState("");
 
   // General Physical Condition
-  const [generalPhysicalCondition, setGeneralPhysicalCondition] = useState("stable"); // Default value
+  const [generalPhysicalCondition, setGeneralPhysicalCondition] = useState("stable");
   const [otherPhysicalCondition, setOtherPhysicalCondition] = useState("");
 
   // Medication Management
@@ -475,11 +468,8 @@ export default function PatientAssessment() {
   const [participantGuardianDate, setParticipantGuardianDate] = useState("");
 
   // --- Handlers for Checkbox/Radio Groups ---
-
   const handleCheckboxChange = (setter) => (id, checked) => {
-    setter((prev) =>
-      checked ? [...prev, id] : prev.filter((item) => item !== id)
-    );
+    setter((prev) => (checked ? [...prev, id] : prev.filter((item) => item !== id)));
   };
 
   const handleRadioChange = (setter) => (value) => {
@@ -489,15 +479,11 @@ export default function PatientAssessment() {
   // --- Form Submission ---
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const formData = {
-      // Patient Details
       selectedPatient,
       assessmentType,
       assessmentDate,
       assessorName,
-
-      // General Health
       temp,
       pulse,
       respiration,
@@ -508,35 +494,25 @@ export default function PatientAssessment() {
       fluidIntake,
       fluidAmount: fluidIntake === "restricted" ? fluidAmount : "",
       recentChanges,
-
-      // Respiratory
       selectedRespiratoryFindings,
       otherRespiratoryFindings: selectedRespiratoryFindings.includes("other") ? otherRespiratoryFindings : "",
       shortnessOfBreath,
       selectedRespiratoryTreatments,
-
-      // Pain
       painFrequency,
       painSites,
       painIntensity,
       painAffectsLife,
       painCause,
       painTreatment,
-
-      // Genitourinary
       catheter,
       urineFrequency,
       selectedGenitourinaryIssues,
       otherGenitourinary,
       utiTreated,
-
-      // Cardiovascular
       bpPulseNormal,
       rhythm,
       selectedEdema,
       otherCardiovascular,
-
-      // Gastrointestinal
       bowelsFrequency,
       selectedGastrointestinalIssues,
       swallowingIssues,
@@ -544,33 +520,21 @@ export default function PatientAssessment() {
       otherGastrointestinal,
       bowelIncontinenceFrequency,
       ostomyBowelElimination,
-
-      // Neurological
       cognitiveFunctioning,
       selectedSpeechIssues,
       pupils,
       movements,
       selectedExtremities,
-
-      // Sensory
       vision,
       hearing,
-
-      // Psychosocial
       selectedBehaviors,
       psychologicalCounseling,
-
-      // Musculoskeletal
       selectedMusculoskeletalIssues,
       otherMusculoskeletal,
-
-      // Mental Health
       selectedMentalHealthIssues,
-
-      // Skin
       selectedSkinColors,
       skinIntact,
-      pressureUlcers: { // Now stores string values from radio buttons
+      pressureUlcers: {
         stage1: pressureUlcersStage1,
         stage2: pressureUlcersStage2,
         stage3: pressureUlcersStage3,
@@ -578,13 +542,9 @@ export default function PatientAssessment() {
       },
       ulcerLocations,
       surgicalWounds,
-
-      // Mobility & Transfers
       mobility,
       ambulatingAid,
       transferAid,
-
-      // ADLs
       bathingLevel,
       personalHygieneLevel,
       toiletingLevel,
@@ -592,26 +552,16 @@ export default function PatientAssessment() {
       toiletingIncontinentBowel,
       dressingLevel,
       eatingDrinkingLevel,
-
-      // Health Maintenance Needs
       selectedHealthMaintenanceNeeds,
       otherHealthNeedsNotes,
-
-      // General Physical Condition
       generalPhysicalCondition,
       otherPhysicalCondition,
-
-      // Medication Management
       currentMedications,
       medicationAdministration,
       otherMedicationManagement,
-
-      // Nurse Monitor Visit
       nurseVisitType,
       selectedNurseVisitActivities,
       caregiverNames,
-
-      // Signatures
       rnName,
       rnSignature,
       rnDate,
@@ -619,20 +569,32 @@ export default function PatientAssessment() {
       participantGuardianSignature,
       participantGuardianDate,
     };
-
     console.log("Collected Form Data:", formData);
-    // In a real application, you would send this data to an API
     alert("Form data logged to console. In a real app, this would be submitted.");
   };
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen">
+      <div className="flex h-screen w-full">
         <AppSidebar />
-        <div className="flex flex-col w-full">
-          <AppHeader />
+        <div className="flex flex-col flex-1 min-w-0">
+          <AppHeader className="print:hidden" />
           <SidebarInset>
-            <main className="flex-1 overflow-auto p-6 space-y-6">
+            <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 print:p-4">
+              <style jsx global>{`
+                @media print {
+                  body {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                  }
+                  main {
+                    overflow: visible !important;
+                  }
+                  .space-y-6 > * {
+                    break-inside: avoid;
+                  }
+                }
+              `}</style>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
@@ -650,7 +612,7 @@ export default function PatientAssessment() {
                   <CardHeader>
                     <CardTitle>Patient Details</CardTitle>
                   </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-6">
                     <div className="space-y-1">
                       <Label htmlFor="patient-select">Select Patient</Label>
                       <Select value={selectedPatient} onValueChange={setSelectedPatient} id="patient-select">
@@ -696,7 +658,7 @@ export default function PatientAssessment() {
                 </Card>
 
                 {/* General Health and Respiratory Side-by-Side */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
                   {/* GENERAL HEALTH */}
                   <Card>
                     <CardHeader>
@@ -820,7 +782,7 @@ export default function PatientAssessment() {
                 </div>
 
                 {/* Pain and Genitourinary Side-by-Side */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
                   {/* PAIN */}
                   <Card>
                     <CardHeader>
@@ -918,7 +880,7 @@ export default function PatientAssessment() {
                 </div>
 
                 {/* Cardiovascular and Gastrointestinal Side-by-Side */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
                   {/* CARDIOVASCULAR */}
                   <Card>
                     <CardHeader>
@@ -1074,7 +1036,7 @@ export default function PatientAssessment() {
                 </Card>
 
                 {/* Psychosocial and Musculoskeletal Side-by-Side */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
                   {/* PSYCHOSOCIAL */}
                   <Card>
                     <CardHeader>
@@ -1086,7 +1048,7 @@ export default function PatientAssessment() {
                         options={behaviorOptions}
                         selectedValues={selectedBehaviors}
                         onValueChange={handleCheckboxChange(setSelectedBehaviors)}
-                        className="grid-cols-1 md:grid-cols-2" // Adjusting grid for better fit
+                        className="grid-cols-1 md:grid-cols-2"
                       />
                       <FormRadioGroup
                         label="Is this person receiving psychological counseling?"
@@ -1120,7 +1082,7 @@ export default function PatientAssessment() {
                 </div>
 
                 {/* Mental Health and Health Maintenance Needs Side-by-Side */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
                   {/* MENTAL HEALTH */}
                   <Card>
                     <CardHeader>
@@ -1156,7 +1118,7 @@ export default function PatientAssessment() {
                 </div>
 
                 {/* SKIN (Full Width with Table) */}
-                <Card className="col-span-full"> {/* Make Skin card full width */}
+                <Card>
                   <CardHeader>
                     <CardTitle>Skin</CardTitle>
                   </CardHeader>
@@ -1176,15 +1138,14 @@ export default function PatientAssessment() {
                       className="flex items-center gap-4"
                     />
 
-                    {/* Pressure Ulcer Stages Table */}
-                    {skinIntact === "no" && ( // Only show if Skin Intact is "No"
+                    {skinIntact === "no" && (
                       <div className="mt-4">
-                        <Label>Number of Pressure Ulcers</Label> {/* Adjusted label */}
+                        <Label>Number of Pressure Ulcers</Label>
                         <Table className="border mt-2">
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="w-[60%]">Pressure Ulcer Stages</TableHead> {/* Column 1 Heading */}
-                              <TableHead className="text-center w-[40%]">Number of Pressure Ulcers</TableHead> {/* Column 2 Heading */}
+                              <TableHead className="w-[60%]">Pressure Ulcer Stages</TableHead>
+                              <TableHead className="text-center w-[40%]">Number of Pressure Ulcers</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -1196,7 +1157,7 @@ export default function PatientAssessment() {
                                 <RadioGroup
                                   value={pressureUlcersStage1}
                                   onValueChange={setPressureUlcersStage1}
-                                  className="flex justify-center space-x-4" // Align radio buttons
+                                  className="flex justify-center space-x-4"
                                 >
                                   {pressureUlcerCountOptions.map((opt) => (
                                     <label key={`stage1-${opt.id}`} className="flex items-center space-x-1">
@@ -1279,7 +1240,6 @@ export default function PatientAssessment() {
                     </div>
                   </CardContent>
                 </Card>
-
 
                 {/* MOBILITY & TRANSFERS (Full Width) */}
                 <Card>
@@ -1425,7 +1385,6 @@ export default function PatientAssessment() {
                     </CardContent>
                   </Card>
                 </div>
-
 
                 {/* MEDICATION MANAGEMENT (Full Width) */}
                 <Card>
