@@ -105,7 +105,7 @@ const Index = () => {
               {/* Left Column: Quick Actions + Finance */}
               <div className="lg:col-span-1 space-y-6">
                 <QuickActions />
-                <FinancesStats />
+                <FinanceStats />
               </div>
 
               {/* Recent Activity */}
