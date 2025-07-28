@@ -595,7 +595,7 @@ export default function PatientAssessment() {
     <SidebarProvider>
       <div className="flex h-screen w-full">
         <AppSidebar />
-        <div className="flex flex-col flex-1 min-w-0">
+        {/*<div className="flex flex-col flex-1 min-w-0">*/}
           <AppHeader className="print:hidden" />
           <SidebarInset>
             <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 print:p-4">
