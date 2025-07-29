@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useMemo } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Calendar, Clock, User } from "lucide-react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface Staff {
   id: string;
@@ -37,7 +38,7 @@ interface Availability {
 export default function ScheduleDetails() {
   const { id } = useParams<{ id: string }>();
 
-  // Dummy schedule data (same as in Schedule.tsx)
+  // Dummy schedule data
   const now = new Date();
   const scheduleData: Availability[] = [
     {
@@ -46,13 +47,7 @@ export default function ScheduleDetails() {
       start_time: new Date(now.getTime() + 60 * 60 * 1000).toISOString(),
       end_time: new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString(),
       status: "Available",
-      staff: {
-        id: "s1",
-        first_name: "John",
-        last_name: "Doe",
-        role: "Nurse",
-        profile_image_url: "",
-      },
+      staff: { id: "s1", first_name: "John", last_name: "Doe", role: "Nurse", profile_image_url: "" },
     },
     {
       id: "2",
@@ -60,18 +55,8 @@ export default function ScheduleDetails() {
       start_time: new Date(now.getTime() + 3 * 60 * 60 * 1000).toISOString(),
       end_time: new Date(now.getTime() + 4 * 60 * 60 * 1000).toISOString(),
       status: "Booked",
-      staff: {
-        id: "s2",
-        first_name: "Emily",
-        last_name: "Smith",
-        role: "Doctor",
-        profile_image_url: "",
-      },
-      patient: {
-        id: "p1",
-        first_name: "Michael",
-        last_name: "Johnson",
-      },
+      staff: { id: "s2", first_name: "Emily", last_name: "Smith", role: "Doctor", profile_image_url: "" },
+      patient: { id: "p1", first_name: "Michael", last_name: "Johnson" },
     },
     {
       id: "3",
@@ -79,20 +64,11 @@ export default function ScheduleDetails() {
       start_time: new Date(now.getTime() + 5 * 60 * 60 * 1000).toISOString(),
       end_time: new Date(now.getTime() + 6 * 60 * 60 * 1000).toISOString(),
       status: "On Leave",
-      staff: {
-        id: "s3",
-        first_name: "Sarah",
-        last_name: "Brown",
-        role: "Therapist",
-        profile_image_url: "",
-      },
+      staff: { id: "s3", first_name: "Sarah", last_name: "Brown", role: "Therapist", profile_image_url: "" },
     },
   ];
 
-  const schedule = useMemo(
-    () => scheduleData.find((item) => item.id === id),
-    [id]
-  );
+  const schedule = useMemo(() => scheduleData.find((item) => item.id === id), [id]);
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -134,9 +110,7 @@ export default function ScheduleDetails() {
   }
 
   const duration = Math.round(
-    (new Date(schedule.end_time).getTime() -
-      new Date(schedule.start_time).getTime()) /
-      (1000 * 60)
+    (new Date(schedule.end_time).getTime() - new Date(schedule.start_time).getTime()) / (1000 * 60)
   );
 
   return (
@@ -147,21 +121,21 @@ export default function ScheduleDetails() {
           <AppHeader />
           <main className="flex-1 overflow-auto p-6 space-y-6">
             {/* Back Button */}
-            <Button variant="ghost" asChild>
+            <Button variant="ghost" asChild className="flex items-center gap-2">
               <Link to="/schedule">
-                <ChevronLeft className="w-4 h-4 mr-2" /> Back to Schedule
+                <ChevronLeft className="w-4 h-4" /> Back to Schedule
               </Link>
             </Button>
 
-            {/* Schedule Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Schedule Details</CardTitle>
+            {/* Schedule Details Card */}
+            <Card className="shadow-lg border">
+              <CardHeader className="pb-4 border-b">
+                <CardTitle className="text-2xl font-semibold">Schedule Details</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 pt-6">
                 {/* Staff Info */}
                 <div className="flex items-center gap-4">
-                  <Avatar className="w-14 h-14">
+                  <Avatar className="w-16 h-16 border">
                     <AvatarImage
                       src={schedule.staff.profile_image_url || "/default-avatar.png"}
                       alt={`${schedule.staff.first_name} ${schedule.staff.last_name}`}
@@ -175,45 +149,54 @@ export default function ScheduleDetails() {
                     <p className="text-lg font-semibold">
                       {schedule.staff.first_name} {schedule.staff.last_name}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {schedule.staff.role}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{schedule.staff.role}</p>
                   </div>
                 </div>
 
+                <Separator />
+
                 {/* Time & Duration */}
-                <div>
-                  <p>
-                    <strong>Start:</strong> {formatDateTime(schedule.start_time)}
-                  </p>
-                  <p>
-                    <strong>End:</strong> {formatDateTime(schedule.end_time)}
-                  </p>
-                  <p>
-                    <strong>Duration:</strong> {duration} min
-                  </p>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Start</p>
+                      <p className="font-medium">{formatDateTime(schedule.start_time)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Clock className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">End</p>
+                      <p className="font-medium">{formatDateTime(schedule.end_time)}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Clock className="w-5 h-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Duration</p>
+                      <p className="font-medium">{duration} min</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge className={statusColorMap[schedule.status]}>{schedule.status}</Badge>
+                  </div>
                 </div>
+
+                <Separator />
 
                 {/* Patient Info */}
                 <div>
-                  <strong>Patient:</strong>
-                  <p>
-                    {schedule.patient ? (
-                      `${schedule.patient.first_name} ${schedule.patient.last_name}`
-                    ) : (
-                      <span className="text-muted-foreground">Not assigned</span>
-                    )}
+                  <p className="text-sm text-muted-foreground mb-1 flex items-center gap-2">
+                    <User className="w-4 h-4" /> Assigned Patient
                   </p>
-                </div>
-
-                {/* Status */}
-                <div>
-                  <strong>Status:</strong>
-                  <div className="mt-2">
-                    <Badge className={statusColorMap[schedule.status]}>
-                      {schedule.status}
-                    </Badge>
-                  </div>
+                  {schedule.patient ? (
+                    <p className="font-medium">
+                      {schedule.patient.first_name} {schedule.patient.last_name}
+                    </p>
+                  ) : (
+                    <p className="text-muted-foreground italic">No patient assigned</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
