@@ -33,14 +33,11 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/patients" element={<Patients />} />
           <Route path="/patients/:id" element={<PatientDetails />} />
-
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/schedule/create" element={<CreateSchedule />} /> {/* ✅ Create Schedule Route */}
           <Route path="/schedule/:id" element={<ScheduleDetails />} /> {/* ✅ Schedule Details with ID */}
-
           <Route path="/staff" element={<Staff />} />
           <Route path="/staff/:id" element={<StaffDetails />} />
-
           <Route path="/assessments" element={<Assessments />} />
           <Route path="/patient-registration" element={<PatientRegistration />} />
           <Route path="/skin-assessment" element={<SkinAssessment />} />
