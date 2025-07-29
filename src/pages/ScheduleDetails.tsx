@@ -178,20 +178,18 @@ export default function ScheduleDetails(): JSX.Element { // Explicitly define re
   };
 
   if (loading) {
-    return (
-      <SidebarProvider>
-        <div className="flex h-screen w-screen">
-          <AppSidebar />
-          <SidebarInset>
-            <AppHeader />
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">Loading schedule details...</div>
-            </div>
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
-    );
-  }
+  return (
+    <SidebarProvider>
+      <div className="flex h-screen w-screen">
+        <AppSidebar />
+        <SidebarInset>
+          <AppHeader />
+          <div className="p-8 text-center">Loading schedule details...</div>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
+  );
+}
 
   if (!schedule) {
     return (
