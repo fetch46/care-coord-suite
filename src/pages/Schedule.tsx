@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, Plus, ChevronRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client"; // Assuming this path is correct and `supabase` is typed
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
+// Interface definitions remain the same, good job!
 interface Staff {
   id: string;
   first_name: string;
@@ -28,19 +29,19 @@ interface Patient {
 
 interface Availability {
   id: string;
-  staff_id: string;
+  staff_id: string; // This is the foreign key, useful for internal logic
   start_time: string;
   end_time: string;
   status: "Available" | "Booked" | "On Leave";
-  patient_id?: string;
-  staff: Staff;
-  patient?: Patient;
+  patient_id?: string; // This is the foreign key, useful for internal logic
+  staff: Staff; // The joined staff object
+  patient?: Patient; // The joined patient object (optional)
 }
 
 export default function Schedule() {
   const [schedule, setSchedule] = useState<Availability[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     fetchSchedule();
@@ -60,22 +61,27 @@ export default function Schedule() {
         `)
         .order("start_time", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching schedule:", error);
+        throw error; // Re-throw to be caught by the finally block
+      }
+      // Explicitly cast the data to Availability[] as Supabase's type might be generic
       setSchedule(data as Availability[] || []);
     } catch (error) {
-      console.error("Error fetching schedule:", error);
+      console.error("Caught error in fetchSchedule:", error);
+      // Handle error display to user if necessary
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredSchedule = schedule.filter(item =>
+  const filteredSchedule = schedule.filter((item: Availability) =>
     `${item.staff.first_name} ${item.staff.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.staff.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (item.patient && `${item.patient.first_name} ${item.patient.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const formatDateTime = (dateString: string) => {
+  const formatDateTime = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleString([], {
       month: 'short',
@@ -85,7 +91,7 @@ export default function Schedule() {
     });
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case "Available": return "bg-green-100 text-green-800 border-green-200";
       case "Booked": return "bg-blue-100 text-blue-800 border-blue-200";
@@ -141,7 +147,7 @@ export default function Schedule() {
                       <Input
                         placeholder="Search by staff name, role, or patient..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                         className="pl-10"
                       />
                     </div>
@@ -165,7 +171,7 @@ export default function Schedule() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredSchedule.map((item) => {
+                      {filteredSchedule.map((item: Availability) => {
                         const start = new Date(item.start_time);
                         const end = new Date(item.end_time);
                         const duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
@@ -175,7 +181,10 @@ export default function Schedule() {
                             <TableCell>
                               <div className="flex items-center gap-3">
                                 <Avatar className="w-10 h-10">
-                                  <AvatarImage src={item.staff.profile_image_url} />
+                                  {/* Conditionally render AvatarImage only if profile_image_url exists */}
+                                  {item.staff.profile_image_url ? (
+                                    <AvatarImage src={item.staff.profile_image_url} alt={`${item.staff.first_name} ${item.staff.last_name}`} />
+                                  ) : null}
                                   <AvatarFallback className="bg-gradient-blue text-white">
                                     {item.staff.first_name[0]}{item.staff.last_name[0]}
                                   </AvatarFallback>
