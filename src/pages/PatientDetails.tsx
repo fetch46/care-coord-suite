@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Phone, Mail, AlertTriangle, User, Calendar, Heart, MoreVertical } from "lucide-react";
+import { ArrowLeft, Phone, Mail, AlertTriangle, User, Calendar, Heart, MoreHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -12,8 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { PatientAssessments } from "@/components/assessments/patient-assessments";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface Patient {
   id: string;
@@ -73,9 +73,7 @@ export default function PatientDetails() {
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
-    if (id) {
-      fetchPatientData();
-    }
+    if (id) fetchPatientData();
   }, [id]);
 
   const fetchPatientData = async () => {
@@ -116,11 +114,12 @@ export default function PatientDetails() {
         .eq("patient_id", id);
 
       if (caregiversError) throw caregiversError;
-      
-      const caregiversWithPrimary = caregiversData?.map(item => ({
-        ...item.caregivers,
-        is_primary: item.is_primary
-      })) || [];
+
+      const caregiversWithPrimary =
+        caregiversData?.map((item) => ({
+          ...item.caregivers,
+          is_primary: item.is_primary,
+        })) || [];
       setCaregivers(caregiversWithPrimary);
 
       const { data: recordsData, error: recordsError } = await supabase
@@ -143,29 +142,37 @@ export default function PatientDetails() {
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
     return age;
   };
 
   const getCareLevelColor = (level: string) => {
     switch (level) {
-      case "Critical": return "bg-red-100 text-red-800 border-red-200";
-      case "High": return "bg-orange-100 text-orange-800 border-orange-200";
-      case "Medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "Low": return "bg-green-100 text-green-800 border-green-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case "Critical":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "High":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      case "Medium":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Low":
+        return "bg-green-100 text-green-800 border-green-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case "Life-threatening": return "bg-red-100 text-red-800";
-      case "Severe": return "bg-orange-100 text-orange-800";
-      case "Moderate": return "bg-yellow-100 text-yellow-800";
-      case "Mild": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "Life-threatening":
+        return "bg-red-100 text-red-800";
+      case "Severe":
+        return "bg-orange-100 text-orange-800";
+      case "Moderate":
+        return "bg-yellow-100 text-yellow-800";
+      case "Mild":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -209,7 +216,6 @@ export default function PatientDetails() {
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
             <div className="max-w-none w-full space-y-8">
-              {/* Header */}
               <div className="flex items-center gap-4">
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/patients">
@@ -219,17 +225,17 @@ export default function PatientDetails() {
                 </Button>
               </div>
 
-              {/* Patient Header Card */}
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-6">
                     <Avatar className="w-24 h-24">
                       <AvatarImage src={patient.profile_image_url} />
                       <AvatarFallback className="bg-gradient-teal text-white text-2xl">
-                        {patient.first_name[0]}{patient.last_name[0]}
+                        {patient.first_name[0]}
+                        {patient.last_name[0]}
                       </AvatarFallback>
                     </Avatar>
-                    
+
                     <div className="flex-1">
                       <div className="flex items-start justify-between">
                         <div>
@@ -255,7 +261,7 @@ export default function PatientDetails() {
                             </Badge>
                           </div>
                         </div>
-                        
+
                         <div className="text-right space-y-1">
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Phone className="w-4 h-4" />
@@ -270,42 +276,33 @@ export default function PatientDetails() {
                     </div>
                   </div>
 
-                  {/* Allergies Alert + Actions */}
-                  <div className="flex justify-between items-center mt-6">
-                    {allergies.length > 0 && (
-                      <Alert className="border-red-200 bg-red-50 max-w-xl flex-1">
+                  {allergies.length > 0 && (
+                    <div className="flex items-center justify-between mt-6">
+                      <Alert className="flex-1 max-w-3xl border-red-200 bg-red-50 mr-4">
                         <AlertTriangle className="h-4 w-4 text-red-600" />
                         <AlertDescription className="text-red-800">
-                          <strong>Allergies:</strong> {allergies.map(a => a.allergy_name).join(", ")}
+                          <strong>Allergies:</strong> {allergies.map((a) => a.allergy_name).join(", ")}
                         </AlertDescription>
                       </Alert>
-                    )}
 
-                    {/* Actions Dropdown */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-4">
-                          <MoreVertical className="w-4 h-4 mr-2" />
-                          Actions
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => console.log("Create Invoice clicked")}>
-                          Create Invoice
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => console.log("Edit clicked")}>
-                          Edit Patient
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Discharge clicked")}>
-                          Discharge
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline">
+                            <MoreHorizontal className="w-4 h-4 mr-2" />
+                            Actions
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>Create Invoice</DropdownMenuItem>
+                          <DropdownMenuItem>Edit</DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600">Discharge</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
-              {/* Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -316,7 +313,6 @@ export default function PatientDetails() {
 
                 <TabsContent value="overview" className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Personal Information */}
                     <Card>
                       <CardHeader>
                         <CardTitle>Personal Information</CardTitle>
@@ -337,7 +333,6 @@ export default function PatientDetails() {
                       </CardContent>
                     </Card>
 
-                    {/* Emergency Contact */}
                     <Card>
                       <CardHeader>
                         <CardTitle>Emergency Contact</CardTitle>
@@ -354,7 +349,6 @@ export default function PatientDetails() {
                       </CardContent>
                     </Card>
 
-                    {/* Allergies */}
                     <Card className="md:col-span-2">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -371,9 +365,7 @@ export default function PatientDetails() {
                                   <div>
                                     <div className="flex items-center gap-2">
                                       <span className="font-medium">{allergy.allergy_name}</span>
-                                      <Badge className={getSeverityColor(allergy.severity)}>
-                                        {allergy.severity}
-                                      </Badge>
+                                      <Badge className={getSeverityColor(allergy.severity)}>{allergy.severity}</Badge>
                                     </div>
                                     {allergy.reaction && (
                                       <p className="text-sm text-muted-foreground mt-1">
@@ -381,9 +373,7 @@ export default function PatientDetails() {
                                       </p>
                                     )}
                                     {allergy.notes && (
-                                      <p className="text-sm text-muted-foreground mt-1">
-                                        Notes: {allergy.notes}
-                                      </p>
+                                      <p className="text-sm text-muted-foreground mt-1">Notes: {allergy.notes}</p>
                                     )}
                                   </div>
                                 </div>
@@ -417,9 +407,7 @@ export default function PatientDetails() {
                         <TableBody>
                           {medicalRecords.map((record) => (
                             <TableRow key={record.id}>
-                              <TableCell>
-                                {new Date(record.recorded_date).toLocaleDateString()}
-                              </TableCell>
+                              <TableCell>{new Date(record.recorded_date).toLocaleDateString()}</TableCell>
                               <TableCell>
                                 <Badge variant="outline">{record.record_type}</Badge>
                               </TableCell>
@@ -431,9 +419,7 @@ export default function PatientDetails() {
                         </TableBody>
                       </Table>
                       {medicalRecords.length === 0 && (
-                        <div className="text-center py-8 text-muted-foreground">
-                          No medical records found.
-                        </div>
+                        <div className="text-center py-8 text-muted-foreground">No medical records found.</div>
                       )}
                     </CardContent>
                   </Card>
@@ -453,7 +439,8 @@ export default function PatientDetails() {
                                 <Avatar className="w-12 h-12">
                                   <AvatarImage src={caregiver.profile_image_url} />
                                   <AvatarFallback className="bg-gradient-secondary text-white">
-                                    {caregiver.first_name[0]}{caregiver.last_name[0]}
+                                    {caregiver.first_name[0]}
+                                    {caregiver.last_name[0]}
                                   </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">
@@ -468,9 +455,7 @@ export default function PatientDetails() {
                                   <p className="text-sm text-muted-foreground">
                                     {caregiver.role} - {caregiver.specialization}
                                   </p>
-                                  <p className="text-sm text-muted-foreground">
-                                    {caregiver.shift} Shift
-                                  </p>
+                                  <p className="text-sm text-muted-foreground">{caregiver.shift} Shift</p>
                                 </div>
                                 <div className="text-right text-sm text-muted-foreground">
                                   <div>{caregiver.phone}</div>
@@ -488,4 +473,13 @@ export default function PatientDetails() {
                 </TabsContent>
 
                 <TabsContent value="assessments">
-                  <
+                  <PatientAssessments patientId={id!} />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
+  );
+}
