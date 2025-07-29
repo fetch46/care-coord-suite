@@ -1,34 +1,26 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom"; // Added Link for consistency, though not used in the exact back button
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowLeft } from "lucide-react"; // Added ArrowLeft for back button consistency
-
-// Import layout components
+import { useParams, Link } from "react-router-dom";
+import { useMemo } from "react";
+import { ChevronLeft } from "lucide-react";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface Staff {
   id: string;
   first_name: string;
   last_name: string;
   role: string;
+  profile_image_url?: string;
 }
 
 interface Patient {
   id: string;
   first_name: string;
   last_name: string;
-  patient_allergies: Array<{
-    allergy_name: string;
-    severity: string;
-  }>;
 }
 
 interface Availability {
@@ -38,158 +30,85 @@ interface Availability {
   end_time: string;
   status: "Available" | "Booked" | "On Leave";
   patient_id?: string;
+  staff: Staff;
+  patient?: Patient;
 }
 
-export default function ScheduleDetails(): JSX.Element { // Explicitly define return type
-  const { id } = useParams<{ id: string }>(); // Type `id` from useParams
-  const navigate = useNavigate();
-  
-  const [staffList, setStaffList] = useState<Staff[]>([]);
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [selectedStaff, setSelectedStaff] = useState<string>("");
-  const [selectedPatient, setSelectedPatient] = useState<string>("");
-  const [schedule, setSchedule] = useState<Availability | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [saving, setSaving] = useState<boolean>(false);
+export default function ScheduleDetails() {
+  const { id } = useParams<{ id: string }>();
 
-  useEffect(() => {
-    fetchSchedule();
-    fetchStaff();
-    fetchPatients();
-  }, [id]); // Add 'id' to dependency array for useEffect
+  // Dummy schedule data (same as in Schedule.tsx)
+  const now = new Date();
+  const scheduleData: Availability[] = [
+    {
+      id: "1",
+      staff_id: "s1",
+      start_time: new Date(now.getTime() + 60 * 60 * 1000).toISOString(),
+      end_time: new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString(),
+      status: "Available",
+      staff: {
+        id: "s1",
+        first_name: "John",
+        last_name: "Doe",
+        role: "Nurse",
+        profile_image_url: "",
+      },
+    },
+    {
+      id: "2",
+      staff_id: "s2",
+      start_time: new Date(now.getTime() + 3 * 60 * 60 * 1000).toISOString(),
+      end_time: new Date(now.getTime() + 4 * 60 * 60 * 1000).toISOString(),
+      status: "Booked",
+      staff: {
+        id: "s2",
+        first_name: "Emily",
+        last_name: "Smith",
+        role: "Doctor",
+        profile_image_url: "",
+      },
+      patient: {
+        id: "p1",
+        first_name: "Michael",
+        last_name: "Johnson",
+      },
+    },
+    {
+      id: "3",
+      staff_id: "s3",
+      start_time: new Date(now.getTime() + 5 * 60 * 60 * 1000).toISOString(),
+      end_time: new Date(now.getTime() + 6 * 60 * 60 * 1000).toISOString(),
+      status: "On Leave",
+      staff: {
+        id: "s3",
+        first_name: "Sarah",
+        last_name: "Brown",
+        role: "Therapist",
+        profile_image_url: "",
+      },
+    },
+  ];
 
-  const fetchSchedule = async (): Promise<void> => {
-    if (!id) {
-      setLoading(false); // Ensure loading is set to false if id is missing
-      return;
-    }
-    
-    try {
-      const { data, error } = await supabase
-        .from("availabilities")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching schedule:", error);
-        throw error; // Propagate error for catch block
-      }
-      setSchedule(data as Availability); // Cast to Availability type
-      setSelectedStaff(data.staff_id);
-      setSelectedPatient(data.patient_id || "");
-    } catch (error) {
-      console.error("Caught error in fetchSchedule:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchStaff = async (): Promise<void> => {
-    try {
-      const { data, error } = await supabase
-        .from("staff")
-        .select("id, first_name, last_name, role")
-        .order("last_name");
-
-      if (error) {
-        console.error("Error fetching staff:", error);
-        throw error;
-      }
-      setStaffList(data as Staff[] || []); // Cast to Staff[] type
-    } catch (error) {
-      console.error("Error fetching staff:", error);
-    }
-  };
-
-  const fetchPatients = async (): Promise<void> => {
-    try {
-      const { data, error } = await supabase
-        .from("patients")
-        .select(`
-          id,
-          first_name,
-          last_name,
-          patient_allergies (allergy_name, severity)
-        `);
-
-      if (error) {
-        console.error("Error fetching patients:", error);
-        throw error;
-      }
-      setPatients(data as Patient[] || []); // Cast to Patient[] type
-    } catch (error) {
-      console.error("Error fetching patients:", error);
-    }
-  };
-
-  const handleSave = async (): Promise<void> => {
-    // Ensure schedule and id are present before attempting save
-    if (!schedule || !id) return; 
-    
-    setSaving(true);
-    try {
-      const { error } = await supabase
-        .from("availabilities")
-        .update({
-          patient_id: selectedPatient || null,
-          status: selectedPatient ? "Booked" : "Available"
-        })
-        .eq("id", id);
-
-      if (error) {
-        console.error("Error updating schedule:", error);
-        throw error;
-      }
-      navigate("/schedule");
-    } catch (error) {
-      console.error("Error updating schedule:", error);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const getSeverityColor = (severity: string): string => {
-    switch (severity) {
-      case "Life-threatening": return "bg-red-100 text-red-800";
-      case "Severe": return "bg-orange-100 text-orange-800";
-      case "Moderate": return "bg-yellow-100 text-yellow-800";
-      case "Mild": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const formatDateTime = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleString([], {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const calculateDuration = (start: string, end: string): number => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
-  };
-
-  if (loading) {
-  return (
-    <SidebarProvider>
-      <div className="flex h-screen w-screen">
-        <AppSidebar />
-        <SidebarInset>
-          <AppHeader />
-          <div className="p-8 text-center">Loading schedule details...</div>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+  const schedule = useMemo(
+    () => scheduleData.find((item) => item.id === id),
+    [id]
   );
-}
+
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
+
+  const statusColorMap: Record<string, string> = {
+    Available: "bg-green-100 text-green-800 border-green-200",
+    Booked: "bg-blue-100 text-blue-800 border-blue-200",
+    "On Leave": "bg-gray-100 text-gray-800 border-gray-200",
+  };
 
   if (!schedule) {
     return (
@@ -198,18 +117,27 @@ export default function ScheduleDetails(): JSX.Element { // Explicitly define re
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">Schedule not found</div>
-            </div>
+            <main className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <p className="text-lg font-medium">Schedule not found.</p>
+                <Button asChild className="mt-4">
+                  <Link to="/schedule">
+                    <ChevronLeft className="w-4 h-4 mr-2" /> Back to Schedule
+                  </Link>
+                </Button>
+              </div>
+            </main>
           </SidebarInset>
         </div>
       </SidebarProvider>
     );
   }
 
-  // Ensure these are found before trying to access their properties
-  const selectedPatientData = patients.find((p: Patient) => p.id === selectedPatient);
-  const selectedStaffData = staffList.find((s: Staff) => s.id === selectedStaff);
+  const duration = Math.round(
+    (new Date(schedule.end_time).getTime() -
+      new Date(schedule.start_time).getTime()) /
+      (1000 * 60)
+  );
 
   return (
     <SidebarProvider>
@@ -217,175 +145,78 @@ export default function ScheduleDetails(): JSX.Element { // Explicitly define re
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-4xl mx-auto space-y-8"> {/* Adjusted max-w and added space-y */}
-              {/* Header with back button */}
-              <div className="flex items-center gap-4">
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/schedule">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Schedule
-                  </Link>
-                </Button>
-              </div>
+          <main className="flex-1 overflow-auto p-6 space-y-6">
+            {/* Back Button */}
+            <Button variant="ghost" asChild>
+              <Link to="/schedule">
+                <ChevronLeft className="w-4 h-4 mr-2" /> Back to Schedule
+              </Link>
+            </Button>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Assignment Details</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="staff">Staff Member</Label>
-                      <Select 
-                        value={selectedStaff} 
-                        onValueChange={setSelectedStaff}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select staff member" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {staffList.map((staff: Staff) => (
-                            <SelectItem key={staff.id} value={staff.id}>
-                              {staff.first_name} {staff.last_name} ({staff.role})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+            {/* Schedule Details */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Schedule Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Staff Info */}
+                <div className="flex items-center gap-4">
+                  <Avatar className="w-14 h-14">
+                    <AvatarImage
+                      src={schedule.staff.profile_image_url || "/default-avatar.png"}
+                      alt={`${schedule.staff.first_name} ${schedule.staff.last_name}`}
+                    />
+                    <AvatarFallback>
+                      {schedule.staff.first_name[0]}
+                      {schedule.staff.last_name[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-lg font-semibold">
+                      {schedule.staff.first_name} {schedule.staff.last_name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {schedule.staff.role}
+                    </p>
+                  </div>
+                </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="patient">Assign Patient</Label>
-                      <Select 
-                        value={selectedPatient} 
-                        onValueChange={setSelectedPatient}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a patient" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="">Unassign</SelectItem> {/* Option to unassign */}
-                          {patients.map((patient: Patient) => (
-                            <SelectItem key={patient.id} value={patient.id}>
-                              {patient.first_name} {patient.last_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                {/* Time & Duration */}
+                <div>
+                  <p>
+                    <strong>Start:</strong> {formatDateTime(schedule.start_time)}
+                  </p>
+                  <p>
+                    <strong>End:</strong> {formatDateTime(schedule.end_time)}
+                  </p>
+                  <p>
+                    <strong>Duration:</strong> {duration} min
+                  </p>
+                </div>
 
-                    {selectedPatientData && (
-                      <div className="space-y-2">
-                        <Label>Patient Allergies</Label>
-                        <div className="border rounded-lg p-4">
-                          {selectedPatientData.patient_allergies.length > 0 ? (
-                            <div className="flex flex-wrap gap-2">
-                              {selectedPatientData.patient_allergies.map((allergy, index) => (
-                                <Badge 
-                                  key={index}
-                                  className={`text-xs ${getSeverityColor(allergy.severity)}`}
-                                >
-                                  {allergy.allergy_name} ({allergy.severity})
-                                </Badge>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-muted-foreground">No allergies recorded</p>
-                          )}
-                        </div>
-                      </div>
+                {/* Patient Info */}
+                <div>
+                  <strong>Patient:</strong>
+                  <p>
+                    {schedule.patient ? (
+                      `${schedule.patient.first_name} ${schedule.patient.last_name}`
+                    ) : (
+                      <span className="text-muted-foreground">Not assigned</span>
                     )}
+                  </p>
+                </div>
 
-                    <Button 
-                      className="w-full bg-gradient-primary text-white hover:opacity-90"
-                      onClick={handleSave}
-                      disabled={saving}
-                    >
-                      {saving ? "Saving..." : "Save Assignment"}
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Availability Details</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-blue-100 p-3 rounded-full">
-                        <Calendar className="text-blue-800 w-6 h-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-foreground">
-                          {selectedStaffData ? 
-                            `${selectedStaffData.first_name} ${selectedStaffData.last_name}` : 
-                            'Staff Member'}
-                        </h3>
-                        <p className="text-muted-foreground">
-                          {selectedStaffData?.role || 'Role not specified'}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Time Slot</Label>
-                      <div className="border rounded-lg p-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-muted-foreground">Start</p>
-                            <p className="font-medium">{formatDateTime(schedule.start_time)}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">End</p>
-                            <p className="font-medium">{formatDateTime(schedule.end_time)}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Duration</p>
-                            <p className="font-medium">
-                              {calculateDuration(schedule.start_time, schedule.end_time)} minutes
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Status</p>
-                            <Badge 
-                              className={selectedPatient ? 
-                                "bg-blue-100 text-blue-800" : 
-                                "bg-green-100 text-green-800"
-                              }
-                            >
-                              {selectedPatient ? "Booked" : "Available"}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {selectedPatientData && (
-                      <div className="space-y-2">
-                        <Label>Assigned Patient</Label>
-                        <div className="border rounded-lg p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="bg-teal-100 p-3 rounded-full">
-                              <div className="bg-gradient-teal text-white rounded-full w-8 h-8 flex items-center justify-center">
-                                {selectedPatientData.first_name[0]}{selectedPatientData.last_name[0]}
-                              </div>
-                            </div>
-                            <div>
-                              <h3 className="font-medium text-foreground">
-                                {selectedPatientData.first_name} {selectedPatientData.last_name}
-                              </h3>
-                              <p className="text-muted-foreground">
-                                ID: {selectedPatientData.id.slice(0, 8)}...
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+                {/* Status */}
+                <div>
+                  <strong>Status:</strong>
+                  <div className="mt-2">
+                    <Badge className={statusColorMap[schedule.status]}>
+                      {schedule.status}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </main>
         </SidebarInset>
       </div>
