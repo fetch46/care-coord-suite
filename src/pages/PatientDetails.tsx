@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Phone, Mail, AlertTriangle, User, Calendar, Heart, MoreVertical } from "lucide-react";
+import { ArrowLeft, Phone, Mail, AlertTriangle, User, Calendar, Heart, MoreVertical, FilePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -321,7 +321,8 @@ export default function PatientDetails() {
                   <Card>
                     <CardHeader className="flex justify-between items-center">
                       <CardTitle>Billing</CardTitle>
-                      <Button className="bg-gradient-primary text-white hover:opacity-90">
+                      <Button className="bg-gradient-primary text-white hover:opacity-90 flex items-center gap-2">
+                        <FilePlus className="w-4 h-4" />
                         Create Invoice
                       </Button>
                     </CardHeader>
