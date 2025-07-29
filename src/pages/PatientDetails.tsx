@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Phone, Mail, AlertTriangle, User, Calendar, Heart, CreditCard, FilePlus, Pencil, LogOut } from "lucide-react";
+import { ArrowLeft, Phone, Mail, AlertTriangle, User, Calendar, Heart, MoreVertical } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { PatientAssessments } from "@/components/assessments/patient-assessments";
 
 interface Patient {
@@ -62,21 +63,12 @@ interface MedicalRecord {
   recorded_date: string;
 }
 
-interface Payment {
-  id: string;
-  date: string;
-  amount: number;
-  method: string;
-  reference: string;
-}
-
 export default function PatientDetails() {
   const { id } = useParams<{ id: string }>();
   const [patient, setPatient] = useState<Patient | null>(null);
   const [allergies, setAllergies] = useState<Allergy[]>([]);
   const [caregivers, setCaregivers] = useState<Caregiver[]>([]);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
-  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -93,6 +85,7 @@ export default function PatientDetails() {
         .select("*")
         .eq("id", id)
         .single();
+
       if (patientError) throw patientError;
       setPatient(patientData);
 
@@ -100,6 +93,7 @@ export default function PatientDetails() {
         .from("patient_allergies")
         .select("*")
         .eq("patient_id", id);
+
       if (allergiesError) throw allergiesError;
       setAllergies(allergiesData || []);
 
@@ -120,8 +114,9 @@ export default function PatientDetails() {
           )
         `)
         .eq("patient_id", id);
-      if (caregiversError) throw caregiversError;
 
+      if (caregiversError) throw caregiversError;
+      
       const caregiversWithPrimary = caregiversData?.map(item => ({
         ...item.caregivers,
         is_primary: item.is_primary
@@ -133,17 +128,9 @@ export default function PatientDetails() {
         .select("*")
         .eq("patient_id", id)
         .order("recorded_date", { ascending: false });
+
       if (recordsError) throw recordsError;
       setMedicalRecords(recordsData || []);
-
-      const { data: paymentsData, error: paymentsError } = await supabase
-        .from("payments")
-        .select("*")
-        .eq("patient_id", id)
-        .order("date", { ascending: false });
-      if (paymentsError) throw paymentsError;
-      setPayments(paymentsData || []);
-
     } catch (error) {
       console.error("Error fetching patient data:", error);
     } finally {
@@ -222,6 +209,7 @@ export default function PatientDetails() {
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
             <div className="max-w-none w-full space-y-8">
+              {/* Header */}
               <div className="flex items-center gap-4">
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/patients">
@@ -231,6 +219,7 @@ export default function PatientDetails() {
                 </Button>
               </div>
 
+              {/* Patient Header Card */}
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-6">
@@ -240,6 +229,7 @@ export default function PatientDetails() {
                         {patient.first_name[0]}{patient.last_name[0]}
                       </AvatarFallback>
                     </Avatar>
+                    
                     <div className="flex-1">
                       <div className="flex items-start justify-between">
                         <div>
@@ -265,57 +255,69 @@ export default function PatientDetails() {
                             </Badge>
                           </div>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <div className="flex gap-2">
-                            <Button variant="default">
-                              <FilePlus className="w-4 h-4 mr-1" /> Create Invoice
-                            </Button>
-                            <Button variant="outline">
-                              <Pencil className="w-4 h-4 mr-1" /> Edit
-                            </Button>
-                            <Button variant="destructive">
-                              <LogOut className="w-4 h-4 mr-1" /> Discharge
-                            </Button>
+                        
+                        <div className="text-right space-y-1">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Phone className="w-4 h-4" />
+                            {patient.phone}
                           </div>
-                          <div className="flex flex-col text-sm text-muted-foreground mt-2">
-                            <div className="flex items-center gap-2">
-                              <Phone className="w-4 h-4" />
-                              {patient.phone}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Mail className="w-4 h-4" />
-                              {patient.email}
-                            </div>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Mail className="w-4 h-4" />
+                            {patient.email}
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {allergies.length > 0 && (
-                    <Alert className="mt-6 border-red-200 bg-red-50">
-                      <AlertTriangle className="h-4 w-4 text-red-600" />
-                      <AlertDescription className="text-red-800">
-                        <strong>Allergies:</strong> {allergies.map(a => a.allergy_name).join(", ")}
-                      </AlertDescription>
-                    </Alert>
-                  )}
+                  {/* Allergies Alert + Actions */}
+                  <div className="flex justify-between items-center mt-6">
+                    {allergies.length > 0 && (
+                      <Alert className="border-red-200 bg-red-50 max-w-xl flex-1">
+                        <AlertTriangle className="h-4 w-4 text-red-600" />
+                        <AlertDescription className="text-red-800">
+                          <strong>Allergies:</strong> {allergies.map(a => a.allergy_name).join(", ")}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    {/* Actions Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="ml-4">
+                          <MoreVertical className="w-4 h-4 mr-2" />
+                          Actions
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => console.log("Create Invoice clicked")}>
+                          Create Invoice
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => console.log("Edit clicked")}>
+                          Edit Patient
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600" onClick={() => console.log("Discharge clicked")}>
+                          Discharge
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </CardContent>
               </Card>
 
+              {/* Tabs */}
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-5">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="medical-records">Medical Records</TabsTrigger>
                   <TabsTrigger value="caregivers">Assigned Caregivers</TabsTrigger>
                   <TabsTrigger value="assessments">Assessments</TabsTrigger>
-                  <TabsTrigger value="billing">Billing</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-6">
-                  <div className="grid grid-cols-5 gap-6">
-                    {/* Personal Information (Left 60%) */}
-                    <Card className="col-span-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Personal Information */}
+                    <Card>
                       <CardHeader>
                         <CardTitle>Personal Information</CardTitle>
                       </CardHeader>
@@ -335,65 +337,65 @@ export default function PatientDetails() {
                       </CardContent>
                     </Card>
 
-                    {/* Contact Details (Right 40%) */}
-                    <Card className="col-span-2">
+                    {/* Emergency Contact */}
+                    <Card>
                       <CardHeader>
-                        <CardTitle>Contact Details</CardTitle>
+                        <CardTitle>Emergency Contact</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div>
-                          <label className="text-sm font-medium text-muted-foreground">Emergency Contact Name</label>
+                          <label className="text-sm font-medium text-muted-foreground">Name</label>
                           <p className="text-foreground">{patient.emergency_contact_name || "Not provided"}</p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-muted-foreground">Emergency Contact Phone</label>
+                          <label className="text-sm font-medium text-muted-foreground">Phone</label>
                           <p className="text-foreground">{patient.emergency_contact_phone || "Not provided"}</p>
                         </div>
                       </CardContent>
                     </Card>
-                  </div>
 
-                  {/* Allergies */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Heart className="w-5 h-5 text-red-500" />
-                        Allergies & Reactions
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {allergies.length > 0 ? (
-                        <div className="space-y-3">
-                          {allergies.map((allergy) => (
-                            <div key={allergy.id} className="p-3 border rounded-lg">
-                              <div className="flex items-start justify-between">
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-medium">{allergy.allergy_name}</span>
-                                    <Badge className={getSeverityColor(allergy.severity)}>
-                                      {allergy.severity}
-                                    </Badge>
+                    {/* Allergies */}
+                    <Card className="md:col-span-2">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Heart className="w-5 h-5 text-red-500" />
+                          Allergies & Reactions
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {allergies.length > 0 ? (
+                          <div className="space-y-3">
+                            {allergies.map((allergy) => (
+                              <div key={allergy.id} className="p-3 border rounded-lg">
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium">{allergy.allergy_name}</span>
+                                      <Badge className={getSeverityColor(allergy.severity)}>
+                                        {allergy.severity}
+                                      </Badge>
+                                    </div>
+                                    {allergy.reaction && (
+                                      <p className="text-sm text-muted-foreground mt-1">
+                                        Reaction: {allergy.reaction}
+                                      </p>
+                                    )}
+                                    {allergy.notes && (
+                                      <p className="text-sm text-muted-foreground mt-1">
+                                        Notes: {allergy.notes}
+                                      </p>
+                                    )}
                                   </div>
-                                  {allergy.reaction && (
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                      Reaction: {allergy.reaction}
-                                    </p>
-                                  )}
-                                  {allergy.notes && (
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                      Notes: {allergy.notes}
-                                    </p>
-                                  )}
                                 </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-muted-foreground">No known allergies</p>
-                      )}
-                    </CardContent>
-                  </Card>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-muted-foreground">No known allergies</p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="medical-records">
@@ -415,7 +417,9 @@ export default function PatientDetails() {
                         <TableBody>
                           {medicalRecords.map((record) => (
                             <TableRow key={record.id}>
-                              <TableCell>{new Date(record.recorded_date).toLocaleDateString()}</TableCell>
+                              <TableCell>
+                                {new Date(record.recorded_date).toLocaleDateString()}
+                              </TableCell>
                               <TableCell>
                                 <Badge variant="outline">{record.record_type}</Badge>
                               </TableCell>
@@ -464,7 +468,9 @@ export default function PatientDetails() {
                                   <p className="text-sm text-muted-foreground">
                                     {caregiver.role} - {caregiver.specialization}
                                   </p>
-                                  <p className="text-sm text-muted-foreground">{caregiver.shift} Shift</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {caregiver.shift} Shift
+                                  </p>
                                 </div>
                                 <div className="text-right text-sm text-muted-foreground">
                                   <div>{caregiver.phone}</div>
@@ -482,50 +488,4 @@ export default function PatientDetails() {
                 </TabsContent>
 
                 <TabsContent value="assessments">
-                  <PatientAssessments patientId={id!} />
-                </TabsContent>
-
-                <TabsContent value="billing">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <CreditCard className="w-5 h-5" />
-                        Billing & Payments
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {payments.length > 0 ? (
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Date</TableHead>
-                              <TableHead>Amount</TableHead>
-                              <TableHead>Method</TableHead>
-                              <TableHead>Reference</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {payments.map(payment => (
-                              <TableRow key={payment.id}>
-                                <TableCell>{new Date(payment.date).toLocaleDateString()}</TableCell>
-                                <TableCell>${payment.amount.toFixed(2)}</TableCell>
-                                <TableCell>{payment.method}</TableCell>
-                                <TableCell>{payment.reference}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      ) : (
-                        <p className="text-muted-foreground">No payment records available.</p>
-                      )}
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </Tabs>
-            </div>
-          </main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
-  );
-}
+                  <
