@@ -1,202 +1,53 @@
-import { useState } from "react"
-import { 
-  LayoutDashboard, 
-  Users, 
-  Calendar, 
-  FileText, 
-  Settings, 
-  Bell,
-  UserCheck,
-  Activity,
-  UserPlus,
-  ChevronDown,
-  Heart,
-  Clock,
-} from "lucide-react"
-import { NavLink, useLocation } from "react-router-dom"
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import Patients from "./pages/Patients";
+import Schedule from "./pages/Schedule";
+import PatientDetails from "./pages/PatientDetails";
+import Staff from "./pages/Staff";
+import StaffDetails from "./pages/StaffDetails";
+import PatientRegistration from "./pages/PatientRegistration";
+import Timesheet from "./pages/Timesheet";
+import Assessments from "./pages/Assessments";
+import SkinAssessment from "./pages/SkinAssessment";
+import PatientAssessment from "./pages/PatientAssessment";
+import DigitalTimesheet from "./pages/DigitalTimesheet";
+import TimesheetReports from "./pages/TimesheetReports";
+import NotFound from "./pages/NotFound";
+import Reports from "./pages/Reports";
+  
+const queryClient = new QueryClient();
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
-  SidebarTrigger,
-  useSidebar,
-} from "@/components/ui/sidebar"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/patients" element={<Patients />} />
+          <Route path="/assessments" element={<Assessments />} />
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/patients/:id" element={<PatientDetails />} />
+          <Route path="/staff" element={<Staff />} />
+          <Route path="/staff/:id" element={<StaffDetails />} />
+          <Route path="/patient-registration" element={<PatientRegistration />} />
+          <Route path="/skin-assessment" element={<SkinAssessment />} />
+          <Route path="/patient-assessment" element={<PatientAssessment />} />
+          <Route path="/digital-timesheet" element={<DigitalTimesheet />} />
+          <Route path="/timesheet-reports" element={<TimesheetReports />} />
+          <Route path="/timesheets" element={<Timesheet />} />
+          <Route path="/reports" element={<Reports />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
-const navigationItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { 
-    title: "Patients", 
-    url: "/patients", 
-    icon: Users,
-    submenu: [
-      { title: "Patient Registration", url: "/patient-registration", icon: UserPlus }
-    ]
-  },
-  { title: "Schedule", url: "/schedule", icon: Calendar },
-  { title: "Staff", url: "/staff", icon: UserCheck },
-  { 
-    title: "Timesheets", 
-    url: "/timesheets", 
-    icon: Clock,
-    submenu: [
-      { title: "Submit Timesheet", url: "/digital-timesheet", icon: FileText },
-    ]
-  },
-
-  { 
-  title: "Assessments", 
-  url: "/assessments", 
-  icon: FileText,
-  submenu: [
-    { title: "Skin Assessments", url: "/skin-assessment", icon: FileText },
-    { title: "Patient Assessments", url: "/patient-assessment", icon: UserCheck },
-  ]
-},
-  { 
-  title: "Reports", 
-  url: "/reports", 
-  icon: Activity,
-  submenu: [
-    { title: "Patient Reports", url: "/patient-reports", icon: FileText },
-    { title: "Assessment Reports", url: "/patient-reports", icon: FileText },
-    { title: "Staff Reports", url: "/patient-reports", icon: FileText },
-    { title: "Timesheet Reports", url: "/timesheet-reports", icon: FileText }
-  ]
-},
-  { title: "Notifications", url: "/notifications", icon: Bell },
-  { title: "Settings", url: "/settings", icon: Settings },
-]
-
-export function AppSidebar() {
-  const { state } = useSidebar()
-  const location = useLocation()
-  const currentPath = location.pathname
-  const isCollapsed = state === "collapsed"
-
-  const isActive = (path: string) => {
-    if (path === "/" && currentPath === "/") return true
-    if (path !== "/" && currentPath.startsWith(path)) return true
-    return false
-  }
-
-  const getNavCls = (path: string) => {
-    const baseClasses = "transition-all duration-200 hover:bg-primary/10 hover:text-primary"
-    return isActive(path) 
-      ? `${baseClasses} bg-primary/15 text-primary font-medium border-r-2 border-primary` 
-      : baseClasses
-  }
-
-  return (
-    <Sidebar
-      collapsible="icon"
-    >
-      <SidebarContent className="bg-card border-r border-border">
-        {/* Logo Header */}
-        <div className="p-6 border-b border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Heart className="w-5 h-5 text-white" />
-            </div>
-            {!isCollapsed && (
-              <div>
-                <h2 className="text-lg font-bold text-foreground">CareSync</h2>
-                <p className="text-xs text-muted-foreground">Patient Care Management</p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <SidebarGroup className="px-2 py-4">
-          <SidebarGroupLabel className={isCollapsed ? "sr-only" : "text-muted-foreground text-xs uppercase tracking-wider mb-2"}>
-            Navigation
-          </SidebarGroupLabel>
-
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  {item.submenu ? (
-                    <Collapsible defaultOpen={item.submenu.some(sub => isActive(sub.url))}>
-                      <div className="flex items-center">
-                        <SidebarMenuButton asChild className="flex-1">
-                          <NavLink 
-                            to={item.url}
-                            className={getNavCls(item.url)}
-                          >
-                            <item.icon className="w-5 h-5 flex-shrink-0" />
-                            {!isCollapsed && <span className="ml-3">{item.title}</span>}
-                          </NavLink>
-                        </SidebarMenuButton>
-                        {!isCollapsed && (
-                          <CollapsibleTrigger asChild>
-                            <SidebarMenuButton size="sm" className="w-8 h-8 p-0">
-                              <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
-                            </SidebarMenuButton>
-                          </CollapsibleTrigger>
-                        )}
-                      </div>
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          {item.submenu.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton asChild>
-                                <NavLink 
-                                  to={subItem.url}
-                                  className={getNavCls(subItem.url)}
-                                >
-                                  <subItem.icon className="w-4 h-4 flex-shrink-0" />
-                                  {!isCollapsed && <span className="ml-3">{subItem.title}</span>}
-                                </NavLink>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  ) : (
-                    <SidebarMenuButton asChild>
-                      <NavLink 
-                        to={item.url} 
-                        end={item.url === "/"}
-                        className={getNavCls(item.url)}
-                      >
-                        <item.icon className="w-5 h-5 flex-shrink-0" />
-                        {!isCollapsed && <span className="ml-3">{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  )}
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* User Section */}
-        {!isCollapsed && (
-          <div className="mt-auto p-4 border-t border-border">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-teal rounded-full flex items-center justify-center">
-                <Users className="w-4 h-4 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Dr. Sarah Johnson</p>
-                <p className="text-xs text-muted-foreground">Administrator</p>
-              </div>
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-            </div>
-          </div>
-        )}
-      </SidebarContent>
-    </Sidebar>
-  )
-}
+export default App;
