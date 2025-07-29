@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, Plus, Calendar, ChevronRight } from "lucide-react";
+import { Search, Plus, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -20,25 +20,25 @@ interface Staff {
   profile_image_url?: string;
 }
 
+interface Patient {
+  id: string;
+  first_name: string;
+  last_name: string;
+}
+
 interface Availability {
   id: string;
   staff_id: string;
   start_time: string;
   end_time: string;
   status: "Available" | "Booked" | "On Leave";
-}
-
-interface ScheduleItem extends Availability {
+  patient_id?: string;
   staff: Staff;
-  patient?: {
-    id: string;
-    first_name: string;
-    last_name: string;
-  };
+  patient?: Patient;
 }
 
 export default function Schedule() {
-  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
+  const [schedule, setSchedule] = useState<Availability[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +61,7 @@ export default function Schedule() {
         .order("start_time", { ascending: true });
 
       if (error) throw error;
-      setSchedule(data as ScheduleItem[] || []);
+      setSchedule(data as Availability[] || []);
     } catch (error) {
       console.error("Error fetching schedule:", error);
     } finally {
