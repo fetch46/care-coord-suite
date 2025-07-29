@@ -482,4 +482,50 @@ export default function PatientDetails() {
                 </TabsContent>
 
                 <TabsContent value="assessments">
-                  <PatientAssessments patientId={id!
+                  <PatientAssessments patientId={id!} />
+                </TabsContent>
+
+                <TabsContent value="billing">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <CreditCard className="w-5 h-5" />
+                        Billing & Payments
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {payments.length > 0 ? (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Amount</TableHead>
+                              <TableHead>Method</TableHead>
+                              <TableHead>Reference</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {payments.map(payment => (
+                              <TableRow key={payment.id}>
+                                <TableCell>{new Date(payment.date).toLocaleDateString()}</TableCell>
+                                <TableCell>${payment.amount.toFixed(2)}</TableCell>
+                                <TableCell>{payment.method}</TableCell>
+                                <TableCell>{payment.reference}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      ) : (
+                        <p className="text-muted-foreground">No payment records available.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
+  );
+}
