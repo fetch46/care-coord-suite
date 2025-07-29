@@ -6,8 +6,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Plus, Filter, CalendarCheck, SlidersHorizontal } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client"; // Assuming you might use Supabase later
+import { 
+  Search, 
+  Plus, 
+  Filter, 
+  CalendarCheck, 
+  SlidersHorizontal,
+  ChevronDown,
+  User,
+  Users
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Assessments() {
   const [assessments, setAssessments] = useState([]);
@@ -69,7 +84,7 @@ export default function Assessments() {
       assessment.status?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesType = filterType ? assessment.type === filterType : true;
-    const matchesDate = filterDate ? assessment.date === filterDate : true; // Assuming date format YYYY-MM-DD for exact match
+    const matchesDate = filterDate ? assessment.date === filterDate : true;
 
     return matchesSearch && matchesType && matchesDate;
   });
@@ -89,12 +104,37 @@ export default function Assessments() {
                     Review and manage assessments
                   </p>
                 </div>
-                <Button className="bg-gradient-primary text-white hover:opacity-90" asChild>
-                  <Link to="/create-assessment"> {/* Link to a new assessment creation page */}
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Assessment
-                  </Link>
-                </Button>
+                
+                {/* Dropdown Button */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="bg-gradient-primary text-white hover:opacity-90 flex items-center gap-1">
+                      <Plus className="w-4 h-4" />
+                      Add Assessment
+                      <ChevronDown className="w-4 h-4 ml-1" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to="/create-assessment/patient" 
+                        className="flex items-center gap-2 p-2 cursor-pointer"
+                      >
+                        <User className="w-4 h-4" />
+                        Create Patient Assessment
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link 
+                        to="/create-assessment/caregiver" 
+                        className="flex items-center gap-2 p-2 cursor-pointer"
+                      >
+                        <Users className="w-4 h-4" />
+                        Create Caregiver Assessment
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               {/* Search and Filter */}
@@ -124,7 +164,7 @@ export default function Assessments() {
                     <div className="relative">
                       <CalendarCheck className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
-                        type="date" // Use type="date" for a date picker
+                        type="date"
                         value={filterDate}
                         onChange={e => setFilterDate(e.target.value)}
                         className="pl-10"
@@ -169,7 +209,7 @@ export default function Assessments() {
                         filteredAssessments.map(assessment => (
                           <TableRow key={assessment.id}>
                             <TableCell>
-                              <CalendarCheck className="w-6 h-6 text-primary" /> {/* Using CalendarCheck icon */}
+                              <CalendarCheck className="w-6 h-6 text-primary" />
                             </TableCell>
                             <TableCell className="font-semibold">
                               {assessment.type}
