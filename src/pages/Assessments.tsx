@@ -120,8 +120,8 @@ export default function Assessments() {
                         to="/create-assessment/patient" 
                         className="flex items-center gap-2 p-2 cursor-pointer"
                       >
-                        <User className="w-4 h-4" />
-                        Create Patient Assessment
+                        <contact-round className="w-4 h-4" />
+                        Patient Assessment
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -129,8 +129,8 @@ export default function Assessments() {
                         to="/create-assessment/caregiver" 
                         className="flex items-center gap-2 p-2 cursor-pointer"
                       >
-                        <Users className="w-4 h-4" />
-                        Create Caregiver Assessment
+                        <stethoscope className="w-4 h-4" />
+                        Caregiver Assessment
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
