@@ -317,8 +317,8 @@ export default function PatientDetails() {
                             {patient.email}
                           </div>
                           
-                          {/* Action Buttons */}
-                          <div className="flex gap-2 mt-3 justify-end">
+                          {/* Action Buttons with increased top margin */}
+                          <div className="flex gap-2 mt-5 justify-end">
                             <Button 
                               size="sm" 
                               variant="outline"
