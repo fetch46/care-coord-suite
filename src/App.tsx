@@ -10,7 +10,7 @@ import Staff from "./pages/Staff";
 import StaffDetails from "./pages/StaffDetails";
 import PatientRegistration from "./pages/PatientRegistration";
 import Timesheet from "./pages/Timesheet";
-import Assessments from "./pages/Assessments";
+import Assessments from "./pages/Assessment";
 import SkinAssessment from "./pages/SkinAssessment";
 import PatientAssessment from "./pages/PatientAssessment";
 import DigitalTimesheet from "./pages/DigitalTimesheet";
@@ -31,7 +31,7 @@ const App = () => (
           <Route path="/patients" element={<Patients />} />
           <Route path="/patients/:id" element={<PatientDetails />} />
           <Route path="/staff" element={<Staff />} />
-          <Route path="/assessments" element ={Assessments />} />
+          <Route path="/assessments" element ={Assessment />} />
           <Route path="/staff/:id" element={<StaffDetails />} />
           <Route path="/patient-registration" element={<PatientRegistration />} />
           <Route path="/skin-assessment" element={<SkinAssessment />} />
