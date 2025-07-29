@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Patients from "./pages/Patients";
 import Schedule from "./pages/Schedule";
 import ScheduleDetails from "./pages/ScheduleDetails";
+import CreateSchedule from "./pages/CreateSchedule"; // ✅ Import CreateSchedule
 import PatientDetails from "./pages/PatientDetails";
 import Staff from "./pages/Staff";
 import StaffDetails from "./pages/StaffDetails";
@@ -19,7 +20,7 @@ import DigitalTimesheet from "./pages/DigitalTimesheet";
 import TimesheetReports from "./pages/TimesheetReports";
 import NotFound from "./pages/NotFound";
 import Reports from "./pages/Reports";
-  
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -31,12 +32,16 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/patients" element={<Patients />} />
-          <Route path="/assessments" element={<Assessments />} />
-          <Route path="/schedule" element={<Schedule />} />
           <Route path="/patients/:id" element={<PatientDetails />} />
+
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/schedule/create" element={<CreateSchedule />} /> {/* ✅ Create Schedule Route */}
+          <Route path="/schedule/:id" element={<ScheduleDetails />} /> {/* ✅ Schedule Details with ID */}
+
           <Route path="/staff" element={<Staff />} />
           <Route path="/staff/:id" element={<StaffDetails />} />
-          <Route path="/schedule" element={<ScheduleDetails />} />
+
+          <Route path="/assessments" element={<Assessments />} />
           <Route path="/patient-registration" element={<PatientRegistration />} />
           <Route path="/skin-assessment" element={<SkinAssessment />} />
           <Route path="/patient-assessment" element={<PatientAssessment />} />
@@ -44,7 +49,8 @@ const App = () => (
           <Route path="/timesheet-reports" element={<TimesheetReports />} />
           <Route path="/timesheets" element={<Timesheet />} />
           <Route path="/reports" element={<Reports />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+          {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
