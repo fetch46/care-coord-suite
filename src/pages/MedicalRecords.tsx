@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, Plus, Filter } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -33,52 +32,54 @@ export default function MedicalRecords() {
   const [totalRecords, setTotalRecords] = useState(0);
 
   useEffect(() => {
-    fetchRecords();
-  }, [searchTerm, page]);
+    // Dummy medical records for development
+    const dummyData: MedicalRecord[] = [
+      {
+        id: "record-1",
+        patient_id: "patient-1",
+        patient_name: "John Doe",
+        record_date: "2025-07-20",
+        diagnosis: "Hypertension",
+        treatment: "Prescribed medication and lifestyle changes",
+        doctor_name: "Dr. Adams",
+        status: "Open",
+      },
+      {
+        id: "record-2",
+        patient_id: "patient-1",
+        patient_name: "John Doe",
+        record_date: "2025-06-15",
+        diagnosis: "Diabetes Type 2",
+        treatment: "Insulin therapy initiated",
+        doctor_name: "Dr. Lee",
+        status: "Closed",
+      },
+      {
+        id: "record-3",
+        patient_id: "patient-2",
+        patient_name: "Jane Smith",
+        record_date: "2025-07-22",
+        diagnosis: "Asthma",
+        treatment: "Inhaler prescribed",
+        doctor_name: "Dr. Patel",
+        status: "Open",
+      },
+      {
+        id: "record-4",
+        patient_id: "patient-2",
+        patient_name: "Jane Smith",
+        record_date: "2025-05-10",
+        diagnosis: "Allergic Rhinitis",
+        treatment: "Antihistamines and nasal spray",
+        doctor_name: "Dr. Brown",
+        status: "Closed",
+      },
+    ];
 
-  const fetchRecords = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      let query = supabase
-        .from("medical_records")
-        .select("*, patients(first_name, last_name)", { count: "exact" })
-        .order("record_date", { ascending: false })
-        .range((page - 1) * pageSize, page * pageSize - 1);
-
-      if (searchTerm.trim()) {
-        // Search by patient first or last name, diagnosis, or doctor name
-        query = query.or(
-          `patients.first_name.ilike.%${searchTerm}%,patients.last_name.ilike.%${searchTerm}%,diagnosis.ilike.%${searchTerm}%,doctor_name.ilike.%${searchTerm}%`
-        );
-      }
-
-      const { data, error, count } = await query;
-
-      if (error) throw error;
-
-      // Map data to MedicalRecord with combined patient_name
-      const formattedData = (data || []).map((item: any) => ({
-        id: item.id,
-        patient_id: item.patient_id,
-        patient_name: `${item.patients.first_name} ${item.patients.last_name}`,
-        record_date: item.record_date,
-        diagnosis: item.diagnosis,
-        treatment: item.treatment,
-        doctor_name: item.doctor_name,
-        status: item.status,
-      }));
-
-      setRecords(formattedData);
-      setTotalRecords(count || 0);
-    } catch (err: any) {
-      console.error("Error fetching medical records:", err);
-      setError("Failed to load medical records. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setRecords(dummyData);
+    setTotalRecords(dummyData.length);
+    setLoading(false);
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -102,7 +103,14 @@ export default function MedicalRecords() {
     });
   };
 
-  const totalPages = Math.ceil(totalRecords / pageSize);
+  const filteredRecords = records.filter((record) =>
+    record.patient_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.diagnosis.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    record.doctor_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredRecords.length / pageSize);
+  const paginatedRecords = filteredRecords.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <SidebarProvider>
@@ -188,7 +196,7 @@ export default function MedicalRecords() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {records.map((record) => (
+                        {paginatedRecords.map((record) => (
                           <TableRow key={record.id} className="hover:bg-muted/50">
                             <TableCell>{record.patient_name}</TableCell>
                             <TableCell>{formatDate(record.record_date)}</TableCell>
@@ -216,7 +224,7 @@ export default function MedicalRecords() {
                       </TableBody>
                     </Table>
 
-                    {records.length === 0 && !loading && (
+                    {paginatedRecords.length === 0 && !loading && (
                       <div className="text-center py-8 text-muted-foreground">
                         {searchTerm
                           ? "No medical records found matching your search."
@@ -256,4 +264,3 @@ export default function MedicalRecords() {
     </SidebarProvider>
   );
 }
-
