@@ -157,12 +157,21 @@ export default function ScheduleDetails() {
     return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
   };
 
+  // Fixed loading state with proper JSX formatting
   if (loading) {
-    return <div className="p-8 text-center">Loading schedule details...</div>;
+    return (
+      <div className="p-8 text-center">
+        Loading schedule details...
+      </div>
+    );
   }
 
   if (!schedule) {
-    return <div className="p-8 text-center">Schedule not found</div>;
+    return (
+      <div className="p-8 text-center">
+        Schedule not found
+      </div>
+    );
   }
 
   const selectedPatientData = patients.find(p => p.id === selectedPatient);
@@ -178,13 +187,11 @@ export default function ScheduleDetails() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column - Form */}
         <Card>
           <CardHeader>
             <CardTitle>Assignment Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Staff Selection */}
             <div className="space-y-2">
               <Label htmlFor="staff">Staff Member</Label>
               <Select 
@@ -204,7 +211,6 @@ export default function ScheduleDetails() {
               </Select>
             </div>
 
-            {/* Patient Selection */}
             <div className="space-y-2">
               <Label htmlFor="patient">Assign Patient</Label>
               <Select 
@@ -225,7 +231,6 @@ export default function ScheduleDetails() {
               </Select>
             </div>
 
-            {/* Patient Allergies */}
             {selectedPatientData && (
               <div className="space-y-2">
                 <Label>Patient Allergies</Label>
@@ -258,7 +263,6 @@ export default function ScheduleDetails() {
           </CardContent>
         </Card>
 
-        {/* Right Column - Schedule Info */}
         <Card>
           <CardHeader>
             <CardTitle>Availability Details</CardTitle>
