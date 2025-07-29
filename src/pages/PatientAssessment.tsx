@@ -995,72 +995,75 @@ export default function PatientAssessment() {
                   </Card>
                 </div>
 
-                {/* Neurological (Full Width) */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Neurological</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormRadioGroup
-                      label="Cognitive functioning"
-                      options={cognitiveFunctioningOptions}
-                      selectedValue={cognitiveFunctioning}
-                      onValueChange={handleRadioChange(setCognitiveFunctioning)}
-                      className="space-y-1"
-                    />
-                    <FormCheckboxGroup
-                      label="Speech"
-                      options={speechOptions}
-                      selectedValues={selectedSpeechIssues}
-                      onValueChange={handleCheckboxChange(setSelectedSpeechIssues)}
-                      className="grid-cols-2 md:grid-cols-3"
-                    />
-                    <FormRadioGroup
-                      label="Pupils"
-                      options={pupilOptions}
-                      selectedValue={pupils}
-                      onValueChange={handleRadioChange(setPupils)}
-                      className="flex items-center gap-4"
-                    />
-                    <FormRadioGroup
-                      label="Movements"
-                      options={movementOptions}
-                      selectedValue={movements}
-                      onValueChange={handleRadioChange(setMovements)}
-                      className="flex items-center gap-4"
-                    />
-                    <FormCheckboxGroup
-                      label="Extremities"
-                      options={extremityOptions}
-                      selectedValues={selectedExtremities}
-                      onValueChange={handleCheckboxChange(setSelectedExtremities)}
-                      className="grid-cols-2 md:grid-cols-3"
-                    />
-                  </CardContent>
-                </Card>
+                {/* Neurological and Sensory Side-by-Side */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
+                  {/* Neurological */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Neurological</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <FormRadioGroup
+                        label="Cognitive functioning"
+                        options={cognitiveFunctioningOptions}
+                        selectedValue={cognitiveFunctioning}
+                        onValueChange={handleRadioChange(setCognitiveFunctioning)}
+                        className="space-y-1"
+                      />
+                      <FormCheckboxGroup
+                        label="Speech"
+                        options={speechOptions}
+                        selectedValues={selectedSpeechIssues}
+                        onValueChange={handleCheckboxChange(setSelectedSpeechIssues)}
+                        className="grid-cols-2 md:grid-cols-3"
+                      />
+                      <FormRadioGroup
+                        label="Pupils"
+                        options={pupilOptions}
+                        selectedValue={pupils}
+                        onValueChange={handleRadioChange(setPupils)}
+                        className="flex items-center gap-4"
+                      />
+                      <FormRadioGroup
+                        label="Movements"
+                        options={movementOptions}
+                        selectedValue={movements}
+                        onValueChange={handleRadioChange(setMovements)}
+                        className="flex items-center gap-4"
+                      />
+                      <FormCheckboxGroup
+                        label="Extremities"
+                        options={extremityOptions}
+                        selectedValues={selectedExtremities}
+                        onValueChange={handleCheckboxChange(setSelectedExtremities)}
+                        className="grid-cols-2 md:grid-cols-3"
+                      />
+                    </CardContent>
+                  </Card>
 
-                {/* Sensory (Full Width) */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Sensory</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <FormRadioGroup
-                      label="Vision with corrective lenses"
-                      options={visionOptions}
-                      selectedValue={vision}
-                      onValueChange={handleRadioChange(setVision)}
-                      className="space-y-1"
-                    />
-                    <FormRadioGroup
-                      label="Hearing with corrective device"
-                      options={hearingOptions}
-                      selectedValue={hearing}
-                      onValueChange={handleRadioChange(setHearing)}
-                      className="space-y-1"
-                    />
-                  </CardContent>
-                </Card>
+                  {/* Sensory */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Sensory</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <FormRadioGroup
+                        label="Vision with corrective lenses"
+                        options={visionOptions}
+                        selectedValue={vision}
+                        onValueChange={handleRadioChange(setVision)}
+                        className="space-y-1"
+                      />
+                      <FormRadioGroup
+                        label="Hearing with corrective device"
+                        options={hearingOptions}
+                        selectedValue={hearing}
+                        onValueChange={handleRadioChange(setHearing)}
+                        className="space-y-1"
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
 
                 {/* Psychosocial and Musculoskeletal Side-by-Side */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-8">
@@ -1144,10 +1147,10 @@ export default function PatientAssessment() {
                   </Card>
                 </div>
 
-                {/* Skin and Medication Management Side-by-Side */}
-                <div className="grid grid-cols-10 gap-x-6 gap-y-8">
+                {/* Skin and Mobility & Transfers Side-by-Side */}
+                <div className="grid grid-cols-1 lg:grid-cols-10 gap-x-6 gap-y-8">
                   {/* Skin Card */}
-                  <div className="col-span-4">
+                  <div className="lg:col-span-7"> {/* 70% width */}
                     <Card>
                       <CardHeader>
                         <CardTitle>Skin</CardTitle>
@@ -1272,129 +1275,129 @@ export default function PatientAssessment() {
                     </Card>
                   </div>
 
-                  {/* Medication Management Card */}
-                  <div className="col-span-6">
+                  {/* MOBILITY & TRANSFERS */}
+                  <div className="lg:col-span-3"> {/* 30% width */}
                     <Card>
                       <CardHeader>
-                        <CardTitle>Medication Management</CardTitle>
+                        <CardTitle>Mobility & Transfers</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        {/* Medications subform moved to top */}
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold">Current Medications</h3>
-                          {medications.map((med) => (
-                            <div
-                              key={med.id}
-                              className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start border p-4 rounded-md relative"
-                            >
-                              <div>
-                                <Label htmlFor={`medication-${med.id}`}>Medication</Label>
-                                <Input
-                                  id={`medication-${med.id}`}
-                                  value={med.medication}
-                                  onChange={(e) => handleMedicationChange(med.id, "medication", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`dose-${med.id}`}>Dose</Label>
-                                <Input
-                                  id={`dose-${med.id}`}
-                                  value={med.dose}
-                                  onChange={(e) => handleMedicationChange(med.id, "dose", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`frequency-${med.id}`}>Frequency</Label>
-                                <Input
-                                  id={`frequency-${med.id}`}
-                                  value={med.frequency}
-                                  onChange={(e) => handleMedicationChange(med.id, "frequency", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`physician-${med.id}`}>Physician</Label>
-                                <Input
-                                  id={`physician-${med.id}`}
-                                  value={med.physician}
-                                  onChange={(e) => handleMedicationChange(med.id, "physician", e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`purpose-${med.id}`}>Purpose</Label>
-                                <Textarea
-                                  id={`purpose-${med.id}`}
-                                  rows={1}
-                                  value={med.purpose}
-                                  onChange={(e) => handleMedicationChange(med.id, "purpose", e.target.value)}
-                                />
-                              </div>
-                              {medications.length > 1 && (
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => removeMedication(med.id)}
-                                  className="absolute top-2 right-2"
-                                >
-                                  <X className="h-4 w-4 text-red-500" />
-                                </Button>
-                              )}
-                            </div>
-                          ))}
-                          <Button type="button" onClick={addMedication}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Medication
-                          </Button>
+                        <div>
+                          <Label htmlFor="mobility">Mobility</Label>
+                          <Select value={mobility} onValueChange={setMobility}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {mobilityOptions.map((m) => (
+                                <SelectItem key={m.id} value={m.id}>
+                                  {m.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
-
-                        <hr className="my-4" />
-
-                        <FormRadioGroup
-                          label="Medication Administration"
-                          options={medicationAdministrationOptions}
-                          selectedValue={medicationAdministration}
-                          onValueChange={handleRadioChange(setMedicationAdministration)}
-                          className="space-y-2"
-                        />
-                        <Input
-                          placeholder="Other"
-                          value={otherMedicationManagement}
-                          onChange={(e) => setOtherMedicationManagement(e.target.value)}
-                        />
+                        <div>
+                          <Label htmlFor="ambulating-aid">Uses ___ to aid in ambulating</Label>
+                          <Input id="ambulating-aid" value={ambulatingAid} onChange={(e) => setAmbulatingAid(e.target.value)} />
+                        </div>
+                        <div>
+                          <Label htmlFor="transfer-aid">Uses ___ to aid in transfer</Label>
+                          <Input id="transfer-aid" value={transferAid} onChange={(e) => setTransferAid(e.target.value)} />
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
                 </div>
 
-                {/* MOBILITY & TRANSFERS (Full Width) */}
+                {/* Medication Management Card (Full Width) */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Mobility & Transfers</CardTitle>
+                    <CardTitle>Medication Management</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="mobility">Mobility</Label>
-                      <Select value={mobility} onValueChange={setMobility}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {mobilityOptions.map((m) => (
-                            <SelectItem key={m.id} value={m.id}>
-                              {m.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    {/* Medications subform moved to top */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Current Medications</h3>
+                      {medications.map((med) => (
+                        <div
+                          key={med.id}
+                          className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start border p-4 rounded-md relative"
+                        >
+                          <div>
+                            <Label htmlFor={`medication-${med.id}`}>Medication</Label>
+                            <Input
+                              id={`medication-${med.id}`}
+                              value={med.medication}
+                              onChange={(e) => handleMedicationChange(med.id, "medication", e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`dose-${med.id}`}>Dose</Label>
+                            <Input
+                              id={`dose-${med.id}`}
+                              value={med.dose}
+                              onChange={(e) => handleMedicationChange(med.id, "dose", e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`frequency-${med.id}`}>Frequency</Label>
+                            <Input
+                              id={`frequency-${med.id}`}
+                              value={med.frequency}
+                              onChange={(e) => handleMedicationChange(med.id, "frequency", e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`physician-${med.id}`}>Physician</Label>
+                            <Input
+                              id={`physician-${med.id}`}
+                              value={med.physician}
+                              onChange={(e) => handleMedicationChange(med.id, "physician", e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`purpose-${med.id}`}>Purpose</Label>
+                            <Textarea
+                              id={`purpose-${med.id}`}
+                              rows={1}
+                              value={med.purpose}
+                              onChange={(e) => handleMedicationChange(med.id, "purpose", e.target.value)}
+                            />
+                          </div>
+                          {medications.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => removeMedication(med.id)}
+                              className="absolute top-2 right-2"
+                            >
+                              <X className="h-4 w-4 text-red-500" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                      <Button type="button" onClick={addMedication}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Medication
+                      </Button>
                     </div>
-                    <div>
-                      <Label htmlFor="ambulating-aid">Uses ___ to aid in ambulating</Label>
-                      <Input id="ambulating-aid" value={ambulatingAid} onChange={(e) => setAmbulatingAid(e.target.value)} />
-                    </div>
-                    <div>
-                      <Label htmlFor="transfer-aid">Uses ___ to aid in transfer</Label>
-                      <Input id="transfer-aid" value={transferAid} onChange={(e) => setTransferAid(e.target.value)} />
-                    </div>
+
+                    <hr className="my-4" />
+
+                    <FormRadioGroup
+                      label="Medication Administration"
+                      options={medicationAdministrationOptions}
+                      selectedValue={medicationAdministration}
+                      onValueChange={handleRadioChange(setMedicationAdministration)}
+                      className="space-y-2"
+                    />
+                    <Input
+                      placeholder="Other"
+                      value={otherMedicationManagement}
+                      onChange={(e) => setOtherMedicationManagement(e.target.value)}
+                    />
                   </CardContent>
                 </Card>
 
