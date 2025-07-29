@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, Plus, ChevronRight } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client"; // Assuming this path is correct and `supabase` is typed
+import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -12,7 +12,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-// Interface definitions remain the same, good job!
 interface Staff {
   id: string;
   first_name: string;
@@ -29,13 +28,13 @@ interface Patient {
 
 interface Availability {
   id: string;
-  staff_id: string; // This is the foreign key, useful for internal logic
+  staff_id: string;
   start_time: string;
   end_time: string;
   status: "Available" | "Booked" | "On Leave";
-  patient_id?: string; // This is the foreign key, useful for internal logic
-  staff: Staff; // The joined staff object
-  patient?: Patient; // The joined patient object (optional)
+  patient_id?: string;
+  staff: Staff;
+  patient?: Patient;
 }
 
 export default function Schedule() {
@@ -63,13 +62,67 @@ export default function Schedule() {
 
       if (error) {
         console.error("Error fetching schedule:", error);
-        throw error; // Re-throw to be caught by the finally block
+        throw error;
       }
-      // Explicitly cast the data to Availability[] as Supabase's type might be generic
-      setSchedule(data as Availability[] || []);
+
+      if (!data || data.length === 0) {
+        console.warn("No schedule found. Using dummy data for testing...");
+        const now = new Date();
+        const dummyData: Availability[] = [
+          {
+            id: "1",
+            staff_id: "s1",
+            start_time: new Date(now.getTime() + 60 * 60 * 1000).toISOString(),
+            end_time: new Date(now.getTime() + 2 * 60 * 60 * 1000).toISOString(),
+            status: "Available",
+            staff: {
+              id: "s1",
+              first_name: "John",
+              last_name: "Doe",
+              role: "Nurse",
+              profile_image_url: "",
+            },
+          },
+          {
+            id: "2",
+            staff_id: "s2",
+            start_time: new Date(now.getTime() + 3 * 60 * 60 * 1000).toISOString(),
+            end_time: new Date(now.getTime() + 4 * 60 * 60 * 1000).toISOString(),
+            status: "Booked",
+            staff: {
+              id: "s2",
+              first_name: "Emily",
+              last_name: "Smith",
+              role: "Doctor",
+              profile_image_url: "",
+            },
+            patient: {
+              id: "p1",
+              first_name: "Michael",
+              last_name: "Johnson",
+            },
+          },
+          {
+            id: "3",
+            staff_id: "s3",
+            start_time: new Date(now.getTime() + 5 * 60 * 60 * 1000).toISOString(),
+            end_time: new Date(now.getTime() + 6 * 60 * 60 * 1000).toISOString(),
+            status: "On Leave",
+            staff: {
+              id: "s3",
+              first_name: "Sarah",
+              last_name: "Brown",
+              role: "Therapist",
+              profile_image_url: "",
+            },
+          },
+        ];
+        setSchedule(dummyData);
+      } else {
+        setSchedule(data as Availability[]);
+      }
     } catch (error) {
       console.error("Caught error in fetchSchedule:", error);
-      // Handle error display to user if necessary
     } finally {
       setLoading(false);
     }
@@ -84,10 +137,10 @@ export default function Schedule() {
   const formatDateTime = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleString([], {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -175,13 +228,12 @@ export default function Schedule() {
                         const start = new Date(item.start_time);
                         const end = new Date(item.end_time);
                         const duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
-                        
+
                         return (
                           <TableRow key={item.id} className="hover:bg-muted/50">
                             <TableCell>
                               <div className="flex items-center gap-3">
                                 <Avatar className="w-10 h-10">
-                                  {/* Conditionally render AvatarImage only if profile_image_url exists */}
                                   {item.staff.profile_image_url ? (
                                     <AvatarImage src={item.staff.profile_image_url} alt={`${item.staff.first_name} ${item.staff.last_name}`} />
                                   ) : null}
@@ -197,28 +249,18 @@ export default function Schedule() {
                               </div>
                             </TableCell>
                             <TableCell>
-                              <div className="text-sm">
-                                {item.staff.role}
-                              </div>
+                              <div className="text-sm">{item.staff.role}</div>
                             </TableCell>
                             <TableCell>
-                              <div className="text-sm font-medium">
-                                {formatDateTime(item.start_time)}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                to {formatDateTime(item.end_time)}
-                              </div>
+                              <div className="text-sm font-medium">{formatDateTime(item.start_time)}</div>
+                              <div className="text-xs text-muted-foreground">to {formatDateTime(item.end_time)}</div>
                             </TableCell>
                             <TableCell>
-                              <Badge variant="outline">
-                                {duration} min
-                              </Badge>
+                              <Badge variant="outline">{duration} min</Badge>
                             </TableCell>
                             <TableCell>
                               {item.patient ? (
-                                <div className="font-medium">
-                                  {item.patient.first_name} {item.patient.last_name}
-                                </div>
+                                <div className="font-medium">{item.patient.first_name} {item.patient.last_name}</div>
                               ) : (
                                 <span className="text-muted-foreground">Not assigned</span>
                               )}
