@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Search, Plus, Calendar as CalendarIcon, List } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,15 +82,22 @@ export default function Schedule() {
     }
   };
 
-  const filteredSchedule = schedule.filter((item) =>
-    `${item.staff.first_name} ${item.staff.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.staff.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (item.patient && `${item.patient.first_name} ${item.patient.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredSchedule = useMemo(() => {
+    return schedule.filter((item) =>
+      `${item.staff.first_name} ${item.staff.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.staff.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.patient && `${item.patient.first_name} ${item.patient.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [schedule, searchTerm]);
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
   };
 
   const getStatusColor = (status: string) => {
@@ -102,13 +109,30 @@ export default function Schedule() {
     }
   };
 
-  const calendarEvents = filteredSchedule.map((item) => ({
-    id: item.id,
-    title: `${item.staff.first_name} ${item.staff.last_name} (${item.status})`,
-    start: new Date(item.start_time),
-    end: new Date(item.end_time),
-    resource: item,
-  }));
+  const getEventStyle = (event: any) => {
+    let backgroundColor = "#9ca3af"; // Default gray
+    if (event.resource.status === "Booked") backgroundColor = "#3b82f6";
+    else if (event.resource.status === "Available") backgroundColor = "#22c55e";
+
+    return {
+      style: {
+        backgroundColor,
+        color: "white",
+        borderRadius: "6px",
+        padding: "4px",
+      },
+    };
+  };
+
+  const calendarEvents = useMemo(() => {
+    return filteredSchedule.map((item) => ({
+      id: item.id,
+      title: `${item.staff.first_name} ${item.staff.last_name} (${item.status})`,
+      start: new Date(item.start_time),
+      end: new Date(item.end_time),
+      resource: item,
+    }));
+  }, [filteredSchedule]);
 
   if (loading) {
     return (
@@ -164,6 +188,7 @@ export default function Schedule() {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10"
+                        aria-label="Search schedule"
                       />
                     </div>
                   </CardContent>
@@ -173,7 +198,7 @@ export default function Schedule() {
               {/* Schedule Table or Calendar */}
               {viewMode === "table" ? (
                 <Card>
-                  <CardContent className="p-0">
+                  <CardContent className="p-0 overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -196,7 +221,7 @@ export default function Schedule() {
                               <TableCell>
                                 <div className="flex items-center gap-3">
                                   <Avatar className="w-10 h-10">
-                                    {item.staff.profile_image_url && <AvatarImage src={item.staff.profile_image_url} />}
+                                    {item.staff.profile_image_url && <AvatarImage src={item.staff.profile_image_url} alt={`${item.staff.first_name} ${item.staff.last_name}`} />}
                                     <AvatarFallback>{item.staff.first_name[0]}{item.staff.last_name[0]}</AvatarFallback>
                                   </Avatar>
                                   <div className="font-medium">{item.staff.first_name} {item.staff.last_name}</div>
@@ -236,14 +261,7 @@ export default function Schedule() {
                       startAccessor="start"
                       endAccessor="end"
                       style={{ height: 600 }}
-                      eventPropGetter={(event) => ({
-                        style: {
-                          backgroundColor: event.resource.status === "Booked" ? "#3b82f6" : event.resource.status === "Available" ? "#22c55e" : "#9ca3af",
-                          color: "white",
-                          borderRadius: "6px",
-                          padding: "4px",
-                        },
-                      })}
+                      eventPropGetter={getEventStyle}
                       onSelectEvent={(event) => window.location.href = `/schedule/${event.id}`}
                     />
                   </CardContent>
