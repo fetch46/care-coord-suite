@@ -42,7 +42,7 @@ const navigationItems = [
       { title: "Patient Registration", url: "/patient-registration", icon: UserPlus }
     ]
   },
-  { title: "Scheduling", url: "/scheduling", icon: Calendar },
+  { title: "Scheduling", url: "/schedule", icon: Calendar },
   { title: "Staff", url: "/staff", icon: UserCheck },
   { 
     title: "Timesheets", 
