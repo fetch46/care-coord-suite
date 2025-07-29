@@ -86,7 +86,7 @@ export default function Assessments() {
                 <div>
                   <h1 className="text-3xl font-bold text-foreground">Assessments</h1>
                   <p className="text-muted-foreground mt-1">
-                    Review and manage client assessments
+                    Review and manage assessments
                   </p>
                 </div>
                 <Button className="bg-gradient-primary text-white hover:opacity-90" asChild>
@@ -146,7 +146,7 @@ export default function Assessments() {
                       <TableRow>
                         <TableHead className="w-16">Icon</TableHead>
                         <TableHead>Assessment Type</TableHead>
-                        <TableHead>Client</TableHead>
+                        <TableHead>Participant</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="w-32"></TableHead>
