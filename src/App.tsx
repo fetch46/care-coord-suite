@@ -40,7 +40,6 @@ const navigationItems = [
     icon: Users,
     submenu: [
       { title: "Patient Registration", url: "/patient-registration", icon: UserPlus }
-      { title: "Medical Records", url: "/medical-records", icon: FileText },
     ]
   },
   { title: "Schedule", url: "/schedule", icon: Calendar },
