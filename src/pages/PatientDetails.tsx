@@ -318,7 +318,7 @@ export default function PatientDetails() {
                           </div>
                           
                           {/* Action Buttons with increased top margin */}
-                          <div className="flex gap-2 mt-5 justify-end">
+                          <div className="flex gap-2 mt-10 justify-end">
                             <Button 
                               size="sm" 
                               variant="outline"
