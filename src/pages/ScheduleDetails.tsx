@@ -160,9 +160,17 @@ export default function ScheduleDetails() {
   // Fixed loading state with proper JSX formatting
   if (loading) {
     return (
-      <div className="p-8 text-center">
-        Loading schedule details...
-      </div>
+      <SidebarProvider>
+        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
+          <AppSidebar />
+          <SidebarInset>
+            <AppHeader />
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">Loading Schedule details...</div>
+            </div>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
     );
   }
 
