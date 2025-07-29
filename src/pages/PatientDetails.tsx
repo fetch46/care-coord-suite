@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Phone, Mail, AlertTriangle, User, Calendar, Heart, CreditCard } from "lucide-react";
+import { ArrowLeft, Phone, Mail, AlertTriangle, User, Calendar, Heart, CreditCard, FilePlus, Pencil, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -265,21 +265,29 @@ export default function PatientDetails() {
                             </Badge>
                           </div>
                         </div>
-                        <div className="text-right space-y-1">
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Phone className="w-4 h-4" />
-                            {patient.phone}
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="flex gap-2">
+                            <Button variant="default">
+                              <FilePlus className="w-4 h-4 mr-1" /> Create Invoice
+                            </Button>
+                            <Button variant="outline">
+                              <Pencil className="w-4 h-4 mr-1" /> Edit
+                            </Button>
+                            <Button variant="destructive">
+                              <LogOut className="w-4 h-4 mr-1" /> Discharge
+                            </Button>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Mail className="w-4 h-4" />
-                            {patient.email}
+                          <div className="flex flex-col text-sm text-muted-foreground mt-2">
+                            <div className="flex items-center gap-2">
+                              <Phone className="w-4 h-4" />
+                              {patient.phone}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Mail className="w-4 h-4" />
+                              {patient.email}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex gap-2 mt-4">
-                        <Button variant="default">Create Invoice</Button>
-                        <Button variant="outline">Edit</Button>
-                        <Button variant="destructive">Discharge</Button>
                       </div>
                     </div>
                   </div>
@@ -305,65 +313,173 @@ export default function PatientDetails() {
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-6">
-                  {/* Overview Tab */}
-                  ...
-                </TabsContent>
+                  <div className="grid grid-cols-5 gap-6">
+                    {/* Personal Information (Left 60%) */}
+                    <Card className="col-span-3">
+                      <CardHeader>
+                        <CardTitle>Personal Information</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
+                          <p className="text-foreground">{new Date(patient.date_of_birth).toLocaleDateString()}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Address</label>
+                          <p className="text-foreground">{patient.address || "Not provided"}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Admission Date</label>
+                          <p className="text-foreground">{new Date(patient.admission_date).toLocaleDateString()}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                <TabsContent value="medical-records">
-                  {/* Medical Records Tab */}
-                  ...
-                </TabsContent>
+                    {/* Contact Details (Right 40%) */}
+                    <Card className="col-span-2">
+                      <CardHeader>
+                        <CardTitle>Contact Details</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Emergency Contact Name</label>
+                          <p className="text-foreground">{patient.emergency_contact_name || "Not provided"}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Emergency Contact Phone</label>
+                          <p className="text-foreground">{patient.emergency_contact_phone || "Not provided"}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-                <TabsContent value="caregivers">
-                  {/* Caregivers Tab */}
-                  ...
-                </TabsContent>
-
-                <TabsContent value="assessments">
-                  <PatientAssessments patientId={id!} />
-                </TabsContent>
-
-                <TabsContent value="billing">
+                  {/* Allergies */}
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <CreditCard className="w-5 h-5" /> Billing Information
+                        <Heart className="w-5 h-5 text-red-500" />
+                        Allergies & Reactions
                       </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {allergies.length > 0 ? (
+                        <div className="space-y-3">
+                          {allergies.map((allergy) => (
+                            <div key={allergy.id} className="p-3 border rounded-lg">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{allergy.allergy_name}</span>
+                                    <Badge className={getSeverityColor(allergy.severity)}>
+                                      {allergy.severity}
+                                    </Badge>
+                                  </div>
+                                  {allergy.reaction && (
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                      Reaction: {allergy.reaction}
+                                    </p>
+                                  )}
+                                  {allergy.notes && (
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                      Notes: {allergy.notes}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground">No known allergies</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="medical-records">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Medical Records</CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
                       <Table>
                         <TableHeader>
                           <TableRow>
                             <TableHead>Date</TableHead>
-                            <TableHead>Amount</TableHead>
-                            <TableHead>Method</TableHead>
-                            <TableHead>Reference</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Recorded By</TableHead>
+                            <TableHead>Description</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {payments.map((payment) => (
-                            <TableRow key={payment.id}>
-                              <TableCell>{new Date(payment.date).toLocaleDateString()}</TableCell>
-                              <TableCell>${payment.amount.toFixed(2)}</TableCell>
-                              <TableCell>{payment.method}</TableCell>
-                              <TableCell>{payment.reference}</TableCell>
+                          {medicalRecords.map((record) => (
+                            <TableRow key={record.id}>
+                              <TableCell>{new Date(record.recorded_date).toLocaleDateString()}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline">{record.record_type}</Badge>
+                              </TableCell>
+                              <TableCell className="font-medium">{record.title}</TableCell>
+                              <TableCell className="text-muted-foreground">{record.recorded_by}</TableCell>
+                              <TableCell className="max-w-xs truncate">{record.description}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
                       </Table>
-                      {payments.length === 0 && (
+                      {medicalRecords.length === 0 && (
                         <div className="text-center py-8 text-muted-foreground">
-                          No payments recorded.
+                          No medical records found.
                         </div>
                       )}
                     </CardContent>
                   </Card>
                 </TabsContent>
-              </Tabs>
-            </div>
-          </main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
-  );
-}
+
+                <TabsContent value="caregivers">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Assigned Caregivers</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {caregivers.length > 0 ? (
+                        <div className="space-y-4">
+                          {caregivers.map((caregiver) => (
+                            <div key={caregiver.id} className="p-4 border rounded-lg">
+                              <div className="flex items-center gap-4">
+                                <Avatar className="w-12 h-12">
+                                  <AvatarImage src={caregiver.profile_image_url} />
+                                  <AvatarFallback className="bg-gradient-secondary text-white">
+                                    {caregiver.first_name[0]}{caregiver.last_name[0]}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">
+                                      {caregiver.first_name} {caregiver.last_name}
+                                    </span>
+                                    {caregiver.is_primary && (
+                                      <Badge className="bg-blue-100 text-blue-800">Primary</Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">
+                                    {caregiver.role} - {caregiver.specialization}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">{caregiver.shift} Shift</p>
+                                </div>
+                                <div className="text-right text-sm text-muted-foreground">
+                                  <div>{caregiver.phone}</div>
+                                  <div>{caregiver.email}</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground">No caregivers assigned.</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="assessments">
+                  <PatientAssessments patientId={id!
