@@ -244,6 +244,10 @@ export default function PatientDetails() {
     );
   }
 
+  // Calculate truncated allergies list
+  const displayedAllergies = allergies.slice(0, 3);
+  const additionalCount = allergies.length > 3 ? allergies.length - 3 : 0;
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen">
@@ -312,30 +316,50 @@ export default function PatientDetails() {
                             <Mail className="w-4 h-4" />
                             {patient.email}
                           </div>
+                          
+                          {/* Action Buttons */}
+                          <div className="flex gap-2 mt-3 justify-end">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="border-blue-500 text-blue-500 hover:bg-blue-50"
+                              asChild
+                            >
+                              <Link to={`/patients/${id}/edit`}>
+                                Edit Patient
+                              </Link>
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="border-red-500 text-red-500 hover:bg-red-50"
+                              asChild
+                            >
+                              <Link to={`/patients/${id}/discharge`}>
+                                Discharge Patient
+                              </Link>
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Allergies Alert with Button on same line */}
+                  {/* Allergies Alert */}
                   {allergies.length > 0 && (
-                    <div className="flex justify-between items-center mt-6 border rounded-md border-red-200 bg-red-50 p-3">
-                      <div className="flex items-center gap-2 text-red-800">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertDescription>
-                          <strong>Allergies:</strong> {allergies.map((a) => a.allergy_name).join(", ")}
-                        </AlertDescription>
-                      </div>
-                      <Button
-                        size="sm"
-                        className="bg-gradient-primary text-white hover:opacity-90"
-                        asChild
-                      >
-                        <Link to={`/patients/${id}/allergies/edit`}> {/* Replace with actual route */}
-                          Edit Allergies
-                        </Link>
-                      </Button>
-                    </div>
+                    <Alert variant="destructive" className="mt-6">
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong>Allergies:</strong>
+                        {" "}
+                        {displayedAllergies.map((a) => a.allergy_name).join(", ")}
+                        {additionalCount > 0 && (
+                          <span className="font-medium">
+                            {" "}+{additionalCount} more
+                          </span>
+                        )}
+                      </AlertDescription>
+                    </Alert>
                   )}
                 </CardContent>
               </Card>
