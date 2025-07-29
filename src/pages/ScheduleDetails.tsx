@@ -1,15 +1,13 @@
-import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { Search, Plus } from "lucide-react";
+import { useParams, Link } from "react-router-dom";
+import { useMemo } from "react";
+import { ChevronLeft } from "lucide-react";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 interface Staff {
   id: string;
@@ -36,12 +34,12 @@ interface Availability {
   patient?: Patient;
 }
 
-export default function Schedule() {
-  const [searchTerm, setSearchTerm] = useState<string>("");
+export default function ScheduleDetails() {
+  const { id } = useParams<{ id: string }>();
 
-  // Dummy data
+  // Dummy schedule data (same as in Schedule.tsx)
   const now = new Date();
-  const schedule: Availability[] = [
+  const scheduleData: Availability[] = [
     {
       id: "1",
       staff_id: "s1",
@@ -91,23 +89,12 @@ export default function Schedule() {
     },
   ];
 
-  const filteredSchedule = useMemo(
-    () =>
-      schedule.filter(
-        (item) =>
-          `${item.staff.first_name} ${item.staff.last_name}`
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          item.staff.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (item.patient &&
-            `${item.patient.first_name} ${item.patient.last_name}`
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()))
-      ),
-    [schedule, searchTerm]
+  const schedule = useMemo(
+    () => scheduleData.find((item) => item.id === id),
+    [id]
   );
 
-  const formatDateTime = (dateString: string): string => {
+  const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("en-US", {
       month: "short",
@@ -123,8 +110,34 @@ export default function Schedule() {
     "On Leave": "bg-gray-100 text-gray-800 border-gray-200",
   };
 
-  const getStatusColor = (status: string) =>
-    statusColorMap[status] || statusColorMap["On Leave"];
+  if (!schedule) {
+    return (
+      <SidebarProvider>
+        <div className="flex h-screen w-screen">
+          <AppSidebar />
+          <SidebarInset>
+            <AppHeader />
+            <main className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <p className="text-lg font-medium">Schedule not found.</p>
+                <Button asChild className="mt-4">
+                  <Link to="/schedule">
+                    <ChevronLeft className="w-4 h-4 mr-2" /> Back to Schedule
+                  </Link>
+                </Button>
+              </div>
+            </main>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+    );
+  }
+
+  const duration = Math.round(
+    (new Date(schedule.end_time).getTime() -
+      new Date(schedule.start_time).getTime()) /
+      (1000 * 60)
+  );
 
   return (
     <SidebarProvider>
@@ -132,128 +145,78 @@ export default function Schedule() {
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-none w-full space-y-8">
-              {/* Header */}
-              <div className="flex justify-between items-center">
+          <main className="flex-1 overflow-auto p-6 space-y-6">
+            {/* Back Button */}
+            <Button variant="ghost" asChild>
+              <Link to="/schedule">
+                <ChevronLeft className="w-4 h-4 mr-2" /> Back to Schedule
+              </Link>
+            </Button>
+
+            {/* Schedule Details */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Schedule Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Staff Info */}
+                <div className="flex items-center gap-4">
+                  <Avatar className="w-14 h-14">
+                    <AvatarImage
+                      src={schedule.staff.profile_image_url || "/default-avatar.png"}
+                      alt={`${schedule.staff.first_name} ${schedule.staff.last_name}`}
+                    />
+                    <AvatarFallback>
+                      {schedule.staff.first_name[0]}
+                      {schedule.staff.last_name[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-lg font-semibold">
+                      {schedule.staff.first_name} {schedule.staff.last_name}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {schedule.staff.role}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Time & Duration */}
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">Schedule</h1>
-                  <p className="text-muted-foreground mt-1">
-                    Manage staff availability and patient appointments
+                  <p>
+                    <strong>Start:</strong> {formatDateTime(schedule.start_time)}
+                  </p>
+                  <p>
+                    <strong>End:</strong> {formatDateTime(schedule.end_time)}
+                  </p>
+                  <p>
+                    <strong>Duration:</strong> {duration} min
                   </p>
                 </div>
-                <Button className="bg-gradient-primary text-white hover:opacity-90" asChild>
-                  <Link to="/schedule/new">
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Schedule
-                  </Link>
-                </Button>
-              </div>
 
-              {/* Search */}
-              <Card>
-                <CardContent className="p-12">
-                  <div className="flex gap-4">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        placeholder="Search by staff name, role, or patient..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
+                {/* Patient Info */}
+                <div>
+                  <strong>Patient:</strong>
+                  <p>
+                    {schedule.patient ? (
+                      `${schedule.patient.first_name} ${schedule.patient.last_name}`
+                    ) : (
+                      <span className="text-muted-foreground">Not assigned</span>
+                    )}
+                  </p>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <strong>Status:</strong>
+                  <div className="mt-2">
+                    <Badge className={statusColorMap[schedule.status]}>
+                      {schedule.status}
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
-
-              {/* Schedule Table */}
-              <Card>
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Staff Member</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Date & Time</TableHead>
-                        <TableHead>Duration</TableHead>
-                        <TableHead>Patient</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredSchedule.map((item) => {
-                        const start = new Date(item.start_time);
-                        const end = new Date(item.end_time);
-                        const duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
-
-                        return (
-                          <TableRow
-                            key={item.id}
-                            className="hover:bg-muted/50 cursor-pointer"
-                            as={Link as any} // Make entire row clickable
-                            to={`/schedule/${item.id}`}
-                          >
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <Avatar className="w-10 h-10">
-                                  <AvatarImage
-                                    src={item.staff.profile_image_url || "/default-avatar.png"}
-                                    alt={`${item.staff.first_name} ${item.staff.last_name}`}
-                                  />
-                                  <AvatarFallback className="bg-gradient-blue text-white">
-                                    {item.staff.first_name[0]}
-                                    {item.staff.last_name[0]}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <div className="font-medium text-foreground">
-                                    {item.staff.first_name} {item.staff.last_name}
-                                  </div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="text-sm">{item.staff.role}</div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="text-sm font-medium">{formatDateTime(item.start_time)}</div>
-                              <div className="text-xs text-muted-foreground">
-                                to {formatDateTime(item.end_time)}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline">{duration} min</Badge>
-                            </TableCell>
-                            <TableCell>
-                              {item.patient ? (
-                                <div className="font-medium">
-                                  {item.patient.first_name} {item.patient.last_name}
-                                </div>
-                              ) : (
-                                <span className="text-muted-foreground">Not assigned</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Badge className={getStatusColor(item.status)}>
-                                {item.status}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                  {filteredSchedule.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      {searchTerm
-                        ? "No schedule items found matching your search."
-                        : "No schedule items found."}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </main>
         </SidebarInset>
       </div>
