@@ -18,53 +18,77 @@ interface Staff {
   role: string;
 }
 
+interface Patient {
+  id: string;
+  first_name: string;
+  last_name: string;
+}
+
 export default function CreateSchedule(): JSX.Element {
   const navigate = useNavigate();
 
   const [staffList, setStaffList] = useState<Staff[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [selectedStaff, setSelectedStaff] = useState<string>("");
+  const [selectedPatient, setSelectedPatient] = useState<string>("");
   const [startTime, setStartTime] = useState<string>("");
   const [endTime, setEndTime] = useState<string>("");
   const [saving, setSaving] = useState<boolean>(false);
 
   useEffect(() => {
     fetchStaff();
+    fetchPatients();
   }, []);
 
-  const fetchStaff = async (): Promise<void> => {
-    try {
-      const { data, error } = await supabase
-        .from("staff")
-        .select("id, first_name, last_name, role")
-        .order("last_name");
+  const fetchStaff = async () => {
+    const { data, error } = await supabase
+      .from("staff")
+      .select("id, first_name, last_name, role")
+      .order("last_name");
 
-      if (error) throw error;
-      setStaffList(data || []);
-    } catch (error) {
+    if (error) {
       console.error("Error fetching staff:", error);
+      return;
     }
+    setStaffList(data || []);
   };
 
-  const handleCreate = async (): Promise<void> => {
+  const fetchPatients = async () => {
+    const { data, error } = await supabase
+      .from("patients")
+      .select("id, first_name, last_name");
+
+    if (error) {
+      console.error("Error fetching patients:", error);
+      return;
+    }
+    setPatients(data || []);
+  };
+
+  const handleCreate = async () => {
     if (!selectedStaff || !startTime || !endTime) {
-      alert("Please fill in all required fields");
+      alert("Please fill all required fields.");
       return;
     }
 
     setSaving(true);
-    try {
-      const { error } = await supabase
-        .from("availabilities")
-        .insert([
-          {
-            staff_id: selectedStaff,
-            start_time: startTime,
-            end_time: endTime,
-            status: "Available",
-          },
-        ]);
 
-      if (error) throw error;
+    try {
+      const { error } = await supabase.from("availabilities").insert([
+        {
+          staff_id: selectedStaff,
+          patient_id: selectedPatient || null,
+          start_time: startTime,
+          end_time: endTime,
+          status: selectedPatient ? "Booked" : "Available",
+        },
+      ]);
+
+      if (error) {
+        console.error("Error creating schedule:", error);
+        alert("Failed to create schedule.");
+        return;
+      }
 
       navigate("/schedule");
     } catch (error) {
@@ -82,7 +106,7 @@ export default function CreateSchedule(): JSX.Element {
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
             <div className="max-w-3xl mx-auto space-y-8">
-              {/* Header with back button */}
+              {/* Back Button */}
               <div className="flex items-center gap-4">
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/schedule">
@@ -97,6 +121,7 @@ export default function CreateSchedule(): JSX.Element {
                   <CardTitle>Create Schedule</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Staff Selector */}
                   <div className="space-y-2">
                     <Label htmlFor="staff">Staff Member</Label>
                     <Select value={selectedStaff} onValueChange={setSelectedStaff}>
@@ -113,8 +138,27 @@ export default function CreateSchedule(): JSX.Element {
                     </Select>
                   </div>
 
+                  {/* Patient Selector */}
                   <div className="space-y-2">
-                    <Label htmlFor="start">Start Time</Label>
+                    <Label htmlFor="patient">Assign Patient (Optional)</Label>
+                    <Select value={selectedPatient} onValueChange={setSelectedPatient}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a patient" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Unassigned</SelectItem>
+                        {patients.map((patient) => (
+                          <SelectItem key={patient.id} value={patient.id}>
+                            {patient.first_name} {patient.last_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Start Time */}
+                  <div className="space-y-2">
+                    <Label htmlFor="start-time">Start Time</Label>
                     <Input
                       type="datetime-local"
                       value={startTime}
@@ -122,8 +166,9 @@ export default function CreateSchedule(): JSX.Element {
                     />
                   </div>
 
+                  {/* End Time */}
                   <div className="space-y-2">
-                    <Label htmlFor="end">End Time</Label>
+                    <Label htmlFor="end-time">End Time</Label>
                     <Input
                       type="datetime-local"
                       value={endTime}
@@ -131,6 +176,7 @@ export default function CreateSchedule(): JSX.Element {
                     />
                   </div>
 
+                  {/* Create Button */}
                   <Button
                     className="w-full bg-gradient-primary text-white hover:opacity-90"
                     onClick={handleCreate}
@@ -147,4 +193,3 @@ export default function CreateSchedule(): JSX.Element {
     </SidebarProvider>
   );
 }
-
