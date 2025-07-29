@@ -1,170 +1,103 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Search, Plus, ChevronRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client"; // Assuming this path is correct and `supabase` is typed
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
+// Interface definitions remain the same, good job!
 interface Staff {
   id: string;
   first_name: string;
   last_name: string;
   role: string;
+  profile_image_url?: string;
 }
 
 interface Patient {
   id: string;
   first_name: string;
   last_name: string;
-  patient_allergies: Array<{
-    allergy_name: string;
-    severity: string;
-  }>;
 }
 
 interface Availability {
   id: string;
-  staff_id: string;
+  staff_id: string; // This is the foreign key, useful for internal logic
   start_time: string;
   end_time: string;
   status: "Available" | "Booked" | "On Leave";
-  patient_id?: string;
+  patient_id?: string; // This is the foreign key, useful for internal logic
+  staff: Staff; // The joined staff object
+  patient?: Patient; // The joined patient object (optional)
 }
 
-export default function ScheduleDetails(): JSX.Element {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-
-  const [staffList, setStaffList] = useState<Staff[]>([]);
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [selectedStaff, setSelectedStaff] = useState<string>("");
-  const [selectedPatient, setSelectedPatient] = useState<string>("");
-  const [schedule, setSchedule] = useState<Availability | null>(null);
+export default function Schedule() {
+  const [schedule, setSchedule] = useState<Availability[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
-  const [saving, setSaving] = useState<boolean>(false);
 
   useEffect(() => {
     fetchSchedule();
-    fetchStaff();
-    fetchPatients();
-  }, [id]);
+  }, []);
 
-  const fetchSchedule = async (): Promise<void> => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-
+  const fetchSchedule = async () => {
     try {
       const { data, error } = await supabase
         .from("availabilities")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) throw error;
-
-      setSchedule(data as Availability);
-      setSelectedStaff(data.staff_id);
-      setSelectedPatient(data.patient_id || "");
-    } catch (error) {
-      console.error("Error fetching schedule:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchStaff = async (): Promise<void> => {
-    try {
-      const { data, error } = await supabase
-        .from("staff")
-        .select("id, first_name, last_name, role")
-        .order("last_name");
-
-      if (error) throw error;
-      setStaffList((data as Staff[]) || []);
-    } catch (error) {
-      console.error("Error fetching staff:", error);
-    }
-  };
-
-  const fetchPatients = async (): Promise<void> => {
-    try {
-      const { data, error } = await supabase
-        .from("patients")
         .select(`
           id,
-          first_name,
-          last_name,
-          patient_allergies (allergy_name, severity)
-        `);
+          start_time,
+          end_time,
+          status,
+          staff:staff_id (id, first_name, last_name, role, profile_image_url),
+          patient:patient_id (id, first_name, last_name)
+        `)
+        .order("start_time", { ascending: true });
 
-      if (error) throw error;
-      setPatients((data as Patient[]) || []);
+      if (error) {
+        console.error("Error fetching schedule:", error);
+        throw error; // Re-throw to be caught by the finally block
+      }
+      // Explicitly cast the data to Availability[] as Supabase's type might be generic
+      setSchedule(data as Availability[] || []);
     } catch (error) {
-      console.error("Error fetching patients:", error);
-    }
-  };
-
-  const handleSave = async (): Promise<void> => {
-    if (!schedule || !id) return;
-
-    setSaving(true);
-    try {
-      const { error } = await supabase
-        .from("availabilities")
-        .update({
-          patient_id: selectedPatient || null,
-          status: selectedPatient ? "Booked" : "Available",
-        })
-        .eq("id", id);
-
-      if (error) throw error;
-      navigate("/schedule");
-    } catch (error) {
-      console.error("Error updating schedule:", error);
+      console.error("Caught error in fetchSchedule:", error);
+      // Handle error display to user if necessary
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 
-  const getSeverityColor = (severity: string): string => {
-    switch (severity) {
-      case "Life-threatening":
-        return "bg-red-100 text-red-800";
-      case "Severe":
-        return "bg-orange-100 text-orange-800";
-      case "Moderate":
-        return "bg-yellow-100 text-yellow-800";
-      case "Mild":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  const filteredSchedule = schedule.filter((item: Availability) =>
+    `${item.staff.first_name} ${item.staff.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.staff.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.patient && `${item.patient.first_name} ${item.patient.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   const formatDateTime = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleString([], {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
-  const calculateDuration = (start: string, end: string): number => {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
+  const getStatusColor = (status: string): string => {
+    switch (status) {
+      case "Available": return "bg-green-100 text-green-800 border-green-200";
+      case "Booked": return "bg-blue-100 text-blue-800 border-blue-200";
+      case "On Leave": return "bg-gray-100 text-gray-800 border-gray-200";
+      default: return "bg-gray-100 text-gray-800 border-gray-200";
+    }
   };
 
   if (loading) {
@@ -175,32 +108,13 @@ export default function ScheduleDetails(): JSX.Element {
           <SidebarInset>
             <AppHeader />
             <div className="flex items-center justify-center h-full">
-              <div className="text-center">Loading schedule details...</div>
+              <div className="text-center">Loading schedule...</div>
             </div>
           </SidebarInset>
         </div>
       </SidebarProvider>
     );
   }
-
-  if (!schedule) {
-    return (
-      <SidebarProvider>
-        <div className="flex h-screen w-screen">
-          <AppSidebar />
-          <SidebarInset>
-            <AppHeader />
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">Schedule not found</div>
-            </div>
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
-    );
-  }
-
-  const selectedPatientData = patients.find((p) => p.id === selectedPatient);
-  const selectedStaffData = staffList.find((s) => s.id === selectedStaff);
 
   return (
     <SidebarProvider>
@@ -209,172 +123,130 @@ export default function ScheduleDetails(): JSX.Element {
         <SidebarInset>
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-4xl mx-auto space-y-8">
-              <div className="flex items-center justify-between">
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/schedule">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Schedule
+            <div className="max-w-none w-full space-y-8">
+              {/* Header */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground">Schedule</h1>
+                  <p className="text-muted-foreground mt-1">Manage staff availability and patient appointments</p>
+                </div>
+                <Button className="bg-gradient-primary text-white hover:opacity-90" asChild>
+                  <Link to="/schedule/new">
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Schedule
                   </Link>
                 </Button>
-
-                {/* Create Schedule Button */}
-                <Button
-                  className="bg-gradient-primary text-white hover:opacity-90"
-                  size="sm"
-                  asChild
-                >
-                  <Link to="/schedule/create">+ Create Schedule</Link>
-                </Button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Assignment Details</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="staff">Staff Member</Label>
-                      <Select value={selectedStaff} onValueChange={setSelectedStaff}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select staff member" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {staffList.map((staff) => (
-                            <SelectItem key={staff.id} value={staff.id}>
-                              {staff.first_name} {staff.last_name} ({staff.role})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+              {/* Search */}
+              <Card>
+                <CardContent className="p-12">
+                  <div className="flex gap-4">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        placeholder="Search by staff name, role, or patient..."
+                        value={searchTerm}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="patient">Assign Patient</Label>
-                      <Select value={selectedPatient} onValueChange={setSelectedPatient}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a patient" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="">Unassign</SelectItem>
-                          {patients.map((patient) => (
-                            <SelectItem key={patient.id} value={patient.id}>
-                              {patient.first_name} {patient.last_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {selectedPatientData && (
-                      <div className="space-y-2">
-                        <Label>Patient Allergies</Label>
-                        <div className="border rounded-lg p-4">
-                          {selectedPatientData.patient_allergies.length > 0 ? (
-                            <div className="flex flex-wrap gap-2">
-                              {selectedPatientData.patient_allergies.map((allergy, index) => (
-                                <Badge key={index} className={`text-xs ${getSeverityColor(allergy.severity)}`}>
-                                  {allergy.allergy_name} ({allergy.severity})
-                                </Badge>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-muted-foreground">No allergies recorded</p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    <Button
-                      className="w-full bg-gradient-primary text-white hover:opacity-90"
-                      onClick={handleSave}
-                      disabled={saving}
-                    >
-                      {saving ? "Saving..." : "Save Assignment"}
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Availability Details</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-blue-100 p-3 rounded-full">
-                        <Calendar className="text-blue-800 w-6 h-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-foreground">
-                          {selectedStaffData
-                            ? `${selectedStaffData.first_name} ${selectedStaffData.last_name}`
-                            : "Staff Member"}
-                        </h3>
-                        <p className="text-muted-foreground">
-                          {selectedStaffData?.role || "Role not specified"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Time Slot</Label>
-                      <div className="border rounded-lg p-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-muted-foreground">Start</p>
-                            <p className="font-medium">{formatDateTime(schedule.start_time)}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">End</p>
-                            <p className="font-medium">{formatDateTime(schedule.end_time)}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Duration</p>
-                            <p className="font-medium">
-                              {calculateDuration(schedule.start_time, schedule.end_time)} minutes
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Status</p>
-                            <Badge
-                              className={
-                                selectedPatient ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
-                              }
-                            >
-                              {selectedPatient ? "Booked" : "Available"}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {selectedPatientData && (
-                      <div className="space-y-2">
-                        <Label>Assigned Patient</Label>
-                        <div className="border rounded-lg p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="bg-teal-100 p-3 rounded-full">
-                              <div className="bg-gradient-teal text-white rounded-full w-8 h-8 flex items-center justify-center">
-                                {selectedPatientData.first_name[0]}
-                                {selectedPatientData.last_name[0]}
+              {/* Schedule Table */}
+              <Card>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Staff Member</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Date & Time</TableHead>
+                        <TableHead>Duration</TableHead>
+                        <TableHead>Patient</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredSchedule.map((item: Availability) => {
+                        const start = new Date(item.start_time);
+                        const end = new Date(item.end_time);
+                        const duration = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
+                        
+                        return (
+                          <TableRow key={item.id} className="hover:bg-muted/50">
+                            <TableCell>
+                              <div className="flex items-center gap-3">
+                                <Avatar className="w-10 h-10">
+                                  {/* Conditionally render AvatarImage only if profile_image_url exists */}
+                                  {item.staff.profile_image_url ? (
+                                    <AvatarImage src={item.staff.profile_image_url} alt={`${item.staff.first_name} ${item.staff.last_name}`} />
+                                  ) : null}
+                                  <AvatarFallback className="bg-gradient-blue text-white">
+                                    {item.staff.first_name[0]}{item.staff.last_name[0]}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                  <div className="font-medium text-foreground">
+                                    {item.staff.first_name} {item.staff.last_name}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                            <div>
-                              <h3 className="font-medium text-foreground">
-                                {selectedPatientData.first_name} {selectedPatientData.last_name}
-                              </h3>
-                              <p className="text-muted-foreground">
-                                ID: {selectedPatientData.id.slice(0, 8)}...
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-sm">
+                                {item.staff.role}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-sm font-medium">
+                                {formatDateTime(item.start_time)}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                to {formatDateTime(item.end_time)}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">
+                                {duration} min
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {item.patient ? (
+                                <div className="font-medium">
+                                  {item.patient.first_name} {item.patient.last_name}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">Not assigned</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={getStatusColor(item.status)}>
+                                {item.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="sm" asChild>
+                                <Link to={`/schedule/${item.id}`}>
+                                  <ChevronRight className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                  {filteredSchedule.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      {searchTerm ? "No schedule items found matching your search." : "No schedule items found."}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           </main>
         </SidebarInset>
