@@ -9,6 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "lucide-react";
 
+// Assuming these components are available and correctly typed
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/ui/app-sidebar";
+import { AppHeader } from "@/components/ui/app-header";
+
 interface Staff {
   id: string;
   first_name: string;
@@ -35,8 +40,8 @@ interface Availability {
   patient_id?: string;
 }
 
-export default function ScheduleDetails() {
-  const { id } = useParams();
+export default function ScheduleDetails(): JSX.Element { // Explicitly define return type for component
+  const { id } = useParams<{ id: string }>(); // Type `id` from useParams
   const navigate = useNavigate();
   
   const [staffList, setStaffList] = useState<Staff[]>([]);
@@ -44,8 +49,8 @@ export default function ScheduleDetails() {
   const [selectedStaff, setSelectedStaff] = useState<string>("");
   const [selectedPatient, setSelectedPatient] = useState<string>("");
   const [schedule, setSchedule] = useState<Availability | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
 
   useEffect(() => {
     fetchSchedule();
@@ -53,8 +58,11 @@ export default function ScheduleDetails() {
     fetchPatients();
   }, []);
 
-  const fetchSchedule = async () => {
-    if (!id) return;
+  const fetchSchedule = async (): Promise<void> => {
+    if (!id) {
+      setLoading(false); // Ensure loading is false if no ID
+      return;
+    }
     
     try {
       const { data, error } = await supabase
@@ -63,8 +71,11 @@ export default function ScheduleDetails() {
         .eq("id", id)
         .single();
 
-      if (error) throw error;
-      setSchedule(data);
+      if (error) {
+        console.error("Error fetching schedule:", error);
+        throw error;
+      }
+      setSchedule(data as Availability); // Cast data to Availability type
       setSelectedStaff(data.staff_id);
       setSelectedPatient(data.patient_id || "");
     } catch (error) {
@@ -74,21 +85,24 @@ export default function ScheduleDetails() {
     }
   };
 
-  const fetchStaff = async () => {
+  const fetchStaff = async (): Promise<void> => {
     try {
       const { data, error } = await supabase
         .from("staff")
         .select("id, first_name, last_name, role")
         .order("last_name");
 
-      if (error) throw error;
-      setStaffList(data || []);
+      if (error) {
+        console.error("Error fetching staff:", error);
+        throw error;
+      }
+      setStaffList(data as Staff[] || []); // Cast data to Staff[] type
     } catch (error) {
       console.error("Error fetching staff:", error);
     }
   };
 
-  const fetchPatients = async () => {
+  const fetchPatients = async (): Promise<void> => {
     try {
       const { data, error } = await supabase
         .from("patients")
@@ -97,17 +111,19 @@ export default function ScheduleDetails() {
           first_name,
           last_name,
           patient_allergies (allergy_name, severity)
-        `)
-        .order("last_name");
+        `);
 
-      if (error) throw error;
-      setPatients(data || []);
+      if (error) {
+        console.error("Error fetching patients:", error);
+        throw error;
+      }
+      setPatients(data as Patient[] || []); // Cast data to Patient[] type
     } catch (error) {
       console.error("Error fetching patients:", error);
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<void> => {
     if (!schedule || !id) return;
     
     setSaving(true);
@@ -120,7 +136,10 @@ export default function ScheduleDetails() {
         })
         .eq("id", id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error updating schedule:", error);
+        throw error;
+      }
       navigate("/schedule");
     } catch (error) {
       console.error("Error updating schedule:", error);
@@ -129,7 +148,7 @@ export default function ScheduleDetails() {
     }
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity: string): string => {
     switch (severity) {
       case "Life-threatening": return "bg-red-100 text-red-800";
       case "Severe": return "bg-orange-100 text-orange-800";
@@ -139,7 +158,7 @@ export default function ScheduleDetails() {
     }
   };
 
-  const formatDateTime = (dateString: string) => {
+  const formatDateTime = (dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleString([], {
       weekday: 'short',
@@ -151,17 +170,16 @@ export default function ScheduleDetails() {
     });
   };
 
-  const calculateDuration = (start: string, end: string) => {
+  const calculateDuration = (start: string, end: string): number => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     return Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60));
   };
 
-  // Fixed loading state with proper JSX formatting
   if (loading) {
     return (
       <SidebarProvider>
-        <div className="flex h-screen w-screen"> {/*MAKE PAGE WIDE aDDED BY aNDREW*/}
+        <div className="flex h-screen w-screen">
           <AppSidebar />
           <SidebarInset>
             <AppHeader />
@@ -210,7 +228,7 @@ export default function ScheduleDetails() {
                   <SelectValue placeholder="Select staff member" />
                 </SelectTrigger>
                 <SelectContent>
-                  {staffList.map(staff => (
+                  {staffList.map((staff: Staff) => (
                     <SelectItem key={staff.id} value={staff.id}>
                       {staff.first_name} {staff.last_name} ({staff.role})
                     </SelectItem>
@@ -230,7 +248,7 @@ export default function ScheduleDetails() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Unassign</SelectItem>
-                  {patients.map(patient => (
+                  {patients.map((patient: Patient) => (
                     <SelectItem key={patient.id} value={patient.id}>
                       {patient.first_name} {patient.last_name}
                     </SelectItem>
