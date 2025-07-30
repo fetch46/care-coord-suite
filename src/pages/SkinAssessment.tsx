@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
-import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Printer, Save, FileCheck, AlertTriangle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectTrigger,
@@ -49,14 +51,33 @@ interface HotSpotRecord {
   notes: string;
 }
 
+interface Patient {
+  id: string;
+  first_name: string;
+  last_name: string;
+  room_number: string;
+}
+
+interface Allergy {
+  id: string;
+  allergy_name: string;
+  severity: string;
+  reaction: string;
+  notes: string;
+}
+
 interface FormState {
+  id?: string;
   date: string;
+  patientId: string;
   patientName: string;
   physician: string;
   room: string;
   records: HotSpotRecord[];
   dots: Dot[];
   bodyView: BodyView;
+  generalNotes: string;
+  status: 'draft' | 'completed' | 'reviewed';
 }
 
 // Storage service
@@ -128,6 +149,7 @@ const formReducer = (state: FormState, action: any) => {
 
 const initialState: FormState = {
   date: new Date().toISOString().slice(0, 10),
+  patientId: "",
   patientName: "",
   physician: "",
   room: "",
@@ -138,21 +160,75 @@ const initialState: FormState = {
   })),
   dots: [],
   bodyView: "front",
+  generalNotes: "",
+  status: "draft",
 };
 
 export default function SkinAssessmentForm() {
   const [state, dispatch] = useReducer(formReducer, initialState);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [selectedPatientAllergies, setSelectedPatientAllergies] = useState<Allergy[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { image: frontImage, error: frontError } = useImageLoader("/Front.png");
   const { image: backImage, error: backError } = useImageLoader("/Back.png");
 
-  // Load saved data
+  // Fetch patients on component mount
   useEffect(() => {
-    const saved = storage.get("skinAssessment");
-    if (saved) {
-      dispatch({ type: "LOAD_STATE", payload: saved });
-    }
+    fetchPatients();
   }, []);
+
+  const fetchPatients = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("patients")
+        .select("id, first_name, last_name, room_number")
+        .eq("status", "Active")
+        .order("last_name");
+
+      if (error) throw error;
+      setPatients(data || []);
+    } catch (error) {
+      console.error("Error fetching patients:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load patients",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPatientAllergies = async (patientId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("patient_allergies")
+        .select("*")
+        .eq("patient_id", patientId);
+
+      if (error) throw error;
+      setSelectedPatientAllergies(data || []);
+    } catch (error) {
+      console.error("Error fetching allergies:", error);
+      setSelectedPatientAllergies([]);
+    }
+  };
+
+  const handlePatientSelect = (patientId: string) => {
+    const patient = patients.find(p => p.id === patientId);
+    if (patient) {
+      dispatch({ type: "UPDATE_FIELD", field: "patientId", value: patientId });
+      dispatch({ type: "UPDATE_FIELD", field: "patientName", value: `${patient.first_name} ${patient.last_name}` });
+      dispatch({ type: "UPDATE_FIELD", field: "room", value: patient.room_number || "" });
+      
+      // Fetch patient allergies
+      fetchPatientAllergies(patientId);
+    }
+  };
 
   // Handle errors
   useEffect(() => {
@@ -162,19 +238,153 @@ export default function SkinAssessmentForm() {
 
   // Form validation
   const validateForm = (): boolean => {
-    if (!state.patientName.trim()) {
-      toast.error("Patient name is required");
+    if (!state.patientId.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a patient",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (!state.physician.trim()) {
+      toast({
+        title: "Validation Error", 
+        description: "Attending physician is required",
+        variant: "destructive",
+      });
       return false;
     }
     return true;
   };
 
-  // Save handler
-  const handleSave = useCallback(() => {
+  // Save as draft
+  const handleSaveDraft = async () => {
+    if (!state.patientId) {
+      toast({
+        title: "Error",
+        description: "Please select a patient first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const assessmentData = {
+        patient_id: state.patientId,
+        date: state.date,
+        attending_physician: state.physician,
+        room_number: state.room,
+        body_annotations: {
+          dots: state.dots,
+          bodyView: state.bodyView
+        },
+        hot_spot_assessments: state.records.reduce((acc, record) => {
+          acc[record.area] = {
+            status: record.status,
+            notes: record.notes
+          };
+          return acc;
+        }, {} as any),
+        general_notes: state.generalNotes,
+        status: 'draft'
+      };
+
+      let result;
+      if (state.id) {
+        result = await supabase
+          .from('skin_assessments')
+          .update(assessmentData)
+          .eq('id', state.id);
+      } else {
+        result = await supabase
+          .from('skin_assessments')
+          .insert([assessmentData])
+          .select();
+      }
+
+      if (result.error) throw result.error;
+
+      if (result.data && result.data[0] && !state.id) {
+        dispatch({ type: "UPDATE_FIELD", field: "id", value: result.data[0].id });
+      }
+
+      toast({
+        title: "Success",
+        description: "Assessment saved as draft",
+      });
+    } catch (error) {
+      console.error("Error saving assessment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save assessment",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Complete assessment
+  const handleCompleteAssessment = async () => {
     if (!validateForm()) return;
-    storage.set("skinAssessment", state);
-    toast.success("Assessment saved successfully!");
-  }, [state]);
+
+    setSaving(true);
+    try {
+      const assessmentData = {
+        patient_id: state.patientId,
+        date: state.date,
+        attending_physician: state.physician,
+        room_number: state.room,
+        body_annotations: {
+          dots: state.dots,
+          bodyView: state.bodyView
+        },
+        hot_spot_assessments: state.records.reduce((acc, record) => {
+          acc[record.area] = {
+            status: record.status,
+            notes: record.notes
+          };
+          return acc;
+        }, {} as any),
+        general_notes: state.generalNotes,
+        status: 'completed'
+      };
+
+      let result;
+      if (state.id) {
+        result = await supabase
+          .from('skin_assessments')
+          .update(assessmentData)
+          .eq('id', state.id);
+      } else {
+        result = await supabase
+          .from('skin_assessments')
+          .insert([assessmentData])
+          .select();
+      }
+
+      if (result.error) throw result.error;
+
+      toast({
+        title: "Success",
+        description: "Assessment completed successfully",
+      });
+
+      // Reset form after completion
+      dispatch({ type: "LOAD_STATE", payload: initialState });
+      setSelectedPatientAllergies([]);
+    } catch (error) {
+      console.error("Error completing assessment:", error);
+      toast({
+        title: "Error", 
+        description: "Failed to complete assessment",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // Canvas drawing
   const drawCanvas = useCallback(() => {
@@ -300,62 +510,108 @@ export default function SkinAssessmentForm() {
                 <CardTitle>Skin Assessment Sheet</CardTitle>
               </CardHeader>
               <CardContent className="grid md:grid-cols-2 gap-4">
-                {[
-                  {
-                    label: "Date",
-                    value: state.date,
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                <div>
+                  <Label>Date</Label>
+                  <Input
+                    type="date"
+                    value={state.date}
+                    onChange={(e) =>
                       dispatch({
                         type: "UPDATE_FIELD",
                         field: "date",
                         value: e.target.value,
-                      }),
-                    type: "date",
-                  },
-                  {
-                    label: "Patient Name",
-                    value: state.patientName,
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-                      dispatch({
-                        type: "UPDATE_FIELD",
-                        field: "patientName",
-                        value: e.target.value,
-                      }),
-                  },
-                  {
-                    label: "Attending Physician",
-                    value: state.physician,
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                      })
+                    }
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <Label>Patient Name</Label>
+                  <Select
+                    value={state.patientId}
+                    onValueChange={handlePatientSelect}
+                    disabled={loading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={loading ? "Loading patients..." : "Select a patient"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {patients.map((patient) => (
+                        <SelectItem key={patient.id} value={patient.id}>
+                          {patient.first_name} {patient.last_name} - Room {patient.room_number}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Attending Physician</Label>
+                  <Input
+                    value={state.physician}
+                    onChange={(e) =>
                       dispatch({
                         type: "UPDATE_FIELD",
                         field: "physician",
                         value: e.target.value,
-                      }),
-                  },
-                  {
-                    label: "Room",
-                    value: state.room,
-                    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                      })
+                    }
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Room</Label>
+                  <Input
+                    value={state.room}
+                    onChange={(e) =>
                       dispatch({
                         type: "UPDATE_FIELD",
                         field: "room",
                         value: e.target.value,
-                      }),
-                  },
-                ].map((field) => (
-                  <div key={field.label}>
-                    <Label>{field.label}</Label>
-                    <Input
-                      value={field.value}
-                      onChange={field.onChange}
-                      type={field.type || "text"}
-                      required
-                      aria-required="true"
-                    />
-                  </div>
-                ))}
+                      })
+                    }
+                    disabled
+                  />
+                </div>
               </CardContent>
             </Card>
+
+            {/* Patient Allergies Display */}
+            {selectedPatientAllergies.length > 0 && (
+              <Card className="border-red-200 bg-red-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-red-800">
+                    <AlertTriangle className="w-5 h-5" />
+                    Patient Allergies
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-3">
+                    {selectedPatientAllergies.map((allergy) => (
+                      <div key={allergy.id} className="flex items-center gap-3 p-3 bg-white rounded border border-red-200">
+                        <Badge 
+                          variant={allergy.severity === 'severe' ? 'destructive' : 
+                                   allergy.severity === 'moderate' ? 'default' : 'secondary'}
+                        >
+                          {allergy.severity?.toUpperCase()}
+                        </Badge>
+                        <div className="flex-1">
+                          <span className="font-medium text-red-900">{allergy.allergy_name}</span>
+                          {allergy.reaction && (
+                            <p className="text-sm text-red-700">Reaction: {allergy.reaction}</p>
+                          )}
+                          {allergy.notes && (
+                            <p className="text-xs text-red-600">{allergy.notes}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {/* Body Diagram */}
@@ -415,17 +671,52 @@ export default function SkinAssessmentForm() {
                   {state.records.map((record) => (
                     <HotSpotItem key={record.area} {...record} />
                   ))}
-                  <div className="flex justify-end mt-4">
-                    <Button onClick={handleSave}>Save Assessment</Button>
+                  
+                  {/* General Notes */}
+                  <div className="space-y-2 pt-4 border-t">
+                    <Label htmlFor="generalNotes">General Notes</Label>
+                    <Textarea
+                      id="generalNotes"
+                      value={state.generalNotes}
+                      onChange={(e) =>
+                        dispatch({
+                          type: "UPDATE_FIELD",
+                          field: "generalNotes",
+                          value: e.target.value,
+                        })
+                      }
+                      placeholder="Add any additional observations or notes about the patient's skin condition..."
+                      rows={3}
+                    />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            <div className="flex justify-end">
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center">
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleSaveDraft}
+                  variant="outline"
+                  disabled={saving || !state.patientId}
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {saving ? "Saving..." : "Save Draft"}
+                </Button>
+                <Button
+                  onClick={handleCompleteAssessment}
+                  disabled={saving || !state.patientId}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <FileCheck className="w-4 h-4 mr-2" />
+                  {saving ? "Completing..." : "Complete Assessment"}
+                </Button>
+              </div>
+              
               <Button
                 onClick={() => window.print()}
-                className="ml-auto"
+                variant="outline"
                 aria-label="Print or export form"
               >
                 <Printer className="w-4 h-4 mr-2" aria-hidden="true" />

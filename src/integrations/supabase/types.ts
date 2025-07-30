@@ -546,6 +546,66 @@ export type Database = {
         }
         Relationships: []
       }
+      skin_assessments: {
+        Row: {
+          assessed_by: string | null
+          attending_physician: string | null
+          body_annotations: Json | null
+          created_at: string
+          date: string
+          general_notes: string | null
+          hot_spot_assessments: Json | null
+          id: string
+          patient_id: string
+          room_number: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          assessed_by?: string | null
+          attending_physician?: string | null
+          body_annotations?: Json | null
+          created_at?: string
+          date: string
+          general_notes?: string | null
+          hot_spot_assessments?: Json | null
+          id?: string
+          patient_id: string
+          room_number?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assessed_by?: string | null
+          attending_physician?: string | null
+          body_annotations?: Json | null
+          created_at?: string
+          date?: string
+          general_notes?: string | null
+          hot_spot_assessments?: Json | null
+          id?: string
+          patient_id?: string
+          room_number?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skin_assessments_assessed_by_fkey"
+            columns: ["assessed_by"]
+            isOneToOne: false
+            referencedRelation: "caregivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "skin_assessments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff: {
         Row: {
           created_at: string
