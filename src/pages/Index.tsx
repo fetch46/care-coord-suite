@@ -11,6 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import heroImage from "@/assets/healthcare-hero.jpg"
 import { BarChart, Bar, ResponsiveContainer } from "recharts"
+import { useUserRole } from "@/hooks/useUserRole"
+import { NurseReceptionDashboard } from "@/components/dashboard/nurse-reception-dashboard"
+import { CaregiverDashboard } from "@/components/dashboard/caregiver-dashboard"
 
 const statusData = [
   { name: "Critical", count: 12 },
@@ -37,7 +40,8 @@ const MetricProgress = ({ label, value, percent, colorClass }: {
 )
 
 const Index = () => {
-  const isLoading = false
+  const { userRole, loading: roleLoading } = useUserRole()
+  const isLoading = roleLoading
 
   return (
     <SidebarProvider>
@@ -68,92 +72,111 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
-              <StatsCard
-                title="Total Patients"
-                value={isLoading ? "..." : "847"}
-                icon={Users}
-                variant="primary"
-                change={{ value: "+12%", trend: "up" }}
-              />
-              <StatsCard
-                title="Active Staff"
-                value={isLoading ? "..." : "156"}
-                icon={UserCheck}
-                variant="teal"
-                change={{ value: "+3%", trend: "up" }}
-              />
-              <StatsCard
-                title="Today's Appointments"
-                value={isLoading ? "..." : "24"}
-                icon={Calendar}
-                variant="coral"
-                change={{ value: "-2%", trend: "down" }}
-              />
-              <StatsCard
-                title="Assessments Pending"
-                value={isLoading ? "..." : "8"}
-                icon={ClipboardList}
-                variant="default"
-                change={{ value: "+1", trend: "up" }}
-              />
-            </div>
-
-            {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-              {/* Left Column: Quick Actions + Finance */}
-              <div className="lg:col-span-1 space-y-6">
-                <QuickActions />
-                <FinanceStats />
+            {/* Role-based Dashboard Content */}
+            {isLoading ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {[...Array(4)].map((_, i) => (
+                    <Skeleton key={i} className="h-32" />
+                  ))}
+                </div>
+                <Skeleton className="h-64" />
               </div>
+            ) : userRole === "caregiver" ? (
+              <CaregiverDashboard />
+            ) : userRole === "registered_nurse" || userRole === "reception" ? (
+              <NurseReceptionDashboard />
+            ) : (
+              // Administrator dashboard (default/existing dashboard)
+              <>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+                  <StatsCard
+                    title="Total Patients"
+                    value="847"
+                    icon={Users}
+                    variant="primary"
+                    change={{ value: "+12%", trend: "up" }}
+                  />
+                  <StatsCard
+                    title="Active Staff"
+                    value="156"
+                    icon={UserCheck}
+                    variant="teal"
+                    change={{ value: "+3%", trend: "up" }}
+                  />
+                  <StatsCard
+                    title="Today's Appointments"
+                    value="24"
+                    icon={Calendar}
+                    variant="coral"
+                    change={{ value: "-2%", trend: "down" }}
+                  />
+                  <StatsCard
+                    title="Assessments Pending"
+                    value="8"
+                    icon={ClipboardList}
+                    variant="default"
+                    change={{ value: "+1", trend: "up" }}
+                  />
+                </div>
 
-              {/* Recent Activity */}
-              <div className="lg:col-span-2">
-                <RecentActivity />
-              </div>
-            </div>
+                {/* Dashboard Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                  {/* Left Column: Quick Actions + Finance */}
+                  <div className="lg:col-span-1 space-y-6">
+                    <QuickActions />
+                    <FinanceStats />
+                  </div>
 
-            {/* Additional Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-              {/* Patient Status Overview */}
-              <Card className="shadow-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="w-5 h-5" />
-                    Patient Status Overview
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <ResponsiveContainer width="100%" height={80}>
-                    <BarChart data={statusData}>
-                      <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {/* Recent Activity */}
+                  <div className="lg:col-span-2">
+                    <RecentActivity />
+                  </div>
+                </div>
 
-                  <MetricProgress label="Critical Care" value={12} percent="25%" colorClass="bg-destructive" />
-                  <MetricProgress label="Stable" value={89} percent="75%" colorClass="bg-healthcare-success" />
-                  <MetricProgress label="Recovery" value={45} percent="50%" colorClass="bg-healthcare-teal" />
-                  <MetricProgress label="Outpatient" value={234} percent="100%" colorClass="bg-healthcare-coral" />
-                </CardContent>
-              </Card>
+                {/* Additional Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+                  {/* Patient Status Overview */}
+                  <Card className="shadow-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Activity className="w-5 h-5" />
+                        Patient Status Overview
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <ResponsiveContainer width="100%" height={80}>
+                        <BarChart data={statusData}>
+                          <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
 
-              {/* Performance Metrics */}
-              <Card className="shadow-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
-                    Performance Metrics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <MetricProgress label="Patient Satisfaction" value="94%" percent="94%" colorClass="bg-healthcare-success" />
-                  <MetricProgress label="Staff Efficiency" value="87%" percent="87%" colorClass="bg-primary" />
-                  <MetricProgress label="Response Time" value="8.2 min" percent="75%" colorClass="bg-healthcare-teal" />
-                  <MetricProgress label="Assessment Completion" value="91%" percent="91%" colorClass="bg-healthcare-coral" />
-                </CardContent>
-              </Card>
-            </div>
+                      <MetricProgress label="Critical Care" value={12} percent="25%" colorClass="bg-destructive" />
+                      <MetricProgress label="Stable" value={89} percent="75%" colorClass="bg-healthcare-success" />
+                      <MetricProgress label="Recovery" value={45} percent="50%" colorClass="bg-healthcare-teal" />
+                      <MetricProgress label="Outpatient" value={234} percent="100%" colorClass="bg-healthcare-coral" />
+                    </CardContent>
+                  </Card>
+
+                  {/* Performance Metrics */}
+                  <Card className="shadow-card">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5" />
+                        Performance Metrics
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <MetricProgress label="Patient Satisfaction" value="94%" percent="94%" colorClass="bg-healthcare-success" />
+                      <MetricProgress label="Staff Efficiency" value="87%" percent="87%" colorClass="bg-primary" />
+                      <MetricProgress label="Response Time" value="8.2 min" percent="75%" colorClass="bg-healthcare-teal" />
+                      <MetricProgress label="Assessment Completion" value="91%" percent="91%" colorClass="bg-healthcare-coral" />
+                    </CardContent>
+                  </Card>
+                </div>
+              </>
+            )}
           </main>
         </SidebarInset>
       </div>
