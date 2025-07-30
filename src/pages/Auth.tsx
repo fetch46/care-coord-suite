@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { TenantSignupForm } from "@/components/forms/tenant-signup-form";
+import { TenantSignupForm } from "@/components/forms/TenantSignupForm";
 
 export default function Auth() {
   const navigate = useNavigate();
