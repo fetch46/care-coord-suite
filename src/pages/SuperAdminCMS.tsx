@@ -1,265 +1,281 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { useState, useEffect } from "react";
+import { SuperAdminLayout } from "@/components/layouts/SuperAdminLayout";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import {
-  Loader2,
-  Building2,
-  Mail,
-  User,
-  Phone,
-  Users,
-} from "lucide-react";
+import { Loader2, FileText, Save, Eye, EyeOff, Plus, Edit } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 
-const tenantSignupSchema = z.object({
-  company_name: z.string().min(2, "Company name must be at least 2 characters"),
-  admin_email: z.string().email("Please enter a valid email address"),
-  admin_first_name: z.string().min(2, "First name must be at least 2 characters"),
-  admin_last_name: z.string().min(2, "Last name must be at least 2 characters"),
-  admin_phone: z.string().optional(),
-  company_size: z.string().min(1, "Please select company size"),
-  industry: z.string().min(1, "Please select industry"),
-});
-
-type TenantSignupFormData = z.infer<typeof tenantSignupSchema>;
-
-interface TenantSignupFormProps {
-  onSuccess?: () => void;
-  onCancel?: () => void;
+interface CMSContent {
+  id: string;
+  content_key: string;
+  content_type: string;
+  content_value: any;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function SuperAdminCMS() {
+  const [content, setContent] = useState<CMSContent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingItem, setEditingItem] = useState<CMSContent | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
-  const form = useForm<TenantSignupFormData>({
-    resolver: zodResolver(tenantSignupSchema),
-    defaultValues: {
-      company_name: "",
-      admin_email: "",
-      admin_first_name: "",
-      admin_last_name: "",
-      admin_phone: "",
-      company_size: "",
-      industry: "",
-    },
-  });
+  useEffect(() => {
+    fetchContent();
+  }, []);
 
-  const onSubmit = async (data: TenantSignupFormData) => {
-    setIsSubmitting(true);
+  const fetchContent = async () => {
     try {
-      const insertData = {
-        company_name: data.company_name,
-        admin_email: data.admin_email,
-        admin_first_name: data.admin_first_name,
-        admin_last_name: data.admin_last_name,
-        admin_phone: data.admin_phone || null,
-        company_size: data.company_size,
-        industry: data.industry,
-      };
-
-      const { error } = await supabase
-        .from("tenant_signups")
-        .insert(insertData);
+      const { data, error } = await supabase
+        .from('cms_content')
+        .select('*')
+        .order('content_key');
 
       if (error) throw error;
-
-      toast({
-        title: "Registration Successful!",
-        description: "Thank you for your interest. We'll contact you soon to set up your account.",
-      });
-
-      form.reset();
-      onSuccess?.();
+      setContent(data || []);
     } catch (error) {
-      console.error("Error submitting tenant signup:", error);
+      console.error('Error fetching CMS content:', error);
       toast({
-        title: "Registration Failed",
-        description: "There was an error processing your registration. Please try again.",
-        variant: "destructive",
+        title: "Error",
+        description: "Failed to load CMS content",
+        variant: "destructive"
       });
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="w-full h-screen overflow-y-auto bg-muted flex items-center justify-center px-4 py-8">
-      <Card className="w-full max-w-4xl">
-        <CardHeader className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-primary" />
-            <CardTitle className="text-2xl">
-              Get Started with Your Healthcare Platform
-            </CardTitle>
+  const handleSave = async (item: CMSContent) => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('cms_content')
+        .update({
+          content_value: item.content_value,
+          is_active: item.is_active
+        })
+        .eq('id', item.id);
+
+      if (error) throw error;
+
+      await fetchContent();
+      setIsDialogOpen(false);
+      setEditingItem(null);
+      
+      toast({
+        title: "Success",
+        description: "Content updated successfully"
+      });
+    } catch (error) {
+      console.error('Error updating content:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update content",
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleActive = async (item: CMSContent) => {
+    try {
+      const { error } = await supabase
+        .from('cms_content')
+        .update({ is_active: !item.is_active })
+        .eq('id', item.id);
+
+      if (error) throw error;
+      await fetchContent();
+      
+      toast({
+        title: "Success",
+        description: `Content ${!item.is_active ? 'activated' : 'deactivated'}`
+      });
+    } catch (error) {
+      console.error('Error toggling content:', error);
+      toast({
+        title: "Error",
+        description: "Failed to toggle content status",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const formatContentKey = (key: string) => {
+    return key.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
+  if (loading) {
+    return (
+      <SuperAdminLayout>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>Loading CMS content...</p>
           </div>
-          <CardDescription>
-            Join hundreds of healthcare organizations already using our platform to streamline operations and improve patient care.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Company Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Building2 className="w-5 h-5" />
-                Company Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <Label htmlFor="company_name">Company Name *</Label>
-                  <Input
-                    id="company_name"
-                    {...form.register("company_name")}
-                    placeholder="Healthcare Organization Name"
-                  />
-                  {form.formState.errors.company_name && (
-                    <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.company_name.message}
-                    </p>
-                  )}
-                </div>
+        </div>
+      </SuperAdminLayout>
+    );
+  }
 
+  return (
+    <SuperAdminLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Content Management System</h1>
+            <p className="text-muted-foreground">
+              Manage landing page content and other dynamic text elements
+            </p>
+          </div>
+          <Button disabled>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Content
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {content.map((item) => (
+            <Card key={item.id} className="relative">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">{formatContentKey(item.content_key)}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={item.is_active}
+                      onCheckedChange={() => handleToggleActive(item)}
+                    />
+                    <Badge variant={item.is_active ? "default" : "secondary"}>
+                      {item.is_active ? (
+                        <>
+                          <Eye className="w-3 h-3 mr-1" />
+                          Active
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="w-3 h-3 mr-1" />
+                          Hidden
+                        </>
+                      )}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="company_size">Company Size *</Label>
-                  <Select onValueChange={(value) => form.setValue("company_size", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select company size" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1-10">1-10 employees</SelectItem>
-                      <SelectItem value="11-50">11-50 employees</SelectItem>
-                      <SelectItem value="51-200">51-200 employees</SelectItem>
-                      <SelectItem value="201-500">201-500 employees</SelectItem>
-                      <SelectItem value="500+">500+ employees</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {form.formState.errors.company_size && (
-                    <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.company_size.message}
-                    </p>
-                  )}
+                  <p className="text-sm text-muted-foreground mb-2">Current Content:</p>
+                  <p className="text-sm bg-muted p-2 rounded line-clamp-3">
+                    {item.content_value.text || JSON.stringify(item.content_value)}
+                  </p>
                 </div>
+                
+                <Dialog 
+                  open={isDialogOpen && editingItem?.id === item.id} 
+                  onOpenChange={(open) => {
+                    setIsDialogOpen(open);
+                    if (!open) setEditingItem(null);
+                  }}
+                >
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => setEditingItem({ ...item })}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit Content
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Edit {formatContentKey(item.content_key)}</DialogTitle>
+                    </DialogHeader>
+                    
+                    {editingItem && (
+                      <div className="space-y-4">
+                        <div>
+                          <Label>Content Key</Label>
+                          <Input value={editingItem.content_key} disabled />
+                        </div>
+                        
+                        <div>
+                          <Label>Content</Label>
+                          <Textarea
+                            value={editingItem.content_value.text || ''}
+                            onChange={(e) => setEditingItem({
+                              ...editingItem,
+                              content_value: { text: e.target.value }
+                            })}
+                            rows={6}
+                            placeholder="Enter content text..."
+                          />
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            checked={editingItem.is_active}
+                            onCheckedChange={(checked) => setEditingItem({
+                              ...editingItem,
+                              is_active: checked
+                            })}
+                          />
+                          <Label>Active (visible on website)</Label>
+                        </div>
+                        
+                        <div className="flex gap-3 pt-4">
+                          <Button 
+                            onClick={() => handleSave(editingItem)}
+                            disabled={saving}
+                            className="flex-1"
+                          >
+                            {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            <Save className="w-4 h-4 mr-2" />
+                            Save Changes
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => {
+                              setIsDialogOpen(false);
+                              setEditingItem(null);
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-                <div>
-                  <Label htmlFor="industry">Industry *</Label>
-                  <Select onValueChange={(value) => form.setValue("industry", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select industry" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hospital">Hospital</SelectItem>
-                      <SelectItem value="clinic">Clinic</SelectItem>
-                      <SelectItem value="long-term-care">Long-term Care</SelectItem>
-                      <SelectItem value="assisted-living">Assisted Living</SelectItem>
-                      <SelectItem value="home-health">Home Health</SelectItem>
-                      <SelectItem value="other">Other Healthcare</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {form.formState.errors.industry && (
-                    <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.industry.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Admin Contact Info */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <User className="w-5 h-5" />
-                Administrator Contact Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="admin_first_name">First Name *</Label>
-                  <Input
-                    id="admin_first_name"
-                    {...form.register("admin_first_name")}
-                    placeholder="John"
-                  />
-                  {form.formState.errors.admin_first_name && (
-                    <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.admin_first_name.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="admin_last_name">Last Name *</Label>
-                  <Input
-                    id="admin_last_name"
-                    {...form.register("admin_last_name")}
-                    placeholder="Doe"
-                  />
-                  {form.formState.errors.admin_last_name && (
-                    <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.admin_last_name.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="admin_email">Email Address *</Label>
-                  <Input
-                    id="admin_email"
-                    type="email"
-                    {...form.register("admin_email")}
-                    placeholder="john.doe@healthcare.com"
-                  />
-                  {form.formState.errors.admin_email && (
-                    <p className="text-sm text-destructive mt-1">
-                      {form.formState.errors.admin_email.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Label htmlFor="admin_phone">Phone Number</Label>
-                  <Input
-                    id="admin_phone"
-                    {...form.register("admin_phone")}
-                    placeholder="+1 (555) 123-4567"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Submit */}
-            <div className="flex gap-3 pt-4">
-              <Button type="submit" disabled={isSubmitting} className="flex-1">
-                {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Submit Registration
-              </Button>
-              {onCancel && (
-                <Button type="button" variant="outline" onClick={onCancel}>
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+        {content.length === 0 && (
+          <Card>
+            <CardContent className="text-center py-12">
+              <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Content Found</h3>
+              <p className="text-muted-foreground">
+                There's no CMS content available at the moment.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </SuperAdminLayout>
   );
 }
