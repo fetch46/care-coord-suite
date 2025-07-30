@@ -13,6 +13,7 @@ import {
   Clock,
   User,
   LogOut,
+  Crown,
 } from "lucide-react"
 import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
@@ -84,6 +85,7 @@ const navigationItems = [
   ]
 },
   { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Super Admin", url: "/super-admin", icon: Crown },
 ]
 
 export function AppSidebar() {
