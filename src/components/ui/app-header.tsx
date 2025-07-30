@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, Search, Settings, User } from "lucide-react"
+import { Bell, ChevronDown, Search, Settings, User, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -10,8 +10,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function AppHeader() {
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
   return (
     <header className="sticky top-0 z-50 w-full h-16 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="flex h-full items-center gap-4 px-6 w-full">
@@ -112,8 +118,8 @@ export function AppHeader() {
                   <User className="h-4 w-4 text-white" />
                 </div>
                 <div className="hidden md:flex flex-col items-start">
-                  <span className="text-sm font-medium">Dr. Sarah Johnson</span>
-                  <span className="text-xs text-muted-foreground">Administrator</span>
+                  <span className="text-sm font-medium">{user?.email || 'User'}</span>
+                  <span className="text-xs text-muted-foreground">Staff Member</span>
                 </div>
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -128,7 +134,8 @@ export function AppHeader() {
                 Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive">
+              <DropdownMenuItem className="text-destructive" onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
                 Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>

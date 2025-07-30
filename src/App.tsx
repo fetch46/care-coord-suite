@@ -3,7 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import Patients from "./pages/Patients";
 import Schedule from "./pages/Schedule";
 import PatientDetails from "./pages/PatientDetails";
@@ -31,36 +34,39 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/patients" element={<Patients />} />
-        <Route path="/medical-records" element={<MedicalRecords />} />
-        <Route path="/medical-records/new" element={<MedicalRecordForm />} />
-        <Route path="/medical-records/:id/edit" element={<MedicalRecordForm />} />
-          <Route path="/assessments" element={<Assessments />} />
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/schedules/new" element={<CreateSchedule />} />
-          <Route path="/schedule/:id" element={<ScheduleDetails />} />
-          <Route path="/patients/:id" element={<PatientDetails />} />
-          <Route path="/patients/:id/edit" element={<PatientEdit />} />
-          <Route path="/patients/:id/discharge" element={<PatientDischarge />} />
-          <Route path="/staff" element={<Staff />} />
-          <Route path="/staff/:id" element={<StaffDetails />} />
-          <Route path="/patient-registration" element={<PatientRegistration />} />
-          <Route path="/skin-assessment" element={<SkinAssessment />} />
-          <Route path="/patient-assessment" element={<PatientAssessment />} />
-          <Route path="/digital-timesheet" element={<DigitalTimesheet />} />
-          <Route path="/timesheet-reports" element={<TimesheetReports />} />
-          <Route path="/timesheets" element={<Timesheet />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/reports" element={<Reports />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/patients" element={<ProtectedRoute><Patients /></ProtectedRoute>} />
+            <Route path="/medical-records" element={<ProtectedRoute><MedicalRecords /></ProtectedRoute>} />
+            <Route path="/medical-records/new" element={<ProtectedRoute><MedicalRecordForm /></ProtectedRoute>} />
+            <Route path="/medical-records/:id/edit" element={<ProtectedRoute><MedicalRecordForm /></ProtectedRoute>} />
+            <Route path="/assessments" element={<ProtectedRoute><Assessments /></ProtectedRoute>} />
+            <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} />
+            <Route path="/schedules/new" element={<ProtectedRoute><CreateSchedule /></ProtectedRoute>} />
+            <Route path="/schedule/:id" element={<ProtectedRoute><ScheduleDetails /></ProtectedRoute>} />
+            <Route path="/patients/:id" element={<ProtectedRoute><PatientDetails /></ProtectedRoute>} />
+            <Route path="/patients/:id/edit" element={<ProtectedRoute><PatientEdit /></ProtectedRoute>} />
+            <Route path="/patients/:id/discharge" element={<ProtectedRoute><PatientDischarge /></ProtectedRoute>} />
+            <Route path="/staff" element={<ProtectedRoute><Staff /></ProtectedRoute>} />
+            <Route path="/staff/:id" element={<ProtectedRoute><StaffDetails /></ProtectedRoute>} />
+            <Route path="/patient-registration" element={<ProtectedRoute><PatientRegistration /></ProtectedRoute>} />
+            <Route path="/skin-assessment" element={<ProtectedRoute><SkinAssessment /></ProtectedRoute>} />
+            <Route path="/patient-assessment" element={<ProtectedRoute><PatientAssessment /></ProtectedRoute>} />
+            <Route path="/digital-timesheet" element={<ProtectedRoute><DigitalTimesheet /></ProtectedRoute>} />
+            <Route path="/timesheet-reports" element={<ProtectedRoute><TimesheetReports /></ProtectedRoute>} />
+            <Route path="/timesheets" element={<ProtectedRoute><Timesheet /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
