@@ -171,7 +171,7 @@ export default function Auth() {
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">America Care Team</h1>
+          <h1 className="text-3xl font-bold text-foreground">CareSync</h1>
           <p className="text-muted-foreground">Healthcare Management System</p>
         </div>
 
@@ -347,7 +347,7 @@ export default function Auth() {
         </Card>
 
         <p className="text-center text-sm text-muted-foreground">
-          Healthcare Management System for America Care Team
+          Healthcare Management System by CareSync
         </p>
       </div>
     </div>

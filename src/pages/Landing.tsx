@@ -56,7 +56,7 @@ export default function Landing() {
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
               <Heart className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-foreground">America Care Team</span>
+            <span className="text-xl font-bold text-foreground">CareSync</span>
           </div>
           
           <div className="flex items-center gap-4">
@@ -149,7 +149,7 @@ export default function Landing() {
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
                 Join hundreds of healthcare facilities that have improved their operations 
-                and patient outcomes with our comprehensive management platform.
+                and patient outcomes with CareSync's comprehensive management platform.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -208,7 +208,7 @@ export default function Landing() {
             Ready to Transform Your Healthcare Operations?
           </h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join the America Care Team platform and experience the difference comprehensive 
+            Join the CareSync platform and experience the difference comprehensive 
             healthcare management can make for your organization.
           </p>
           
@@ -233,7 +233,7 @@ export default function Landing() {
             <div className="w-6 h-6 bg-gradient-primary rounded flex items-center justify-center">
               <Heart className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-foreground">America Care Team</span>
+            <span className="font-semibold text-foreground">CareSync</span>
           </div>
           <p className="text-muted-foreground">
             Healthcare Management System - Empowering Care Teams Since 2024
