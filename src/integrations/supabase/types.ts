@@ -278,6 +278,39 @@ export type Database = {
         }
         Relationships: []
       }
+      communication_gateways: {
+        Row: {
+          configuration: Json | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          provider: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          provider: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          provider?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       company_settings: {
         Row: {
           address: string | null
@@ -1071,6 +1104,36 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_gateways: {
+        Row: {
+          configuration: Json | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          configuration?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -1285,6 +1348,153 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          max_patients: number | null
+          max_users: number | null
+          name: string
+          price_monthly: number | null
+          price_yearly: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_patients?: number | null
+          max_users?: number | null
+          name: string
+          price_monthly?: number | null
+          price_yearly?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_patients?: number | null
+          max_users?: number | null
+          name?: string
+          price_monthly?: number | null
+          price_yearly?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          amount: number
+          billing_cycle: string
+          canceled_at: string | null
+          created_at: string
+          currency: string | null
+          ends_at: string | null
+          id: string
+          plan_id: string
+          starts_at: string
+          status: string
+          stripe_subscription_id: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          billing_cycle?: string
+          canceled_at?: string | null
+          created_at?: string
+          currency?: string | null
+          ends_at?: string | null
+          id?: string
+          plan_id: string
+          starts_at?: string
+          status?: string
+          stripe_subscription_id?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          billing_cycle?: string
+          canceled_at?: string | null
+          created_at?: string
+          currency?: string | null
+          ends_at?: string | null
+          id?: string
+          plan_id?: string
+          starts_at?: string
+          status?: string
+          stripe_subscription_id?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          admin_email: string
+          admin_user_id: string | null
+          company_name: string
+          created_at: string
+          domain: string | null
+          id: string
+          settings: Json | null
+          status: string
+          subscription_status: string | null
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_email: string
+          admin_user_id?: string | null
+          company_name: string
+          created_at?: string
+          domain?: string | null
+          id?: string
+          settings?: Json | null
+          status?: string
+          subscription_status?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_email?: string
+          admin_user_id?: string | null
+          company_name?: string
+          created_at?: string
+          domain?: string | null
+          id?: string
+          settings?: Json | null
+          status?: string
+          subscription_status?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       timesheet_approvals: {
         Row: {

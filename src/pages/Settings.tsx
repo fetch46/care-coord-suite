@@ -398,6 +398,14 @@ export default function Settings() {
                     <DollarSign className="w-4 h-4 mr-2" />
                     Financial
                   </TabsTrigger>
+                  <TabsTrigger value="subscriptions" className="justify-start w-full">
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Subscriptions
+                  </TabsTrigger>
+                  <TabsTrigger value="communication" className="justify-start w-full">
+                    <Crown className="w-4 h-4 mr-2" />
+                    Communication
+                  </TabsTrigger>
                   <TabsTrigger value="backup" className="justify-start w-full">
                     <Database className="w-4 h-4 mr-2" />
                     Backup
@@ -795,6 +803,156 @@ export default function Settings() {
                           <Save className="w-4 h-4 mr-2" />
                           Save Financial Settings
                         </Button>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Subscriptions Management */}
+                  <TabsContent value="subscriptions" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Subscription Management</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Manage your subscription plans and billing settings
+                        </p>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="p-4 border rounded-lg bg-muted/50">
+                          <h3 className="font-semibold mb-2">Current Plan</h3>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium">Professional Plan</p>
+                              <p className="text-sm text-muted-foreground">$199/month • Up to 50 users • 200 patients</p>
+                            </div>
+                            <Badge>Active</Badge>
+                          </div>
+                          <div className="mt-4 flex gap-2">
+                            <Button variant="outline" size="sm">Change Plan</Button>
+                            <Button variant="outline" size="sm">Billing History</Button>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h3 className="font-semibold mb-4">Available Plans</h3>
+                          <div className="grid gap-4 md:grid-cols-3">
+                            <div className="border rounded-lg p-4">
+                              <h4 className="font-medium mb-2">Basic</h4>
+                              <p className="text-2xl font-bold mb-2">$99<span className="text-sm font-normal">/month</span></p>
+                              <ul className="text-sm space-y-1 mb-4">
+                                <li>• Up to 10 users</li>
+                                <li>• 50 patients</li>
+                                <li>• Basic reporting</li>
+                              </ul>
+                              <Button variant="outline" className="w-full">Select Plan</Button>
+                            </div>
+                            
+                            <div className="border rounded-lg p-4 border-primary">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="font-medium">Professional</h4>
+                                <Badge>Current</Badge>
+                              </div>
+                              <p className="text-2xl font-bold mb-2">$199<span className="text-sm font-normal">/month</span></p>
+                              <ul className="text-sm space-y-1 mb-4">
+                                <li>• Up to 50 users</li>
+                                <li>• 200 patients</li>
+                                <li>• Advanced reporting</li>
+                                <li>• Assessment tools</li>
+                              </ul>
+                              <Button className="w-full">Current Plan</Button>
+                            </div>
+                            
+                            <div className="border rounded-lg p-4">
+                              <h4 className="font-medium mb-2">Enterprise</h4>
+                              <p className="text-2xl font-bold mb-2">$399<span className="text-sm font-normal">/month</span></p>
+                              <ul className="text-sm space-y-1 mb-4">
+                                <li>• Unlimited users</li>
+                                <li>• Unlimited patients</li>
+                                <li>• All features</li>
+                                <li>• Priority support</li>
+                              </ul>
+                              <Button variant="outline" className="w-full">Upgrade</Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Communication Gateways */}
+                  <TabsContent value="communication" className="space-y-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Communication Gateways</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Configure email and SMS providers for system notifications
+                        </p>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        {/* Email Gateways */}
+                        <div>
+                          <h3 className="font-semibold mb-4">Email Providers</h3>
+                          <div className="space-y-4">
+                            <div className="border rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-4">
+                                <div>
+                                  <h4 className="font-medium">SendGrid</h4>
+                                  <p className="text-sm text-muted-foreground">Email delivery service</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline">Not Configured</Badge>
+                                  <Switch />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <Label>API Key</Label>
+                                  <Input placeholder="Enter SendGrid API key" type="password" />
+                                </div>
+                                <div>
+                                  <Label>From Email</Label>
+                                  <Input placeholder="noreply@yourcompany.com" />
+                                </div>
+                              </div>
+                              <Button className="mt-4" size="sm">Save Configuration</Button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* SMS Gateways */}
+                        <div>
+                          <h3 className="font-semibold mb-4">SMS Providers</h3>
+                          <div className="space-y-4">
+                            <div className="border rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-4">
+                                <div>
+                                  <h4 className="font-medium">Twilio</h4>
+                                  <p className="text-sm text-muted-foreground">SMS messaging service</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline">Not Configured</Badge>
+                                  <Switch />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <Label>Account SID</Label>
+                                  <Input placeholder="Enter Twilio Account SID" />
+                                </div>
+                                <div>
+                                  <Label>Auth Token</Label>
+                                  <Input placeholder="Enter Auth Token" type="password" />
+                                </div>
+                                <div>
+                                  <Label>From Number</Label>
+                                  <Input placeholder="+1234567890" />
+                                </div>
+                              </div>
+                              <Button className="mt-4" size="sm">Save Configuration</Button>
+                            </div>
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
                   </TabsContent>
