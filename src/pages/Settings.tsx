@@ -43,6 +43,7 @@ interface CompanySettings {
   address: string;
   phone: string;
   email: string;
+  logo_url?: string;
 }
 
 interface FinancialSettings {
@@ -450,6 +451,38 @@ export default function Settings() {
                               value={companySettings?.address || ""}
                               onChange={(e) => setCompanySettings(prev => prev ? {...prev, address: e.target.value} : null)}
                             />
+                          </div>
+                          <div className="md:col-span-2">
+                            <Label htmlFor="logo">Company Logo</Label>
+                            <div className="mt-2">
+                              <Input
+                                id="logo"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    // For now, we'll just show a placeholder implementation
+                                    toast({
+                                      title: "Logo Upload",
+                                      description: "Logo upload functionality will be implemented with storage integration."
+                                    });
+                                  }
+                                }}
+                              />
+                              <p className="text-sm text-muted-foreground mt-1">
+                                Upload a company logo (PNG, JPG, or SVG recommended)
+                              </p>
+                              {companySettings?.logo_url && (
+                                <div className="mt-4">
+                                  <img 
+                                    src={companySettings.logo_url} 
+                                    alt="Company Logo" 
+                                    className="h-16 w-auto border rounded"
+                                  />
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <Button onClick={saveCompanySettings} disabled={loading}>

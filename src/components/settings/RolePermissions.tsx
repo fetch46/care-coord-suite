@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Save } from "lucide-react";
 
@@ -184,57 +185,78 @@ export function RolePermissions({ onPermissionsUpdate }: RolePermissionsProps) {
         </Button>
       </div>
 
-      {roles.map(role => (
-        <Card key={role}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Badge className={getRoleColor(role)}>
+      <Tabs defaultValue="administrator" orientation="vertical" className="flex gap-6">
+        <TabsList className="flex flex-col h-fit w-48 gap-2 border rounded-md p-2 bg-muted/30">
+          {roles.map(role => (
+            <TabsTrigger 
+              key={role} 
+              value={role} 
+              className="justify-start w-full"
+            >
+              <Badge className={`${getRoleColor(role)} mr-2 text-xs`}>
                 {role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2 font-medium">Resource</th>
-                    {permissionTypes.map(type => (
-                      <th key={type.key} className="text-center p-2 font-medium">
-                        {type.label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {resources.map(resource => {
-                    const permission = getRolePermission(role, resource);
-                    if (!permission) return null;
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-                    return (
-                      <tr key={resource} className="border-b hover:bg-muted/30">
-                        <td className="p-2 font-medium capitalize">
-                          {resource.replace('_', ' ')}
-                        </td>
-                        {permissionTypes.map(type => (
-                          <td key={type.key} className="p-2 text-center">
-                            <Checkbox
-                              checked={permission[type.key as keyof RolePermission] as boolean}
-                              onCheckedChange={(checked) => 
-                                updatePermission(permission.id, type.key, checked as boolean)
-                              }
-                            />
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+        <div className="flex-1">
+          {roles.map(role => (
+            <TabsContent key={role} value={role} className="mt-0">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Badge className={getRoleColor(role)}>
+                      {role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </Badge>
+                    Permissions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-3 font-medium">Resource</th>
+                          {permissionTypes.map(type => (
+                            <th key={type.key} className="text-center p-3 font-medium">
+                              {type.label}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {resources.map(resource => {
+                          const permission = getRolePermission(role, resource);
+                          if (!permission) return null;
+
+                          return (
+                            <tr key={resource} className="border-b hover:bg-muted/30">
+                              <td className="p-3 font-medium capitalize">
+                                {resource.replace('_', ' ')}
+                              </td>
+                              {permissionTypes.map(type => (
+                                <td key={type.key} className="p-3 text-center">
+                                  <Checkbox
+                                    checked={permission[type.key as keyof RolePermission] as boolean}
+                                    onCheckedChange={(checked) => 
+                                      updatePermission(permission.id, type.key, checked as boolean)
+                                    }
+                                  />
+                                </td>
+                              ))}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          ))}
+        </div>
+      </Tabs>
     </div>
   );
 }

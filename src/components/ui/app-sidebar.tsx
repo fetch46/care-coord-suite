@@ -5,15 +5,18 @@ import {
   Calendar, 
   FileText, 
   Settings, 
-  Bell,
   UserCheck,
   Activity,
   UserPlus,
   ChevronDown,
   Heart,
   Clock,
+  User,
+  LogOut,
 } from "lucide-react"
-import { NavLink, useLocation } from "react-router-dom"
+import { NavLink, useLocation, useNavigate } from "react-router-dom"
+import { useAuth } from "@/contexts/AuthContext"
+import { useToast } from "@/hooks/use-toast"
 
 import {
   Sidebar,
@@ -30,6 +33,13 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 const navigationItems = [
@@ -73,15 +83,32 @@ const navigationItems = [
     { title: "Timesheet Reports", url: "/timesheet-reports", icon: FileText }
   ]
 },
-  { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Settings", url: "/settings", icon: Settings },
 ]
 
 export function AppSidebar() {
   const { state } = useSidebar()
+  const { signOut } = useAuth()
   const location = useLocation()
+  const navigate = useNavigate()
+  const { toast } = useToast()
   const currentPath = location.pathname
   const isCollapsed = state === "collapsed"
+
+  const handleSignOut = async () => {
+    await signOut()
+  }
+
+  const handleProfileClick = () => {
+    toast({
+      title: "Profile",
+      description: "Profile page is under development"
+    })
+  }
+
+  const handleSettingsClick = () => {
+    navigate('/settings')
+  }
 
   const isActive = (path: string) => {
     if (path === "/" && currentPath === "/") return true
@@ -184,16 +211,35 @@ export function AppSidebar() {
         {/* User Section */}
         {!isCollapsed && (
           <div className="mt-auto p-4 border-t border-border">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-teal rounded-full flex items-center justify-center">
-                <Users className="w-4 h-4 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Dr. Sarah Johnson</p>
-                <p className="text-xs text-muted-foreground">Administrator</p>
-              </div>
-              <ChevronDown className="w-4 h-4 text-muted-foreground" />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 rounded-lg p-2 transition-colors">
+                  <div className="w-8 h-8 bg-gradient-teal rounded-full flex items-center justify-center">
+                    <Users className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">Dr. Sarah Johnson</p>
+                    <p className="text-xs text-muted-foreground">Administrator</p>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={handleProfileClick}>
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSettingsClick}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive" onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </SidebarContent>

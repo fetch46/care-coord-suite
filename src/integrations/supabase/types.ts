@@ -242,6 +242,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          logo_url: string | null
           organization_name: string
           phone: string | null
           updated_at: string
@@ -251,6 +252,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          logo_url?: string | null
           organization_name?: string
           phone?: string | null
           updated_at?: string
@@ -260,6 +262,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          logo_url?: string | null
           organization_name?: string
           phone?: string | null
           updated_at?: string
@@ -618,6 +621,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          type: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          type?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          type?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       patient_allergies: {
         Row: {
