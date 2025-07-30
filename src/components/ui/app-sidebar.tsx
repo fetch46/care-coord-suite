@@ -43,7 +43,7 @@ const navigationItems = [
     ]
   },
   
-  { title: "Schedule", url: "/schedule", icon: Calendar },
+  { title: "Appointments", url: "/schedule", icon: Calendar },
   { title: "Staff", url: "/staff", icon: UserCheck },
   { 
     title: "Timesheets", 
