@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, Plus, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { AppSidebar } from "@/components/ui/app-sidebar";
+import AppSidebar from "@/components/ui/app-sidebar"; // Fixed default import
 import { AppHeader } from "@/components/ui/app-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
