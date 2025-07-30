@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { UserRoleAssignment } from "@/components/settings/UserRoleAssignment";
 import { StaffManagement } from "@/components/settings/StaffManagement";
+import { RolePermissions } from "@/components/settings/RolePermissions";
 import { 
   Building2, 
   Users, 
@@ -32,7 +33,8 @@ import {
   Edit,
   FileText,
   Check,
-  X
+  X,
+  Shield
 } from "lucide-react";
 
 interface CompanySettings {
@@ -367,7 +369,7 @@ export default function Settings() {
         <SidebarInset>
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-full mx-auto"> {/* Made full width */}
               <Tabs defaultValue="company" className="flex gap-8 w-full">
                 {/* Left Vertical Tabs */}
                 <TabsList className="flex flex-col h-fit w-48 gap-2 border rounded-md p-2 bg-muted/30">
@@ -379,9 +381,13 @@ export default function Settings() {
                     <FileText className="w-4 h-4 mr-2" />
                     Assessment Types
                   </TabsTrigger>
+                  <TabsTrigger value="roles" className="justify-start w-full">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Roles & Permissions
+                  </TabsTrigger>
                   <TabsTrigger value="users" className="justify-start w-full">
                     <Users className="w-4 h-4 mr-2" />
-                    Users
+                    Users & Staff
                   </TabsTrigger>
                   <TabsTrigger value="rooms" className="justify-start w-full">
                     <Bed className="w-4 h-4 mr-2" />
@@ -585,6 +591,15 @@ export default function Settings() {
                             </div>
                           )}
                         </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Role Permissions Management */}
+                  <TabsContent value="roles" className="space-y-6">
+                    <Card>
+                      <CardContent className="p-6">
+                        <RolePermissions onPermissionsUpdate={fetchData} />
                       </CardContent>
                     </Card>
                   </TabsContent>
