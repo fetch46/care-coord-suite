@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, Plus, Filter } from "lucide-react";
+import { Search, Plus, Filter, Eye, Edit, Trash2, MoreHorizontal } from "lucide-react";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -10,6 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface MedicalRecord {
   id: string;
@@ -30,56 +33,45 @@ export default function MedicalRecords() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Dummy medical records for development
-    const dummyData: MedicalRecord[] = [
-      {
-        id: "record-1",
-        patient_id: "patient-1",
-        patient_name: "John Doe",
-        record_date: "2025-07-20",
-        diagnosis: "Hypertension",
-        treatment: "Prescribed medication and lifestyle changes",
-        doctor_name: "Dr. Adams",
-        status: "Open",
-      },
-      {
-        id: "record-2",
-        patient_id: "patient-1",
-        patient_name: "John Doe",
-        record_date: "2025-06-15",
-        diagnosis: "Diabetes Type 2",
-        treatment: "Insulin therapy initiated",
-        doctor_name: "Dr. Lee",
-        status: "Closed",
-      },
-      {
-        id: "record-3",
-        patient_id: "patient-2",
-        patient_name: "Jane Smith",
-        record_date: "2025-07-22",
-        diagnosis: "Asthma",
-        treatment: "Inhaler prescribed",
-        doctor_name: "Dr. Patel",
-        status: "Open",
-      },
-      {
-        id: "record-4",
-        patient_id: "patient-2",
-        patient_name: "Jane Smith",
-        record_date: "2025-05-10",
-        diagnosis: "Allergic Rhinitis",
-        treatment: "Antihistamines and nasal spray",
-        doctor_name: "Dr. Brown",
-        status: "Closed",
-      },
-    ];
-
-    setRecords(dummyData);
-    setTotalRecords(dummyData.length);
-    setLoading(false);
+    fetchMedicalRecords();
   }, []);
+
+  const fetchMedicalRecords = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('medical_records')
+        .select(`
+          *,
+          patients!inner(first_name, last_name)
+        `)
+        .order('recorded_date', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedRecords = data?.map(record => ({
+        id: record.id,
+        patient_id: record.patient_id,
+        patient_name: `${record.patients.first_name} ${record.patients.last_name}`,
+        record_date: record.recorded_date,
+        diagnosis: record.title,
+        treatment: record.description || '',
+        doctor_name: record.recorded_by || 'Unknown',
+        status: record.is_confidential ? 'Confidential' : 'Open',
+      })) || [];
+
+      setRecords(formattedRecords);
+      setTotalRecords(formattedRecords.length);
+    } catch (error) {
+      console.error('Error fetching medical records:', error);
+      setError('Failed to load medical records');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -108,6 +100,35 @@ export default function MedicalRecords() {
     record.diagnosis.toLowerCase().includes(searchTerm.toLowerCase()) ||
     record.doctor_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDeleteRecord = async (recordId: string) => {
+    if (!confirm('Are you sure you want to delete this medical record?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('medical_records')
+        .delete()
+        .eq('id', recordId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Medical record deleted successfully.",
+      });
+
+      fetchMedicalRecords();
+    } catch (error) {
+      console.error('Error deleting medical record:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete medical record.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
   const paginatedRecords = filteredRecords.slice((page - 1) * pageSize, page * pageSize);
@@ -213,11 +234,34 @@ export default function MedicalRecords() {
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              <Button variant="ghost" size="sm" asChild>
-                                <Link to={`/medical-records/${record.id}`}>
-                                  View Details
-                                </Link>
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreHorizontal className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="bg-background border shadow-md">
+                                  <DropdownMenuItem asChild>
+                                    <Link to={`/medical-records/${record.id}`} className="flex items-center">
+                                      <Eye className="w-4 h-4 mr-2" />
+                                      View Record
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem asChild>
+                                    <Link to={`/medical-records/${record.id}/edit`} className="flex items-center">
+                                      <Edit className="w-4 h-4 mr-2" />
+                                      Edit Record
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleDeleteRecord(record.id)}
+                                    className="flex items-center text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete Record
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </TableCell>
                           </TableRow>
                         ))}
