@@ -7,6 +7,8 @@ interface SuperAdminLayoutProps {
 }
 
 export function SuperAdminLayout({ children }: SuperAdminLayoutProps) {
+  console.log('SuperAdminLayout rendering with children:', !!children)
+  
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full">

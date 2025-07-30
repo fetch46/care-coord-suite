@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { SuperAdminLayout } from "@/components/layouts/SuperAdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -115,17 +116,20 @@ export default function SuperAdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading dashboard...</p>
+      <SuperAdminLayout>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p>Loading dashboard...</p>
+          </div>
         </div>
-      </div>
+      </SuperAdminLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <SuperAdminLayout>
+      <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Super Admin Dashboard</h1>
         <p className="text-muted-foreground">
@@ -242,6 +246,7 @@ export default function SuperAdminDashboard() {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </SuperAdminLayout>
   );
 }

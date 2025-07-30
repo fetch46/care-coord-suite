@@ -44,6 +44,8 @@ const superAdminNavigationItems = [
 ]
 
 export function SuperAdminSidebar() {
+  console.log('SuperAdminSidebar rendering')
+  
   const { state } = useSidebar()
   const { signOut } = useAuth()
   const { getDisplayName } = useUserProfile()
