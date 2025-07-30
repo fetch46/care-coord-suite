@@ -44,7 +44,6 @@ const navigationItems = [
   },
   
   { title: "Appointments", url: "/schedule", icon: Calendar },
-  { title: "Staff", url: "/staff", icon: UserCheck },
   { 
     title: "Timesheets", 
     url: "/timesheets", 

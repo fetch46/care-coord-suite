@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { UserRoleAssignment } from "@/components/settings/UserRoleAssignment";
+import { StaffManagement } from "@/components/settings/StaffManagement";
 import { 
   Building2, 
   Users, 
@@ -596,6 +597,15 @@ export default function Settings() {
                       </CardHeader>
                       <CardContent>
                         <UserRoleAssignment onRoleAssigned={fetchData} />
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Staff Management</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <StaffManagement onStaffUpdate={fetchData} />
                       </CardContent>
                     </Card>
                   </TabsContent>
