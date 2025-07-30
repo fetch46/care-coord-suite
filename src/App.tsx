@@ -19,6 +19,7 @@ import DigitalTimesheet from "./pages/DigitalTimesheet";
 import TimesheetReports from "./pages/TimesheetReports";
 import CreateSchedule from "./pages/CreateSchedule";
 import ScheduleDetails from "./pages/ScheduleDetails";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Reports from "./pages/Reports";
   
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/digital-timesheet" element={<DigitalTimesheet />} />
           <Route path="/timesheet-reports" element={<TimesheetReports />} />
           <Route path="/timesheets" element={<Timesheet />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/reports" element={<Reports />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
