@@ -33,6 +33,8 @@ import AssessmentReports from "./pages/AssessmentReports";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import SuperAdminClients from "./pages/SuperAdminClients";
 import SuperAdminSettings from "./pages/SuperAdminSettings";
+import SuperAdminCMS from "./pages/SuperAdminCMS";
+import SuperAdminTenantSignups from "./pages/SuperAdminTenantSignups";
 import SuperAdminSubscriptions from "./pages/SuperAdminSubscriptions";
 import SuperAdminUserManagement from "./pages/SuperAdminUserManagement";
 import SuperAdminSecurity from "./pages/SuperAdminSecurity";
@@ -81,6 +83,8 @@ const App = () => (
             <Route path="/super-admin/settings" element={<ProtectedRoute><SuperAdminSettings /></ProtectedRoute>} />
             <Route path="/super-admin/security" element={<ProtectedRoute><SuperAdminSecurity /></ProtectedRoute>} />
             <Route path="/super-admin/communication" element={<ProtectedRoute><SuperAdminCommunication /></ProtectedRoute>} />
+            <Route path="/super-admin/cms" element={<ProtectedRoute><SuperAdminCMS /></ProtectedRoute>} />
+            <Route path="/super-admin/tenant-signups" element={<ProtectedRoute><SuperAdminTenantSignups /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
           </Routes>

@@ -278,6 +278,36 @@ export type Database = {
         }
         Relationships: []
       }
+      cms_content: {
+        Row: {
+          content_key: string
+          content_type: string
+          content_value: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          content_key: string
+          content_type?: string
+          content_value?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          content_key?: string
+          content_type?: string
+          content_value?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       communication_gateways: {
         Row: {
           configuration: Json | null
@@ -646,6 +676,45 @@ export type Database = {
           id?: string
           payment_methods?: Json | null
           tax_rate?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      masquerade_sessions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          is_active: boolean
+          session_token: string
+          started_at: string
+          super_admin_id: string
+          target_user_id: string
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          is_active?: boolean
+          session_token: string
+          started_at?: string
+          super_admin_id: string
+          target_user_id: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          is_active?: boolean
+          session_token?: string
+          started_at?: string
+          super_admin_id?: string
+          target_user_id?: string
+          tenant_id?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1453,6 +1522,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tenant_signups: {
+        Row: {
+          admin_email: string
+          admin_first_name: string
+          admin_last_name: string
+          admin_phone: string | null
+          company_name: string
+          company_size: string | null
+          created_at: string
+          id: string
+          industry: string | null
+          notes: string | null
+          processed_date: string | null
+          signup_date: string
+          status: string
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_email: string
+          admin_first_name: string
+          admin_last_name: string
+          admin_phone?: string | null
+          company_name: string
+          company_size?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          notes?: string | null
+          processed_date?: string | null
+          signup_date?: string
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_email?: string
+          admin_first_name?: string
+          admin_last_name?: string
+          admin_phone?: string | null
+          company_name?: string
+          company_size?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          notes?: string | null
+          processed_date?: string | null
+          signup_date?: string
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       tenants: {
         Row: {
