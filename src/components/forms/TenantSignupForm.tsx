@@ -10,20 +10,26 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Building2, Mail, User, Phone, Users } from "lucide-react";
+import {
+  Loader2,
+  Building2,
+  Mail,
+  User,
+  Phone,
+  Users,
+} from "lucide-react";
 
-// Validation schema
 const tenantSignupSchema = z.object({
   company_name: z.string().min(2, "Company name must be at least 2 characters"),
   admin_email: z.string().email("Please enter a valid email address"),
@@ -31,7 +37,7 @@ const tenantSignupSchema = z.object({
   admin_last_name: z.string().min(2, "Last name must be at least 2 characters"),
   admin_phone: z.string().optional(),
   company_size: z.string().min(1, "Please select company size"),
-  industry: z.string().min(1, "Please select industry")
+  industry: z.string().min(1, "Please select industry"),
 });
 
 type TenantSignupFormData = z.infer<typeof tenantSignupSchema>;
@@ -54,13 +60,12 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
       admin_last_name: "",
       admin_phone: "",
       company_size: "",
-      industry: ""
-    }
+      industry: "",
+    },
   });
 
   const onSubmit = async (data: TenantSignupFormData) => {
     setIsSubmitting(true);
-
     try {
       const insertData = {
         company_name: data.company_name,
@@ -69,7 +74,7 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
         admin_last_name: data.admin_last_name,
         admin_phone: data.admin_phone || null,
         company_size: data.company_size,
-        industry: data.industry
+        industry: data.industry,
       };
 
       const { error } = await supabase
@@ -80,7 +85,7 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
 
       toast({
         title: "Registration Successful!",
-        description: "Thank you for your interest. We'll contact you soon to set up your account."
+        description: "Thank you for your interest. We'll contact you soon to set up your account.",
       });
 
       form.reset();
@@ -90,7 +95,7 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
       toast({
         title: "Registration Failed",
         description: "There was an error processing your registration. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -98,8 +103,8 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-cyan-100 p-6">
-      <Card className="w-full max-w-2xl shadow-lg">
+    <div className="w-full h-screen overflow-y-auto bg-muted flex items-center justify-center px-4 py-8">
+      <Card className="w-full max-w-4xl">
         <CardHeader className="space-y-2">
           <div className="flex items-center gap-2">
             <Building2 className="w-6 h-6 text-primary" />
@@ -108,8 +113,7 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
             </CardTitle>
           </div>
           <CardDescription>
-            Join hundreds of healthcare organizations already using our platform to streamline
-            operations and improve patient care.
+            Join hundreds of healthcare organizations already using our platform to streamline operations and improve patient care.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -120,7 +124,6 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
                 <Building2 className="w-5 h-5" />
                 Company Information
               </h3>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <Label htmlFor="company_name">Company Name *</Label>
@@ -187,7 +190,6 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
                 <User className="w-5 h-5" />
                 Administrator Contact Information
               </h3>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="admin_first_name">First Name *</Label>
@@ -243,7 +245,7 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
               </div>
             </div>
 
-            {/* Actions */}
+            {/* Submit */}
             <div className="flex gap-3 pt-4">
               <Button type="submit" disabled={isSubmitting} className="flex-1">
                 {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
