@@ -1,380 +1,203 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Search, Plus, Filter } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import AppSidebar from "@/components/ui/app-sidebar"; // Fixed default import
-import { AppHeader } from "@/components/ui/app-header";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react"
+import { 
+  LayoutDashboard, 
+  Users, 
+  Calendar, 
+  FileText, 
+  Settings, 
+  Bell,
+  UserCheck,
+  Activity,
+  UserPlus,
+  ChevronDown,
+  Heart,
+  Clock,
+} from "lucide-react"
+import { NavLink, useLocation } from "react-router-dom"
 
-interface Patient {
-  id: string;
-  first_name: string;
-  last_name: string;
-  date_of_birth: string;
-  gender: string;
-  room_number: string;
-  care_level: string;
-  status: string;
-  profile_image_url?: string;
-  patient_allergies: Array<{
-    allergy_name: string;
-    severity: string;
-  }>;
-}
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
-export default function Patients() {
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
-  const [totalPatients, setTotalPatients] = useState(0);
-  const [dashboardStats, setDashboardStats] = useState({
-    totalPatients: 0,
-    newThisMonth: 0
-  });
+const navigationItems = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { 
+    title: "Patients", 
+    url: "/patients", 
+    icon: Users,
+    submenu: [
+     { title: "Medical Records", url: "/medical-records", icon: FileText },
+    ]
+  },
+  
+  { title: "Schedule", url: "/schedule", icon: Calendar },
+  { title: "Staff", url: "/staff", icon: UserCheck },
+  { 
+    title: "Timesheets", 
+    url: "/timesheets", 
+    icon: Clock,
+    submenu: [
+      { title: "Submit Timesheet", url: "/digital-timesheet", icon: FileText },
+    ]
+  },
 
-  useEffect(() => {
-    fetchPatients();
-    fetchDashboardStats();
-  }, [searchTerm, page]);
+  { 
+  title: "Assessments", 
+  url: "/assessments", 
+  icon: FileText,
+  submenu: [
+    { title: "Skin Assessments", url: "/skin-assessment", icon: FileText },
+    { title: "Patient Assessments", url: "/patient-assessment", icon: UserCheck },
+  ]
+},
+  { 
+  title: "Reports", 
+  url: "/reports", 
+  icon: Activity,
+  submenu: [
+    { title: "Patient Reports", url: "/patient-reports", icon: FileText },
+    { title: "Assessment Reports", url: "/patient-reports", icon: FileText },
+    { title: "Staff Reports", url: "/patient-reports", icon: FileText },
+    { title: "Timesheet Reports", url: "/timesheet-reports", icon: FileText }
+  ]
+},
+  { title: "Notifications", url: "/notifications", icon: Bell },
+  { title: "Settings", url: "/settings", icon: Settings },
+]
 
-  const fetchPatients = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+export function AppSidebar() {
+  const { state } = useSidebar()
+  const location = useLocation()
+  const currentPath = location.pathname
+  const isCollapsed = state === "collapsed"
 
-      let query = supabase
-        .from("patients")
-        .select(
-          `
-          *,
-          patient_allergies (
-            allergy_name,
-            severity
-          )
-        `,
-          { count: "exact" }
-        )
-        .order("last_name")
-        .range((page - 1) * pageSize, page * pageSize - 1);
+  const isActive = (path: string) => {
+    if (path === "/" && currentPath === "/") return true
+    if (path !== "/" && currentPath.startsWith(path)) return true
+    return false
+  }
 
-      if (searchTerm.trim()) {
-        query = query.or(
-          `first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,room_number.ilike.%${searchTerm}%`
-        );
-      }
-
-      const { data, error, count } = await query;
-
-      if (error) throw error;
-
-      setPatients(data || []);
-      setTotalPatients(count || 0);
-    } catch (err: any) {
-      console.error("Error fetching patients:", err);
-      setError("Failed to load patients. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchDashboardStats = async () => {
-    try {
-      // Total patients
-      const { count: total } = await supabase
-        .from("patients")
-        .select("*", { count: "exact", head: true });
-      
-      // New patients this month
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
-      
-      const { count: newThisMonth } = await supabase
-        .from("patients")
-        .select("*", { count: "exact", head: true })
-        .gte("created_at", startOfMonth.toISOString());
-      
-      setDashboardStats({
-        totalPatients: total || 0,
-        newThisMonth: newThisMonth || 0
-      });
-    } catch (err) {
-      console.error("Error fetching dashboard stats:", err);
-    }
-  };
-
-  const getCareLevelColor = (level: string) => {
-    switch (level) {
-      case "Critical": return "bg-red-100 text-red-800 border-red-200";
-      case "High": return "bg-orange-100 text-orange-800 border-orange-200";
-      case "Medium": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "Low": return "bg-green-100 text-green-800 border-green-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case "Life-threatening": return "bg-red-100 text-red-800";
-      case "Severe": return "bg-orange-100 text-orange-800";
-      case "Moderate": return "bg-yellow-100 text-yellow-800";
-      case "Mild": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const calculateAge = (dateOfBirth: string) => {
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
-  const totalPages = Math.ceil(totalPatients / pageSize);
+  const getNavCls = (path: string) => {
+    const baseClasses = "transition-all duration-200 hover:bg-primary/10 hover:text-primary"
+    return isActive(path) 
+      ? `${baseClasses} bg-primary/15 text-primary font-medium border-r-2 border-primary` 
+      : baseClasses
+  }
 
   return (
-    <SidebarProvider>
-      <div className="flex h-screen w-screen">
-        <AppSidebar />
-        <SidebarInset>
-          <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-none w-full space-y-8">
-              {/* Header */}
-              <div className="flex justify-between items-center">
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground">Patients</h1>
-                  <p className="text-muted-foreground mt-1">Manage patient information and care details</p>
-                </div>
-                <Button className="bg-gradient-primary text-white hover:opacity-90" asChild>
-                  <Link to="/patient-registration">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Patient
-                  </Link>
-                </Button>
-              </div>
-
-              {/* Dashboard Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Total Patients Card */}
-                <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-medium text-foreground">Total Patients</h3>
-                        <p className="text-3xl font-bold mt-2">{dashboardStats.totalPatients}</p>
-                      </div>
-                      <div className="bg-blue-100 p-3 rounded-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* New This Month Card */}
-                <Card className="bg-gradient-to-br from-green-50 to-teal-50 border border-green-100">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-lg font-medium text-foreground">New This Month</h3>
-                        <p className="text-3xl font-bold mt-2">{dashboardStats.newThisMonth}</p>
-                      </div>
-                      <div className="bg-green-100 p-3 rounded-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Search and Filter */}
-              <Card>
-                <CardContent className="p-12">
-                  <div className="flex gap-4">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        placeholder="Search patients by name or room number..."
-                        value={searchTerm}
-                        onChange={(e) => {
-                          setPage(1);
-                          setSearchTerm(e.target.value);
-                        }}
-                        className="pl-10"
-                        aria-label="Search patients"
-                      />
-                    </div>
-                    <Button variant="outline" aria-label="Filter patients">
-                      <Filter className="w-4 h-4 mr-2" />
-                      Filter
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Error State */}
-              {error && (
-                <div className="text-red-600 text-center py-4">{error}</div>
-              )}
-
-              {/* Loading State */}
-              {loading ? (
-                <Card>
-                  <CardContent className="p-4">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="flex items-center gap-4 py-2">
-                        <Skeleton className="w-10 h-10 rounded-full" />
-                        <Skeleton className="h-4 w-1/4" />
-                        <Skeleton className="h-4 w-1/6" />
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardContent className="p-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Patient</TableHead>
-                          <TableHead>Age/Gender</TableHead>
-                          <TableHead>Room</TableHead>
-                          <TableHead>Care Level</TableHead>
-                          <TableHead>Allergies</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {patients.map((patient) => (
-                          <TableRow key={patient.id} className="hover:bg-muted/50">
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <Avatar className="w-10 h-10">
-                                  <AvatarImage src={patient.profile_image_url} />
-                                  <AvatarFallback className="bg-gradient-teal text-white">
-                                    {patient.first_name[0]}{patient.last_name[0]}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <div className="font-medium text-foreground">
-                                    {patient.first_name} {patient.last_name}
-                                  </div>
-                                  <div className="text-sm text-muted-foreground">
-                                    ID: {patient.id.slice(0, 8)}...
-                                  </div>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="text-sm">
-                                <div>{calculateAge(patient.date_of_birth)} years</div>
-                                <div className="text-muted-foreground">{patient.gender}</div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="font-mono">
-                                {patient.room_number}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge className={getCareLevelColor(patient.care_level)}>
-                                {patient.care_level}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-wrap gap-1 max-w-[200px]">
-                                {patient.patient_allergies.slice(0, 2).map((allergy, index) => (
-                                  <Badge
-                                    key={index}
-                                    variant="secondary"
-                                    className={`text-xs ${getSeverityColor(allergy.severity)}`}
-                                  >
-                                    {allergy.allergy_name}
-                                  </Badge>
-                                ))}
-                                {patient.patient_allergies.length > 2 && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    +{patient.patient_allergies.length - 2} more
-                                  </Badge>
-                                )}
-                                {patient.patient_allergies.length === 0 && (
-                                  <span className="text-sm text-muted-foreground">None</span>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge 
-                                variant={patient.status === "Active" ? "default" : "secondary"}
-                                className={patient.status === "Active" ? "bg-green-100 text-green-800" : ""}
-                              >
-                                {patient.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Button variant="ghost" size="sm" asChild>
-                                <Link to={`/patients/${patient.id}`}>
-                                  View Details
-                                </Link>
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                    {patients.length === 0 && !loading && (
-                      <div className="text-center py-8 text-muted-foreground">
-                        {searchTerm ? "No patients found matching your search." : "No patients found."}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Pagination */}
-              {!loading && totalPages > 1 && (
-                <div className="flex justify-between items-center mt-4">
-                  <Button
-                    variant="outline"
-                    disabled={page === 1}
-                    onClick={() => setPage((p) => p - 1)}
-                  >
-                    Previous
-                  </Button>
-                  <span>
-                    Page {page} of {totalPages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    disabled={page === totalPages}
-                    onClick={() => setPage((p) => p + 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
+    <Sidebar
+      collapsible="icon"
+    >
+      <SidebarContent className="bg-card border-r border-border">
+        {/* Logo Header */}
+        <div className="p-6 border-b border-border">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <Heart className="w-5 h-5 text-white" />
             </div>
-          </main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
-  );
+            {!isCollapsed && (
+              <div>
+                <h2 className="text-lg font-bold text-foreground">CareSync</h2>
+                <p className="text-xs text-muted-foreground">Patient Care Management</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <SidebarGroup className="px-2 py-4">
+          <SidebarGroupLabel className={isCollapsed ? "sr-only" : "text-muted-foreground text-xs uppercase tracking-wider mb-2"}>
+            Navigation
+          </SidebarGroupLabel>
+
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  {item.submenu ? (
+                    <Collapsible defaultOpen={item.submenu.some(sub => isActive(sub.url))}>
+                      <div className="flex items-center">
+                        <SidebarMenuButton asChild className="flex-1">
+                          <NavLink 
+                            to={item.url}
+                            className={getNavCls(item.url)}
+                          >
+                            <item.icon className="w-5 h-5 flex-shrink-0" />
+                            {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                          </NavLink>
+                        </SidebarMenuButton>
+                        {!isCollapsed && (
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton size="sm" className="w-8 h-8 p-0">
+                              <ChevronDown className="w-4 h-4 transition-transform group-data-[state=open]:rotate-180" />
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
+                        )}
+                      </div>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.submenu.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton asChild>
+                                <NavLink 
+                                  to={subItem.url}
+                                  className={getNavCls(subItem.url)}
+                                >
+                                  <subItem.icon className="w-4 h-4 flex-shrink-0" />
+                                  {!isCollapsed && <span className="ml-3">{subItem.title}</span>}
+                                </NavLink>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ) : (
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url} 
+                        end={item.url === "/"}
+                        className={getNavCls(item.url)}
+                      >
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  )}
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* User Section */}
+        {!isCollapsed && (
+          <div className="mt-auto p-4 border-t border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-gradient-teal rounded-full flex items-center justify-center">
+                <Users className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">Dr. Sarah Johnson</p>
+                <p className="text-xs text-muted-foreground">Administrator</p>
+              </div>
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </div>
+        )}
+      </SidebarContent>
+    </Sidebar>
+  )
 }
