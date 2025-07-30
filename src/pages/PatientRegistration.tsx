@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Plus,
   Trash2,
@@ -9,6 +9,7 @@ import {
   History,
   Phone,
   Stethoscope,
+  CheckCircle,
 } from "lucide-react";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -39,9 +40,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function PatientRegistration() {
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [patientId, setPatientId] = useState(null);
 
   // State to manage all form data
   const [formData, setFormData] = useState({
@@ -144,22 +148,161 @@ export default function PatientRegistration() {
     });
   };
 
+  // Database operations
+  const savePatientRegistration = async (status = 'draft') => {
+    if (!formData.clientInfo.firstName || !formData.clientInfo.lastName) {
+      toast({
+        title: "Missing Information",
+        description: "First name and last name are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Save main patient record
+      const patientData = {
+        first_name: formData.clientInfo.firstName,
+        last_name: formData.clientInfo.lastName,
+        middle_name: formData.clientInfo.middleName || null,
+        address: formData.clientInfo.address || null,
+        date_of_birth: formData.clientInfo.dob || null,
+        sex: formData.clientInfo.sex || null,
+        race: formData.clientInfo.race || null,
+        ssn: formData.clientInfo.ssn || null,
+        referral_source: formData.clientInfo.referralSource || null,
+        date_of_discharge: formData.clientInfo.dateOfDischarge || null,
+        primary_diagnosis: formData.clientInfo.primaryDiagnosis || null,
+        secondary_diagnosis: formData.clientInfo.secondaryDiagnosis || null,
+        plan_of_care: formData.clientInfo.planOfCare || null,
+        registration_status: status,
+      };
+
+      let currentPatientId = patientId;
+      
+      if (patientId) {
+        // Update existing patient
+        const { error } = await supabase
+          .from('patients')
+          .update(patientData)
+          .eq('id', patientId);
+        
+        if (error) throw error;
+      } else {
+        // Create new patient
+        const { data, error } = await supabase
+          .from('patients')
+          .insert(patientData)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        currentPatientId = data.id;
+        setPatientId(currentPatientId);
+      }
+
+      // Save allergies if any
+      if (formData.clientInfo.allergies && currentPatientId) {
+        const allergies = formData.clientInfo.allergies.split(',').map(allergy => allergy.trim()).filter(Boolean);
+        
+        for (const allergyName of allergies) {
+          await supabase
+            .from('patient_allergies')
+            .upsert({
+              patient_id: currentPatientId,
+              allergy_name: allergyName,
+            });
+        }
+      }
+
+      // Save insurance details
+      if (currentPatientId && (formData.insuranceDetails.company || formData.insuranceDetails.memberNumber)) {
+        await supabase
+          .from('patient_insurance')
+          .upsert({
+            patient_id: currentPatientId,
+            company: formData.insuranceDetails.company || null,
+            member_number: formData.insuranceDetails.memberNumber || null,
+            group_number: formData.insuranceDetails.groupNumber || null,
+            phone_number: formData.insuranceDetails.phoneNumber || null,
+            medicaid_number: formData.insuranceDetails.medicaidNumber || null,
+          });
+      }
+
+      // Save surgeries
+      if (currentPatientId && formData.pastHealthHistory.surgeries.length > 0) {
+        for (const surgery of formData.pastHealthHistory.surgeries) {
+          if (surgery.name) {
+            await supabase
+              .from('patient_surgeries')
+              .insert({
+                patient_id: currentPatientId,
+                surgery_name: surgery.name,
+                surgery_date: surgery.date || null,
+              });
+          }
+        }
+      }
+
+      // Save emergency contacts
+      if (currentPatientId) {
+        for (let i = 0; i < formData.emergencyContacts.length; i++) {
+          const contact = formData.emergencyContacts[i];
+          if (contact.name) {
+            await supabase
+              .from('patient_emergency_contacts')
+              .insert({
+                patient_id: currentPatientId,
+                name: contact.name,
+                relationship: contact.relationship || null,
+                home_phone: contact.homePhone || null,
+                work_phone: contact.workPhone || null,
+                cell_phone: contact.cellPhone || null,
+                address: contact.address || null,
+                is_primary: i === 0,
+              });
+          }
+        }
+      }
+
+      // Save physician info
+      if (currentPatientId && formData.physicianInfo.primaryPhysicianName) {
+        await supabase
+          .from('patient_physicians')
+          .insert({
+            patient_id: currentPatientId,
+            physician_name: formData.physicianInfo.primaryPhysicianName,
+            physician_phone: formData.physicianInfo.physicianPhone || null,
+            npi_number: formData.physicianInfo.npiNumber || null,
+            physician_address: formData.physicianInfo.physicianAddress || null,
+            is_primary: true,
+          });
+      }
+
+      toast({
+        title: "Success",
+        description: `Patient registration ${status === 'completed' ? 'completed' : 'saved as draft'} successfully.`,
+      });
+
+    } catch (error) {
+      console.error('Error saving patient registration:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save patient registration.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = () => {
-    // In a real application, you would send formData to a backend
-    console.log("Submitting form data:", formData);
-    toast({
-      title: "Form Submitted",
-      description: "Client intake form has been submitted successfully.",
-    });
+    savePatientRegistration('completed');
   };
 
   const handleSaveDraft = () => {
-    // In a real application, you would save formData to local storage or a backend
-    console.log("Saving draft:", formData);
-    toast({
-      title: "Draft Saved",
-      description: "Client intake form has been saved as draft.",
-    });
+    savePatientRegistration('draft');
   };
 
   return (

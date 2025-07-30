@@ -759,6 +759,150 @@ export type Database = {
           },
         ]
       }
+      patient_emergency_contacts: {
+        Row: {
+          address: string | null
+          cell_phone: string | null
+          created_at: string
+          home_phone: string | null
+          id: string
+          is_primary: boolean | null
+          name: string
+          patient_id: string
+          relationship: string | null
+          updated_at: string
+          work_phone: string | null
+        }
+        Insert: {
+          address?: string | null
+          cell_phone?: string | null
+          created_at?: string
+          home_phone?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name: string
+          patient_id: string
+          relationship?: string | null
+          updated_at?: string
+          work_phone?: string | null
+        }
+        Update: {
+          address?: string | null
+          cell_phone?: string | null
+          created_at?: string
+          home_phone?: string | null
+          id?: string
+          is_primary?: boolean | null
+          name?: string
+          patient_id?: string
+          relationship?: string | null
+          updated_at?: string
+          work_phone?: string | null
+        }
+        Relationships: []
+      }
+      patient_insurance: {
+        Row: {
+          company: string | null
+          created_at: string
+          group_number: string | null
+          id: string
+          medicaid_number: string | null
+          member_number: string | null
+          patient_id: string
+          phone_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          group_number?: string | null
+          id?: string
+          medicaid_number?: string | null
+          member_number?: string | null
+          patient_id: string
+          phone_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          group_number?: string | null
+          id?: string
+          medicaid_number?: string | null
+          member_number?: string | null
+          patient_id?: string
+          phone_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      patient_physicians: {
+        Row: {
+          created_at: string
+          id: string
+          is_primary: boolean | null
+          npi_number: string | null
+          patient_id: string
+          physician_address: string | null
+          physician_name: string
+          physician_phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          npi_number?: string | null
+          patient_id: string
+          physician_address?: string | null
+          physician_name: string
+          physician_phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          npi_number?: string | null
+          patient_id?: string
+          physician_address?: string | null
+          physician_name?: string
+          physician_phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      patient_surgeries: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          patient_id: string
+          surgery_date: string | null
+          surgery_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_id: string
+          surgery_date?: string | null
+          surgery_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          surgery_date?: string | null
+          surgery_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       patients: {
         Row: {
           address: string | null
@@ -766,6 +910,7 @@ export type Database = {
           care_level: string | null
           created_at: string
           date_of_birth: string
+          date_of_discharge: string | null
           email: string | null
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
@@ -773,9 +918,18 @@ export type Database = {
           gender: string | null
           id: string
           last_name: string
+          middle_name: string | null
           phone: string | null
+          plan_of_care: string | null
+          primary_diagnosis: string | null
           profile_image_url: string | null
+          race: string | null
+          referral_source: string | null
+          registration_status: string | null
           room_number: string | null
+          secondary_diagnosis: string | null
+          sex: string | null
+          ssn: string | null
           status: string | null
           updated_at: string
         }
@@ -785,6 +939,7 @@ export type Database = {
           care_level?: string | null
           created_at?: string
           date_of_birth: string
+          date_of_discharge?: string | null
           email?: string | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
@@ -792,9 +947,18 @@ export type Database = {
           gender?: string | null
           id?: string
           last_name: string
+          middle_name?: string | null
           phone?: string | null
+          plan_of_care?: string | null
+          primary_diagnosis?: string | null
           profile_image_url?: string | null
+          race?: string | null
+          referral_source?: string | null
+          registration_status?: string | null
           room_number?: string | null
+          secondary_diagnosis?: string | null
+          sex?: string | null
+          ssn?: string | null
           status?: string | null
           updated_at?: string
         }
@@ -804,6 +968,7 @@ export type Database = {
           care_level?: string | null
           created_at?: string
           date_of_birth?: string
+          date_of_discharge?: string | null
           email?: string | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
@@ -811,9 +976,18 @@ export type Database = {
           gender?: string | null
           id?: string
           last_name?: string
+          middle_name?: string | null
           phone?: string | null
+          plan_of_care?: string | null
+          primary_diagnosis?: string | null
           profile_image_url?: string | null
+          race?: string | null
+          referral_source?: string | null
+          registration_status?: string | null
           room_number?: string | null
+          secondary_diagnosis?: string | null
+          sex?: string | null
+          ssn?: string | null
           status?: string | null
           updated_at?: string
         }
