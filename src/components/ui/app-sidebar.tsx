@@ -18,6 +18,7 @@ import {
 import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/hooks/use-toast"
+import { useUserProfile } from "@/hooks/useUserProfile"
 
 import {
   Sidebar,
@@ -94,6 +95,7 @@ export function AppSidebar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { toast } = useToast()
+  const { getDisplayName } = useUserProfile()
   const currentPath = location.pathname
   const isCollapsed = state === "collapsed"
 
@@ -220,8 +222,8 @@ export function AppSidebar() {
                     <Users className="w-4 h-4 text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-foreground">Dr. Sarah Johnson</p>
-                    <p className="text-xs text-muted-foreground">Administrator</p>
+                    <p className="text-sm font-medium text-foreground">{getDisplayName()}</p>
+                    <p className="text-xs text-muted-foreground">Staff Member</p>
                   </div>
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </div>

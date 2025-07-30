@@ -26,6 +26,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useAuth } from "@/contexts/AuthContext"
 import { useNotifications } from "@/hooks/useNotifications"
 import { useGlobalSearch } from "@/hooks/useGlobalSearch"
+import { useUserProfile } from "@/hooks/useUserProfile"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
@@ -36,6 +37,7 @@ export function AppHeader() {
   const { toast } = useToast()
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications()
   const { searchTerm, setSearchTerm, results, loading, selectResult, clearSearch } = useGlobalSearch()
+  const { getDisplayName } = useUserProfile()
   const [searchOpen, setSearchOpen] = useState(false)
 
   const handleSignOut = async () => {
@@ -222,7 +224,7 @@ export function AppHeader() {
                   <User className="h-4 w-4 text-white" />
                 </div>
                 <div className="hidden md:flex flex-col items-start">
-                  <span className="text-sm font-medium">{user?.email || 'User'}</span>
+                  <span className="text-sm font-medium">{getDisplayName()}</span>
                   <span className="text-xs text-muted-foreground">Staff Member</span>
                 </div>
                 <ChevronDown className="h-4 w-4" />
