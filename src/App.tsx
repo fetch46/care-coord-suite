@@ -20,6 +20,8 @@ import TimesheetReports from "./pages/TimesheetReports";
 import CreateSchedule from "./pages/CreateSchedule";
 import ScheduleDetails from "./pages/ScheduleDetails";
 import Settings from "./pages/Settings";
+import PatientEdit from "./pages/PatientEdit";
+import PatientDischarge from "./pages/PatientDischarge";
 import NotFound from "./pages/NotFound";
 import Reports from "./pages/Reports";
   
@@ -40,6 +42,8 @@ const App = () => (
           <Route path="/schedules/new" element={<CreateSchedule />} />
           <Route path="/schedule/:id" element={<ScheduleDetails />} />
           <Route path="/patients/:id" element={<PatientDetails />} />
+          <Route path="/patients/:id/edit" element={<PatientEdit />} />
+          <Route path="/patients/:id/discharge" element={<PatientDischarge />} />
           <Route path="/staff" element={<Staff />} />
           <Route path="/staff/:id" element={<StaffDetails />} />
           <Route path="/patient-registration" element={<PatientRegistration />} />
