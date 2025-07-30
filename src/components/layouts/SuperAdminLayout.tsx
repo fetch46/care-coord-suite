@@ -8,12 +8,12 @@ interface SuperAdminLayoutProps {
 
 export function SuperAdminLayout({ children }: SuperAdminLayoutProps) {
   return (
-    <SidebarProvider>
-      <div className="flex h-screen w-screen">
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex h-screen w-full">
         <SuperAdminSidebar />
-        <SidebarInset>
+        <SidebarInset className="flex-1">
           <SuperAdminHeader />
-          <main className="flex-1 overflow-auto p-6">
+          <main className="flex-1 overflow-auto p-6 bg-background">
             {children}
           </main>
         </SidebarInset>
