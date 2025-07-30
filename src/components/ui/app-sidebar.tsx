@@ -78,7 +78,7 @@ const navigationItems = [
   icon: Activity,
   submenu: [
     { title: "Patient Reports", url: "/patient-reports", icon: FileText },
-    { title: "Assessment Reports", url: "/patient-reports", icon: FileText },
+    { title: "Assessment Reports", url: "/assessment-reports", icon: FileText },
     { title: "Staff Reports", url: "/patient-reports", icon: FileText },
     { title: "Timesheet Reports", url: "/timesheet-reports", icon: FileText }
   ]

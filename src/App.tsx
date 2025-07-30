@@ -29,6 +29,7 @@ import PatientEdit from "./pages/PatientEdit";
 import PatientDischarge from "./pages/PatientDischarge";
 import NotFound from "./pages/NotFound";
 import Reports from "./pages/Reports";
+import AssessmentReports from "./pages/AssessmentReports";
   
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/timesheets" element={<ProtectedRoute><Timesheet /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+            <Route path="/assessment-reports" element={<ProtectedRoute><AssessmentReports /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
           </Routes>

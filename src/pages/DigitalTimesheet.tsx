@@ -77,6 +77,7 @@ export default function DigitalTimesheet() {
   const [caregivers, setCaregivers] = useState<Caregiver[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [companyName, setCompanyName] = useState<string>("American Care Team, LLC");
   const [loading, setLoading] = useState(true);
   const [duties, setDuties] = useState<TimesheetData["duties"]>({
     personalCare: {},
@@ -86,6 +87,7 @@ export default function DigitalTimesheet() {
 
   useEffect(() => {
     fetchData();
+    fetchCompanySettings();
     initializeDuties();
   }, []);
 
@@ -110,6 +112,23 @@ export default function DigitalTimesheet() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCompanySettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("company_settings")
+        .select("organization_name")
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data?.organization_name) {
+        setCompanyName(data.organization_name);
+      }
+    } catch (error) {
+      console.error("Error fetching company settings:", error);
+      // Keep default company name if fetch fails
     }
   };
 
@@ -539,7 +558,7 @@ export default function DigitalTimesheet() {
                     <CardTitle>Employee Agreement</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
-                    <p>I agree not to accept employment with the Patient for the term of employment with American Care Team, LLC and for one (1) year after the termination of my employment with American Care Team, LLC.</p>
+                    <p>I agree not to accept employment with the Patient for the term of employment with {companyName} and for one (1) year after the termination of my employment with {companyName}.</p>
                     <p>I declare that I have sustained no injury on this assigned job.</p>
                     <p>By signing this time sheet, I certify that all services have been provided in accordance with the Patient's healthcare assessment and I have delivered all service hours shown on the time sheet.</p>
                     <p className="font-semibold">In order to be paid, I understand this time sheet must be completed and signed by both me and the patient.</p>

@@ -59,6 +59,48 @@ export type Database = {
         }
         Relationships: []
       }
+      assessment_reports: {
+        Row: {
+          assessment_date: string | null
+          assessment_id: string
+          assessment_type: string
+          assessor_name: string | null
+          created_at: string
+          generated_at: string
+          generated_by: string
+          id: string
+          patient_name: string | null
+          report_data: Json | null
+          report_title: string
+        }
+        Insert: {
+          assessment_date?: string | null
+          assessment_id: string
+          assessment_type: string
+          assessor_name?: string | null
+          created_at?: string
+          generated_at?: string
+          generated_by: string
+          id?: string
+          patient_name?: string | null
+          report_data?: Json | null
+          report_title: string
+        }
+        Update: {
+          assessment_date?: string | null
+          assessment_id?: string
+          assessment_type?: string
+          assessor_name?: string | null
+          created_at?: string
+          generated_at?: string
+          generated_by?: string
+          id?: string
+          patient_name?: string | null
+          report_data?: Json | null
+          report_title?: string
+        }
+        Relationships: []
+      }
       assessment_types: {
         Row: {
           created_at: string
@@ -1244,10 +1286,55 @@ export type Database = {
           },
         ]
       }
+      timesheet_approvals: {
+        Row: {
+          approval_date: string | null
+          approver_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          rejection_reason: string | null
+          status: string
+          timesheet_id: string
+          updated_at: string
+        }
+        Insert: {
+          approval_date?: string | null
+          approver_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          rejection_reason?: string | null
+          status?: string
+          timesheet_id: string
+          updated_at?: string
+        }
+        Update: {
+          approval_date?: string | null
+          approver_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          rejection_reason?: string | null
+          status?: string
+          timesheet_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timesheet_approvals_timesheet_id_fkey"
+            columns: ["timesheet_id"]
+            isOneToOne: false
+            referencedRelation: "timesheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       timesheets: {
         Row: {
           activities_tasks: Json | null
           additional_comments: string | null
+          approval_status: string | null
           break_minutes: number | null
           caregiver_id: string
           created_at: string
@@ -1272,6 +1359,7 @@ export type Database = {
         Insert: {
           activities_tasks?: Json | null
           additional_comments?: string | null
+          approval_status?: string | null
           break_minutes?: number | null
           caregiver_id: string
           created_at?: string
@@ -1296,6 +1384,7 @@ export type Database = {
         Update: {
           activities_tasks?: Json | null
           additional_comments?: string | null
+          approval_status?: string | null
           break_minutes?: number | null
           caregiver_id?: string
           created_at?: string
