@@ -35,7 +35,7 @@ export default function Auth() {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate('/');
+        navigate('/dashboard');
       }
     };
     checkAuth();
@@ -73,7 +73,7 @@ export default function Auth() {
         description: "You have been logged in successfully.",
       });
 
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
       toast({
