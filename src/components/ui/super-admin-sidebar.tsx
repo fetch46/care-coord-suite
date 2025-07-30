@@ -30,6 +30,8 @@ import {
   Users,
   ArrowLeft,
   ChevronDown,
+  FileText,
+  UserPlus,
 } from "lucide-react"
 
 // Navigation items configuration
@@ -41,6 +43,8 @@ const superAdminNavigationItems = [
   { title: "System Settings", url: "/super-admin/settings", icon: Settings },
   { title: "Security & Permissions", url: "/super-admin/security", icon: Shield },
   { title: "Communication", url: "/super-admin/communication", icon: Mail },
+  { title: "Content Management", url: "/super-admin/cms", icon: FileText },
+  { title: "Tenant Signups", url: "/super-admin/tenant-signups", icon: UserPlus },
 ]
 
 export function SuperAdminSidebar() {

@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FaviconUpdater } from "@/components/ui/favicon-updater";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -150,7 +151,7 @@ export default function SuperAdminSettings() {
         </div>
 
       <Tabs defaultValue="payment" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="payment">
             <CreditCard className="w-4 h-4 mr-2" />
             Payment Gateways
@@ -162,6 +163,10 @@ export default function SuperAdminSettings() {
           <TabsTrigger value="system">
             <SettingsIcon className="w-4 h-4 mr-2" />
             System Settings
+          </TabsTrigger>
+          <TabsTrigger value="favicon">
+            <SettingsIcon className="w-4 h-4 mr-2" />
+            Favicon
           </TabsTrigger>
         </TabsList>
 
@@ -439,6 +444,46 @@ export default function SuperAdminSettings() {
               </Button>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Favicon Tab */}
+        <TabsContent value="favicon" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Update Favicon</h3>
+              <p className="text-muted-foreground mb-6">
+                Change the favicon that appears in browser tabs. Use PNG or JPG format for best compatibility.
+              </p>
+              <FaviconUpdater />
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Favicon Guidelines</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="font-medium">Recommended Specifications:</h4>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground mt-2 space-y-1">
+                    <li>Format: PNG or JPG (ICO not supported)</li>
+                    <li>Size: 32x32 pixels minimum, 512x512 pixels maximum</li>
+                    <li>Square aspect ratio (1:1)</li>
+                    <li>Clear, simple design that works at small sizes</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium">Tips:</h4>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground mt-2 space-y-1">
+                    <li>Test your favicon at different sizes</li>
+                    <li>Use high contrast colors</li>
+                    <li>Keep it simple - complex designs don't work well</li>
+                    <li>Consider your brand colors and logo</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
       </div>

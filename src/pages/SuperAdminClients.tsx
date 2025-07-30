@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useMasquerade } from "@/hooks/useMasquerade";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Table,
   TableBody,
@@ -20,14 +22,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { 
   MoreHorizontal,
   Search,
   Eye,
   LogIn,
+  LogOut,
   CreditCard,
   Plus,
-  Filter
+  Filter,
+  AlertTriangle
 } from "lucide-react";
 
 interface Tenant {
@@ -35,6 +47,7 @@ interface Tenant {
   company_name: string;
   domain?: string;
   admin_email: string;
+  admin_user_id?: string;
   status: string;
   subscription_status: string;
   created_at: string;
@@ -51,6 +64,7 @@ interface Tenant {
 
 export default function SuperAdminClients() {
   const { toast } = useToast();
+  const { currentMasquerade, isMasquerading, startMasquerade, endMasquerade, loading: masqueradeLoading } = useMasquerade();
   const [loading, setLoading] = useState(true);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [filteredTenants, setFilteredTenants] = useState<Tenant[]>([]);
@@ -145,18 +159,33 @@ export default function SuperAdminClients() {
     });
   };
 
-  const handleLoginAs = (tenantId: string) => {
-    toast({
-      title: "Login As Client",
-      description: "Would impersonate the client admin here"
-    });
-  };
 
   const handleViewSubscription = (tenantId: string) => {
     toast({
       title: "View Subscription",
       description: "Subscription details modal would open here"
     });
+  };
+
+  const handleMasquerade = async (tenantId: string, adminUserId: string) => {
+    const success = await startMasquerade(adminUserId, tenantId);
+    if (success) {
+      // Could redirect to main app dashboard or stay on this page
+      toast({
+        title: "Masquerade Started",
+        description: "You are now acting as the tenant admin. Use the 'End Masquerade' button to return to super admin view.",
+      });
+    }
+  };
+
+  const handleEndMasquerade = async () => {
+    const success = await endMasquerade();
+    if (success) {
+      toast({
+        title: "Masquerade Ended",
+        description: "You are now back to your super admin account.",
+      });
+    }
   };
 
   if (loading) {
@@ -175,6 +204,27 @@ export default function SuperAdminClients() {
   return (
     <SuperAdminLayout>
       <div className="space-y-6">
+        {/* Masquerade Alert */}
+        {isMasquerading && currentMasquerade && (
+          <Alert className="border-orange-200 bg-orange-50">
+            <AlertTriangle className="h-4 w-4 text-orange-600" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>
+                You are currently masquerading as a tenant admin. All actions will be performed as that user.
+              </span>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={handleEndMasquerade}
+                disabled={masqueradeLoading}
+                className="ml-4"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                End Masquerade
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Clients (Tenants)</h1>
@@ -288,10 +338,40 @@ export default function SuperAdminClients() {
                               <Eye className="mr-2 h-4 w-4" />
                               View Details
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleLoginAs(tenant.id)}>
-                              <LogIn className="mr-2 h-4 w-4" />
-                              Login as Client
-                            </DropdownMenuItem>
+                            {tenant.admin_user_id && (
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <DropdownMenuItem 
+                                    onSelect={(e) => e.preventDefault()}
+                                    disabled={isMasquerading}
+                                  >
+                                    <LogIn className="mr-2 h-4 w-4" />
+                                    Masquerade as Admin
+                                  </DropdownMenuItem>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Confirm Masquerade</DialogTitle>
+                                    <DialogDescription>
+                                      You are about to impersonate the admin user of <strong>{tenant.company_name}</strong>. 
+                                      This will allow you to see and interact with their system as if you were logged in as them.
+                                      <br /><br />
+                                      <strong>Important:</strong> All actions you take will be logged and associated with their account.
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="flex gap-3 pt-4">
+                                    <Button 
+                                      onClick={() => handleMasquerade(tenant.id, tenant.admin_user_id!)}
+                                      disabled={masqueradeLoading}
+                                      className="flex-1"
+                                    >
+                                      {masqueradeLoading && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>}
+                                      Confirm Masquerade
+                                    </Button>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            )}
                             <DropdownMenuItem onClick={() => handleViewSubscription(tenant.id)}>
                               <CreditCard className="mr-2 h-4 w-4" />
                               View Subscription
