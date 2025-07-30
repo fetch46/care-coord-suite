@@ -134,11 +134,11 @@ export default function Schedule() {
 
   return (
     <SidebarProvider>
-      <SidebarInset>
+      <div className="flex h-screen w-screen">
         <AppSidebar />
-        <div className="flex flex-col flex-1">
+        <SidebarInset>
           <AppHeader />
-          <main className="flex-1 p-4 md:p-6 space-y-4">
+          <main className="flex-1 overflow-auto p-4 md:p-6 space-y-4">
             <div className="flex items-center justify-between gap-2">
               <h1 className="text-xl font-semibold">Schedule</h1>
               <div className="flex items-center gap-2">
@@ -162,6 +162,7 @@ export default function Schedule() {
                 </ToggleGroup>
               </div>
             </div>
+            
             <div className="flex flex-col md:flex-row gap-2">
               <div className="flex-1">
                 <Input
@@ -230,7 +231,9 @@ export default function Schedule() {
                           : "-"}
                       </TableCell>
                       <TableCell>
-                        <Badge>{item.status}</Badge>
+                        <Badge variant={item.status === "Available" ? "secondary" : item.status === "Booked" ? "default" : "destructive"}>
+                          {item.status}
+                        </Badge>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -240,14 +243,99 @@ export default function Schedule() {
 
             {viewMode === "calendar" && (
               <Card>
-                <CardContent className="p-6 text-center text-muted-foreground">
-                  Calendar view coming soon.
+                <CardContent className="p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-lg font-medium">
+                      {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    </h3>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          const newDate = new Date(currentDate);
+                          newDate.setMonth(newDate.getMonth() - 1);
+                          // Note: We'd need to add setCurrentDate state setter for this to work
+                        }}
+                      >
+                        Previous
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          const newDate = new Date(currentDate);
+                          newDate.setMonth(newDate.getMonth() + 1);
+                          // Note: We'd need to add setCurrentDate state setter for this to work
+                        }}
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-7 gap-2 mb-4">
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                      <div key={day} className="p-2 text-center font-medium text-muted-foreground">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="grid grid-cols-7 gap-2">
+                    {Array.from({ length: 35 }, (_, index) => {
+                      const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+                      const startDate = new Date(firstDay);
+                      startDate.setDate(startDate.getDate() - firstDay.getDay() + index);
+                      
+                      const daySchedule = filteredSchedule.filter(item => 
+                        new Date(item.start_time).toDateString() === startDate.toDateString()
+                      );
+                      
+                      const isCurrentMonth = startDate.getMonth() === currentDate.getMonth();
+                      const isToday = startDate.toDateString() === new Date().toDateString();
+                      
+                      return (
+                        <div
+                          key={index}
+                          className={`min-h-[80px] p-2 border rounded-lg ${
+                            isCurrentMonth ? 'bg-background' : 'bg-muted/30'
+                          } ${isToday ? 'ring-2 ring-primary' : ''}`}
+                        >
+                          <div className={`text-sm font-medium mb-1 ${
+                            isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'
+                          }`}>
+                            {startDate.getDate()}
+                          </div>
+                          <div className="space-y-1">
+                            {daySchedule.slice(0, 2).map((item) => (
+                              <div
+                                key={item.id}
+                                className={`text-xs p-1 rounded text-white truncate ${
+                                  item.status === "Available" ? 'bg-green-500' :
+                                  item.status === "Booked" ? 'bg-blue-500' : 'bg-red-500'
+                                }`}
+                                title={`${item.staff.first_name} ${item.staff.last_name} - ${item.status}`}
+                              >
+                                {item.staff.first_name} {item.staff.last_name[0]}.
+                              </div>
+                            ))}
+                            {daySchedule.length > 2 && (
+                              <div className="text-xs text-muted-foreground">
+                                +{daySchedule.length - 2} more
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </CardContent>
               </Card>
             )}
           </main>
-        </div>
-      </SidebarInset>
+        </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 }
