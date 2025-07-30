@@ -51,7 +51,6 @@ interface Patient {
   first_name: string;
   last_name: string;
   room_number: string;
-  allergies?: string;
 }
 
 const personalCareTasks = [
@@ -145,24 +144,121 @@ export default function DigitalTimesheet() {
 
   const onSubmit = async (data: TimesheetData) => {
     try {
+      setLoading(true);
+      
+      // Calculate total hours
+      const totalHours = parseFloat(calculateTotalHours(
+        data.timeLog.timeIn,
+        data.timeLog.timeOut,
+        data.timeLog.break
+      ));
+
+      // Prepare timesheet data for database
       const timesheetData = {
-        ...data,
-        duties,
-        submitted_at: new Date().toISOString(),
-        status: 'submitted'
+        caregiver_id: data.caregiverId,
+        patient_id: data.patientId,
+        work_date: data.timeLog.date,
+        time_in: data.timeLog.timeIn,
+        time_out: data.timeLog.timeOut,
+        break_minutes: parseInt(data.timeLog.break || "0"),
+        sleep_in: data.timeLog.sleepIn || false,
+        total_hours: totalHours,
+        miles: parseFloat(data.timeLog.miles || "0"),
+        personal_care_tasks: duties.personalCare,
+        home_management_tasks: duties.homeManagement,
+        activities_tasks: duties.activities,
+        additional_comments: data.additionalComments,
+        employee_signature: data.employeeSignature,
+        employee_signature_date: data.employeeDate,
+        patient_signature: data.patientSignature,
+        patient_signature_date: data.patientDate,
+        status: 'submitted',
+        submitted_at: new Date().toISOString()
       };
-      console.log("Timesheet submission:", timesheetData);
+
+      const { error } = await supabase
+        .from('timesheets')
+        .insert([timesheetData]);
+
+      if (error) {
+        throw error;
+      }
+
       toast({
         title: "Success",
         description: "Timesheet submitted successfully",
       });
+
+      // Reset form after successful submission
+      window.location.reload();
+      
     } catch (error) {
       console.error("Error submitting timesheet:", error);
       toast({
         title: "Error",
-        description: "Failed to submit timesheet",
+        description: "Failed to submit timesheet. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveDraft = async (data: TimesheetData) => {
+    try {
+      setLoading(true);
+      
+      // Calculate total hours
+      const totalHours = parseFloat(calculateTotalHours(
+        data.timeLog.timeIn,
+        data.timeLog.timeOut,
+        data.timeLog.break
+      ));
+
+      // Prepare timesheet data for database
+      const timesheetData = {
+        caregiver_id: data.caregiverId,
+        patient_id: data.patientId,
+        work_date: data.timeLog.date,
+        time_in: data.timeLog.timeIn,
+        time_out: data.timeLog.timeOut,
+        break_minutes: parseInt(data.timeLog.break || "0"),
+        sleep_in: data.timeLog.sleepIn || false,
+        total_hours: totalHours,
+        miles: parseFloat(data.timeLog.miles || "0"),
+        personal_care_tasks: duties.personalCare,
+        home_management_tasks: duties.homeManagement,
+        activities_tasks: duties.activities,
+        additional_comments: data.additionalComments,
+        employee_signature: data.employeeSignature,
+        employee_signature_date: data.employeeDate,
+        patient_signature: data.patientSignature,
+        patient_signature_date: data.patientDate,
+        status: 'draft'
+      };
+
+      const { error } = await supabase
+        .from('timesheets')
+        .insert([timesheetData]);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Timesheet saved as draft",
+      });
+      
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save draft. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -254,16 +350,11 @@ export default function DigitalTimesheet() {
                               </SelectItem>
                             ))}
                           </SelectContent>
-                        </Select>
-                        {selectedPatient?.allergies && (
-                          <div className="mt-2 text-sm text-red-600">
-                            <strong>Allergies:</strong> {selectedPatient.allergies}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                         </Select>
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
 
                 {/* Time Log */}
                 <Card>
@@ -468,12 +559,16 @@ export default function DigitalTimesheet() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-4">
                         <h4 className="font-semibold">Employee Signature</h4>
-                        <div>
-                          <Label htmlFor="employeeSignature">Digital Signature</Label>
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-32 flex items-center justify-center bg-gray-50">
-                            <p className="text-gray-500 text-sm">Click to sign digitally</p>
-                          </div>
-                        </div>
+                         <div>
+                           <Label htmlFor="employeeSignature">Digital Signature</Label>
+                           <Input
+                             {...register("employeeSignature", { required: "Employee signature is required" })}
+                             placeholder="Type your full name as signature"
+                           />
+                           {errors?.employeeSignature && (
+                             <p className="text-sm text-red-600 mt-1">{errors.employeeSignature.message}</p>
+                           )}
+                         </div>
                         <div>
                           <Label htmlFor="employeeDate">Date</Label>
                           <Input
@@ -481,15 +576,22 @@ export default function DigitalTimesheet() {
                             {...register("employeeDate", { required: "Employee date is required" })}
                           />
                         </div>
-                      </div>
+                           {errors?.employeeDate && (
+                             <p className="text-sm text-red-600 mt-1">{errors.employeeDate.message}</p>
+                           )}
+                         </div>
                       <div className="space-y-4">
                         <h4 className="font-semibold">Patient Signature</h4>
-                        <div>
-                          <Label htmlFor="patientSignature">Digital Signature</Label>
-                          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-32 flex items-center justify-center bg-gray-50">
-                            <p className="text-gray-500 text-sm">Click to sign digitally</p>
-                          </div>
-                        </div>
+                         <div>
+                           <Label htmlFor="patientSignature">Digital Signature</Label>
+                           <Input
+                             {...register("patientSignature", { required: "Patient signature is required" })}
+                             placeholder="Patient or authorized representative name"
+                           />
+                           {errors?.patientSignature && (
+                             <p className="text-sm text-red-600 mt-1">{errors.patientSignature.message}</p>
+                           )}
+                         </div>
                         <div>
                           <Label htmlFor="patientDate">Date</Label>
                           <Input
@@ -497,20 +599,34 @@ export default function DigitalTimesheet() {
                             {...register("patientDate", { required: "Patient date is required" })}
                           />
                         </div>
-                      </div>
+                           {errors?.patientDate && (
+                             <p className="text-sm text-red-600 mt-1">{errors.patientDate.message}</p>
+                           )}
+                         </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Submit Buttons */}
-                <div className="flex justify-center gap-4 pt-6">
-                  <Button type="button" variant="outline" size="lg">
-                    Save as Draft
-                  </Button>
-                  <Button type="submit" size="lg" className="bg-gradient-primary text-white hover:opacity-90">
-                    Submit Timesheet
-                  </Button>
-                </div>
+                 {/* Submit Buttons */}
+                 <div className="flex justify-center gap-4 pt-6">
+                   <Button 
+                     type="button" 
+                     variant="outline" 
+                     size="lg"
+                     onClick={handleSubmit(saveDraft)}
+                     disabled={loading}
+                   >
+                     {loading ? "Saving..." : "Save as Draft"}
+                   </Button>
+                   <Button 
+                     type="submit" 
+                     size="lg" 
+                     className="bg-gradient-primary text-white hover:opacity-90"
+                     disabled={loading}
+                   >
+                     {loading ? "Submitting..." : "Submit Timesheet"}
+                   </Button>
+                 </div>
               </form>
             </div>
           </main>

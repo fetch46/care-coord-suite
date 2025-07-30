@@ -591,6 +591,96 @@ export type Database = {
         }
         Relationships: []
       }
+      timesheets: {
+        Row: {
+          activities_tasks: Json | null
+          additional_comments: string | null
+          break_minutes: number | null
+          caregiver_id: string
+          created_at: string
+          employee_signature: string | null
+          employee_signature_date: string | null
+          home_management_tasks: Json | null
+          id: string
+          miles: number | null
+          patient_id: string
+          patient_signature: string | null
+          patient_signature_date: string | null
+          personal_care_tasks: Json | null
+          sleep_in: boolean | null
+          status: string | null
+          submitted_at: string | null
+          time_in: string
+          time_out: string
+          total_hours: number | null
+          updated_at: string
+          work_date: string
+        }
+        Insert: {
+          activities_tasks?: Json | null
+          additional_comments?: string | null
+          break_minutes?: number | null
+          caregiver_id: string
+          created_at?: string
+          employee_signature?: string | null
+          employee_signature_date?: string | null
+          home_management_tasks?: Json | null
+          id?: string
+          miles?: number | null
+          patient_id: string
+          patient_signature?: string | null
+          patient_signature_date?: string | null
+          personal_care_tasks?: Json | null
+          sleep_in?: boolean | null
+          status?: string | null
+          submitted_at?: string | null
+          time_in: string
+          time_out: string
+          total_hours?: number | null
+          updated_at?: string
+          work_date: string
+        }
+        Update: {
+          activities_tasks?: Json | null
+          additional_comments?: string | null
+          break_minutes?: number | null
+          caregiver_id?: string
+          created_at?: string
+          employee_signature?: string | null
+          employee_signature_date?: string | null
+          home_management_tasks?: Json | null
+          id?: string
+          miles?: number | null
+          patient_id?: string
+          patient_signature?: string | null
+          patient_signature_date?: string | null
+          personal_care_tasks?: Json | null
+          sleep_in?: boolean | null
+          status?: string | null
+          submitted_at?: string | null
+          time_in?: string
+          time_out?: string
+          total_hours?: number | null
+          updated_at?: string
+          work_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timesheets_caregiver_id_fkey"
+            columns: ["caregiver_id"]
+            isOneToOne: false
+            referencedRelation: "caregivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timesheets_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
