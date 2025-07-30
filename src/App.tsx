@@ -33,6 +33,7 @@ import AssessmentReports from "./pages/AssessmentReports";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import SuperAdminClients from "./pages/SuperAdminClients";
 import SuperAdminSettings from "./pages/SuperAdminSettings";
+import { SuperAdminLayout } from "./components/layouts/SuperAdminLayout";
   
 const queryClient = new QueryClient();
 
@@ -69,9 +70,9 @@ const App = () => (
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
             <Route path="/assessment-reports" element={<ProtectedRoute><AssessmentReports /></ProtectedRoute>} />
-            <Route path="/super-admin" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />
-            <Route path="/super-admin/clients" element={<ProtectedRoute><SuperAdminClients /></ProtectedRoute>} />
-            <Route path="/super-admin/settings" element={<ProtectedRoute><SuperAdminSettings /></ProtectedRoute>} />
+            <Route path="/super-admin" element={<ProtectedRoute><SuperAdminLayout><SuperAdminDashboard /></SuperAdminLayout></ProtectedRoute>} />
+            <Route path="/super-admin/clients" element={<ProtectedRoute><SuperAdminLayout><SuperAdminClients /></SuperAdminLayout></ProtectedRoute>} />
+            <Route path="/super-admin/settings" element={<ProtectedRoute><SuperAdminLayout><SuperAdminSettings /></SuperAdminLayout></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
           </Routes>

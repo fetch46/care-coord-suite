@@ -86,7 +86,7 @@ const navigationItems = [
   ]
 },
   { title: "Settings", url: "/settings", icon: Settings },
-  { title: "Super Admin", url: "/super-admin", icon: Crown },
+  
 ]
 
 export function AppSidebar() {
