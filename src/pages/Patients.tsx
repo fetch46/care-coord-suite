@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, Plus, Filter } from "lucide-react";
+import { Search, Plus, Filter, Eye, Edit, Calendar, Trash2, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -11,7 +11,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton"; // You may need to create this component or use a library
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Patient {
   id: string;
@@ -27,6 +33,8 @@ interface Patient {
     allergy_name: string;
     severity: string;
   }>;
+  created_at: string;
+  discharge_date?: string;
 }
 
 export default function Patients() {
@@ -37,9 +45,16 @@ export default function Patients() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalPatients, setTotalPatients] = useState(0);
+  const [dashboardStats, setDashboardStats] = useState({
+    total: 0,
+    newThisMonth: 0,
+    active: 0,
+    dischargedThisMonth: 0
+  });
 
   useEffect(() => {
     fetchPatients();
+    fetchDashboardStats();
   }, [searchTerm, page]);
 
   const fetchPatients = async () => {
@@ -82,6 +97,45 @@ export default function Patients() {
     }
   };
 
+  const fetchDashboardStats = async () => {
+    try {
+      // Total patients
+      const { count: total } = await supabase
+        .from("patients")
+        .select("*", { count: "exact", head: true });
+      
+      // New patients this month
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const { count: newThisMonth } = await supabase
+        .from("patients")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", startOfMonth);
+      
+      // Active patients
+      const { count: active } = await supabase
+        .from("patients")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "Active");
+      
+      // Discharged this month
+      const { count: dischargedThisMonth } = await supabase
+        .from("patients")
+        .select("*", { count: "exact", head: true })
+        .gte("discharge_date", startOfMonth)
+        .eq("status", "Discharged");
+
+      setDashboardStats({
+        total: total || 0,
+        newThisMonth: newThisMonth || 0,
+        active: active || 0,
+        dischargedThisMonth: dischargedThisMonth || 0
+      });
+    } catch (err) {
+      console.error("Error fetching dashboard stats:", err);
+    }
+  };
+
   const getCareLevelColor = (level: string) => {
     switch (level) {
       case "Critical": return "bg-red-100 text-red-800 border-red-200";
@@ -115,6 +169,27 @@ export default function Patients() {
 
   const totalPages = Math.ceil(totalPatients / pageSize);
 
+  const handleDeletePatient = async (patientId: string) => {
+    if (!window.confirm("Are you sure you want to delete this patient?")) return;
+    
+    try {
+      const { error } = await supabase
+        .from("patients")
+        .delete()
+        .eq("id", patientId);
+      
+      if (error) throw error;
+      
+      // Refresh patient list
+      fetchPatients();
+      fetchDashboardStats();
+      alert("Patient deleted successfully");
+    } catch (err) {
+      console.error("Error deleting patient:", err);
+      alert("Failed to delete patient");
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen">
@@ -136,6 +211,37 @@ export default function Patients() {
                   </Link>
                 </Button>
               </div>
+
+              {/* Mini Dashboard */}
+              <Card className="border-0">
+                <CardContent className="p-0">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* Total Patients */}
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                      <div className="text-sm font-medium text-blue-800">Total Patients</div>
+                      <div className="text-2xl font-bold text-blue-800 mt-1">{dashboardStats.total}</div>
+                    </div>
+                    
+                    {/* New This Month */}
+                    <div className="bg-green-50 border border-green-100 rounded-lg p-4">
+                      <div className="text-sm font-medium text-green-800">New This Month</div>
+                      <div className="text-2xl font-bold text-green-800 mt-1">+{dashboardStats.newThisMonth}</div>
+                    </div>
+                    
+                    {/* Active Patients */}
+                    <div className="bg-amber-50 border border-amber-100 rounded-lg p-4">
+                      <div className="text-sm font-medium text-amber-800">Active Patients</div>
+                      <div className="text-2xl font-bold text-amber-800 mt-1">{dashboardStats.active}</div>
+                    </div>
+                    
+                    {/* Discharged This Month */}
+                    <div className="bg-purple-50 border border-purple-100 rounded-lg p-4">
+                      <div className="text-sm font-medium text-purple-800">Discharged This Month</div>
+                      <div className="text-2xl font-bold text-purple-800 mt-1">{dashboardStats.dischargedThisMonth}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Search and Filter */}
               <Card>
@@ -262,11 +368,49 @@ export default function Patients() {
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              <Button variant="ghost" size="sm" asChild>
-                                <Link to={`/patients/${patient.id}`}>
-                                  View Details
-                                </Link>
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    Actions <ChevronDown className="ml-1 w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem asChild>
+                                    <Link 
+                                      to={`/patients/${patient.id}`} 
+                                      className="flex items-center cursor-pointer"
+                                    >
+                                      <Eye className="w-4 h-4 mr-2" />
+                                      View Details
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem asChild>
+                                    <Link 
+                                      to={`/patients/${patient.id}/edit`} 
+                                      className="flex items-center cursor-pointer"
+                                    >
+                                      <Edit className="w-4 h-4 mr-2" />
+                                      Edit Patient
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem asChild>
+                                    <Link 
+                                      to={`/schedule?patientId=${patient.id}`} 
+                                      className="flex items-center cursor-pointer"
+                                    >
+                                      <Calendar className="w-4 h-4 mr-2" />
+                                      Schedule Appointment
+                                    </Link>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="text-red-600 focus:bg-red-50"
+                                    onClick={() => handleDeletePatient(patient.id)}
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete Patient
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </TableCell>
                           </TableRow>
                         ))}
