@@ -33,6 +33,10 @@ import AssessmentReports from "./pages/AssessmentReports";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import SuperAdminClients from "./pages/SuperAdminClients";
 import SuperAdminSettings from "./pages/SuperAdminSettings";
+import SuperAdminSubscriptions from "./pages/SuperAdminSubscriptions";
+import SuperAdminUserManagement from "./pages/SuperAdminUserManagement";
+import SuperAdminSecurity from "./pages/SuperAdminSecurity";
+import SuperAdminCommunication from "./pages/SuperAdminCommunication";
 import { SuperAdminLayout } from "./components/layouts/SuperAdminLayout";
   
 const queryClient = new QueryClient();
@@ -70,9 +74,13 @@ const App = () => (
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
             <Route path="/assessment-reports" element={<ProtectedRoute><AssessmentReports /></ProtectedRoute>} />
-            <Route path="/super-admin" element={<ProtectedRoute><SuperAdminLayout><SuperAdminDashboard /></SuperAdminLayout></ProtectedRoute>} />
-            <Route path="/super-admin/clients" element={<ProtectedRoute><SuperAdminLayout><SuperAdminClients /></SuperAdminLayout></ProtectedRoute>} />
-            <Route path="/super-admin/settings" element={<ProtectedRoute><SuperAdminLayout><SuperAdminSettings /></SuperAdminLayout></ProtectedRoute>} />
+            <Route path="/super-admin" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />
+            <Route path="/super-admin/clients" element={<ProtectedRoute><SuperAdminClients /></ProtectedRoute>} />
+            <Route path="/super-admin/subscriptions" element={<ProtectedRoute><SuperAdminSubscriptions /></ProtectedRoute>} />
+            <Route path="/super-admin/users" element={<ProtectedRoute><SuperAdminUserManagement /></ProtectedRoute>} />
+            <Route path="/super-admin/settings" element={<ProtectedRoute><SuperAdminSettings /></ProtectedRoute>} />
+            <Route path="/super-admin/security" element={<ProtectedRoute><SuperAdminSecurity /></ProtectedRoute>} />
+            <Route path="/super-admin/communication" element={<ProtectedRoute><SuperAdminCommunication /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
           </Routes>
