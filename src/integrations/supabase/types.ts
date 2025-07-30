@@ -1659,6 +1659,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_super_admin_user: {
+        Args: { user_email: string; user_password: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _user_id: string
