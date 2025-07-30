@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Staff {
   id: string;
@@ -38,6 +39,8 @@ interface Availability {
 
 export default function Schedule() {
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("All");
+  const [dateFilter, setDateFilter] = useState<string>("All");
 
   // Dummy data only
   const now = new Date();
@@ -95,6 +98,7 @@ export default function Schedule() {
     () =>
       schedule.filter(
         (item) =>
+          (statusFilter === "All" || item.status === statusFilter) &&
           `${item.staff.first_name} ${item.staff.last_name}`
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
@@ -104,7 +108,7 @@ export default function Schedule() {
               .toLowerCase()
               .includes(searchTerm.toLowerCase()))
       ),
-    [schedule, searchTerm]
+    [schedule, searchTerm, statusFilter]
   );
 
   const formatDateTime = (dateString: string): string => {
@@ -150,11 +154,43 @@ export default function Schedule() {
                 </Button>
               </div>
 
-              {/* Search */}
+              {/* Mini Dashboard */}
+              <Card className="border-0">
+                <CardContent className="p-0">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* Today's Appointments */}
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                      <div className="text-sm font-medium text-blue-800">Today's Appointments</div>
+                      <div className="text-2xl font-bold text-blue-800 mt-1">12</div>
+                    </div>
+                    
+                    {/* Completed */}
+                    <div className="bg-green-50 border border-green-100 rounded-lg p-4">
+                      <div className="text-sm font-medium text-green-800">Completed</div>
+                      <div className="text-2xl font-bold text-green-800 mt-1">8</div>
+                    </div>
+                    
+                    {/* Pending */}
+                    <div className="bg-amber-50 border border-amber-100 rounded-lg p-4">
+                      <div className="text-sm font-medium text-amber-800">Pending</div>
+                      <div className="text-2xl font-bold text-amber-800 mt-1">3</div>
+                    </div>
+                    
+                    {/* Cancelled */}
+                    <div className="bg-red-50 border border-red-100 rounded-lg p-4">
+                      <div className="text-sm font-medium text-red-800">Cancelled</div>
+                      <div className="text-2xl font-bold text-red-800 mt-1">1</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Search and Filters */}
               <Card>
-                <CardContent className="p-12">
-                  <div className="flex gap-4">
-                    <div className="relative flex-1">
+                <CardContent className="p-6">
+                  <div className="flex flex-col gap-6">
+                    {/* Search */}
+                    <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
                         placeholder="Search by staff name, role, or patient..."
@@ -162,6 +198,45 @@ export default function Schedule() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10"
                       />
+                    </div>
+                    
+                    {/* Filters */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Status Filter */}
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-2">
+                          Status
+                        </label>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="All">All Statuses</SelectItem>
+                            <SelectItem value="Available">Available</SelectItem>
+                            <SelectItem value="Booked">Booked</SelectItem>
+                            <SelectItem value="On Leave">On Leave</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Date Filter */}
+                      <div>
+                        <label className="block text-sm font-medium text-muted-foreground mb-2">
+                          Date Range
+                        </label>
+                        <Select value={dateFilter} onValueChange={setDateFilter}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select date range" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="All">All Dates</SelectItem>
+                            <SelectItem value="Today">Today</SelectItem>
+                            <SelectItem value="This Week">This Week</SelectItem>
+                            <SelectItem value="This Month">This Month</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -249,8 +324,8 @@ export default function Schedule() {
                   </Table>
                   {filteredSchedule.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
-                      {searchTerm
-                        ? "No schedule items found matching your search."
+                      {searchTerm || statusFilter !== "All" || dateFilter !== "All"
+                        ? "No schedule items found matching your filters."
                         : "No schedule items found."}
                     </div>
                   )}
