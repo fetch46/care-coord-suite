@@ -59,6 +59,33 @@ export type Database = {
         }
         Relationships: []
       }
+      assessment_types: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       availabilities: {
         Row: {
           created_at: string
@@ -236,6 +263,285 @@ export type Database = {
           organization_name?: string
           phone?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      comprehensive_patient_assessments: {
+        Row: {
+          ambulating_aid: string | null
+          assessment_date: string
+          assessment_type: string
+          assessor_name: string
+          bathing_level: string | null
+          behaviors: string[] | null
+          blood_pressure: string | null
+          bowel_incontinence_frequency: string | null
+          bowels_frequency: string | null
+          bp_pulse_normal: boolean | null
+          caregiver_names: string | null
+          catheter: boolean | null
+          cognitive_functioning: string | null
+          created_at: string
+          dressing_level: string | null
+          eating_drinking_level: string | null
+          edema: string[] | null
+          extremities: string[] | null
+          fluid_amount: string | null
+          fluid_intake: string | null
+          gastrointestinal_issues: string[] | null
+          general_physical_condition: string | null
+          genitourinary_issues: string[] | null
+          health_maintenance_needs: string[] | null
+          hearing: string | null
+          id: string
+          medication_administration: string | null
+          medications: Json | null
+          mental_health_issues: string[] | null
+          mobility: string | null
+          movements: string | null
+          musculoskeletal_issues: string[] | null
+          nurse_visit_activities: string[] | null
+          nurse_visit_type: string | null
+          ostomy_bowel_elimination: boolean | null
+          other_cardiovascular: string | null
+          other_diet_details: string | null
+          other_gastrointestinal: string | null
+          other_genitourinary: string | null
+          other_health_needs_notes: string | null
+          other_medication_management: string | null
+          other_musculoskeletal: string | null
+          other_physical_condition: string | null
+          other_respiratory_findings: string | null
+          pain_affects_life: boolean | null
+          pain_cause: string | null
+          pain_frequency: string | null
+          pain_gastrointestinal: string | null
+          pain_intensity: string | null
+          pain_sites: string | null
+          pain_treatment: string | null
+          participant_guardian_date: string | null
+          participant_guardian_name: string | null
+          participant_guardian_signature: string | null
+          patient_id: string
+          personal_hygiene_level: string | null
+          pressure_ulcers_stage1: string | null
+          pressure_ulcers_stage2: string | null
+          pressure_ulcers_stage3: string | null
+          pressure_ulcers_stage4: string | null
+          psychological_counseling: string | null
+          pulse: number | null
+          pupils: string | null
+          recent_changes: string | null
+          respiration: number | null
+          respiratory_findings: string[] | null
+          respiratory_treatments: string[] | null
+          rhythm: string | null
+          rn_date: string | null
+          rn_name: string | null
+          rn_signature: string | null
+          selected_diets: string[] | null
+          shortness_of_breath: string | null
+          skin_colors: string[] | null
+          skin_intact: string | null
+          speech_issues: string[] | null
+          status: string | null
+          surgical_wounds: string | null
+          swallowing_issues: string | null
+          temperature: number | null
+          toileting_incontinent_bladder: boolean | null
+          toileting_incontinent_bowel: boolean | null
+          toileting_level: string | null
+          transfer_aid: string | null
+          ulcer_locations: string | null
+          updated_at: string
+          urine_frequency: string | null
+          uti_treated: boolean | null
+          vision: string | null
+          weight: number | null
+        }
+        Insert: {
+          ambulating_aid?: string | null
+          assessment_date: string
+          assessment_type: string
+          assessor_name: string
+          bathing_level?: string | null
+          behaviors?: string[] | null
+          blood_pressure?: string | null
+          bowel_incontinence_frequency?: string | null
+          bowels_frequency?: string | null
+          bp_pulse_normal?: boolean | null
+          caregiver_names?: string | null
+          catheter?: boolean | null
+          cognitive_functioning?: string | null
+          created_at?: string
+          dressing_level?: string | null
+          eating_drinking_level?: string | null
+          edema?: string[] | null
+          extremities?: string[] | null
+          fluid_amount?: string | null
+          fluid_intake?: string | null
+          gastrointestinal_issues?: string[] | null
+          general_physical_condition?: string | null
+          genitourinary_issues?: string[] | null
+          health_maintenance_needs?: string[] | null
+          hearing?: string | null
+          id?: string
+          medication_administration?: string | null
+          medications?: Json | null
+          mental_health_issues?: string[] | null
+          mobility?: string | null
+          movements?: string | null
+          musculoskeletal_issues?: string[] | null
+          nurse_visit_activities?: string[] | null
+          nurse_visit_type?: string | null
+          ostomy_bowel_elimination?: boolean | null
+          other_cardiovascular?: string | null
+          other_diet_details?: string | null
+          other_gastrointestinal?: string | null
+          other_genitourinary?: string | null
+          other_health_needs_notes?: string | null
+          other_medication_management?: string | null
+          other_musculoskeletal?: string | null
+          other_physical_condition?: string | null
+          other_respiratory_findings?: string | null
+          pain_affects_life?: boolean | null
+          pain_cause?: string | null
+          pain_frequency?: string | null
+          pain_gastrointestinal?: string | null
+          pain_intensity?: string | null
+          pain_sites?: string | null
+          pain_treatment?: string | null
+          participant_guardian_date?: string | null
+          participant_guardian_name?: string | null
+          participant_guardian_signature?: string | null
+          patient_id: string
+          personal_hygiene_level?: string | null
+          pressure_ulcers_stage1?: string | null
+          pressure_ulcers_stage2?: string | null
+          pressure_ulcers_stage3?: string | null
+          pressure_ulcers_stage4?: string | null
+          psychological_counseling?: string | null
+          pulse?: number | null
+          pupils?: string | null
+          recent_changes?: string | null
+          respiration?: number | null
+          respiratory_findings?: string[] | null
+          respiratory_treatments?: string[] | null
+          rhythm?: string | null
+          rn_date?: string | null
+          rn_name?: string | null
+          rn_signature?: string | null
+          selected_diets?: string[] | null
+          shortness_of_breath?: string | null
+          skin_colors?: string[] | null
+          skin_intact?: string | null
+          speech_issues?: string[] | null
+          status?: string | null
+          surgical_wounds?: string | null
+          swallowing_issues?: string | null
+          temperature?: number | null
+          toileting_incontinent_bladder?: boolean | null
+          toileting_incontinent_bowel?: boolean | null
+          toileting_level?: string | null
+          transfer_aid?: string | null
+          ulcer_locations?: string | null
+          updated_at?: string
+          urine_frequency?: string | null
+          uti_treated?: boolean | null
+          vision?: string | null
+          weight?: number | null
+        }
+        Update: {
+          ambulating_aid?: string | null
+          assessment_date?: string
+          assessment_type?: string
+          assessor_name?: string
+          bathing_level?: string | null
+          behaviors?: string[] | null
+          blood_pressure?: string | null
+          bowel_incontinence_frequency?: string | null
+          bowels_frequency?: string | null
+          bp_pulse_normal?: boolean | null
+          caregiver_names?: string | null
+          catheter?: boolean | null
+          cognitive_functioning?: string | null
+          created_at?: string
+          dressing_level?: string | null
+          eating_drinking_level?: string | null
+          edema?: string[] | null
+          extremities?: string[] | null
+          fluid_amount?: string | null
+          fluid_intake?: string | null
+          gastrointestinal_issues?: string[] | null
+          general_physical_condition?: string | null
+          genitourinary_issues?: string[] | null
+          health_maintenance_needs?: string[] | null
+          hearing?: string | null
+          id?: string
+          medication_administration?: string | null
+          medications?: Json | null
+          mental_health_issues?: string[] | null
+          mobility?: string | null
+          movements?: string | null
+          musculoskeletal_issues?: string[] | null
+          nurse_visit_activities?: string[] | null
+          nurse_visit_type?: string | null
+          ostomy_bowel_elimination?: boolean | null
+          other_cardiovascular?: string | null
+          other_diet_details?: string | null
+          other_gastrointestinal?: string | null
+          other_genitourinary?: string | null
+          other_health_needs_notes?: string | null
+          other_medication_management?: string | null
+          other_musculoskeletal?: string | null
+          other_physical_condition?: string | null
+          other_respiratory_findings?: string | null
+          pain_affects_life?: boolean | null
+          pain_cause?: string | null
+          pain_frequency?: string | null
+          pain_gastrointestinal?: string | null
+          pain_intensity?: string | null
+          pain_sites?: string | null
+          pain_treatment?: string | null
+          participant_guardian_date?: string | null
+          participant_guardian_name?: string | null
+          participant_guardian_signature?: string | null
+          patient_id?: string
+          personal_hygiene_level?: string | null
+          pressure_ulcers_stage1?: string | null
+          pressure_ulcers_stage2?: string | null
+          pressure_ulcers_stage3?: string | null
+          pressure_ulcers_stage4?: string | null
+          psychological_counseling?: string | null
+          pulse?: number | null
+          pupils?: string | null
+          recent_changes?: string | null
+          respiration?: number | null
+          respiratory_findings?: string[] | null
+          respiratory_treatments?: string[] | null
+          rhythm?: string | null
+          rn_date?: string | null
+          rn_name?: string | null
+          rn_signature?: string | null
+          selected_diets?: string[] | null
+          shortness_of_breath?: string | null
+          skin_colors?: string[] | null
+          skin_intact?: string | null
+          speech_issues?: string[] | null
+          status?: string | null
+          surgical_wounds?: string | null
+          swallowing_issues?: string | null
+          temperature?: number | null
+          toileting_incontinent_bladder?: boolean | null
+          toileting_incontinent_bowel?: boolean | null
+          toileting_level?: string | null
+          transfer_aid?: string | null
+          ulcer_locations?: string | null
+          updated_at?: string
+          urine_frequency?: string | null
+          uti_treated?: boolean | null
+          vision?: string | null
+          weight?: number | null
         }
         Relationships: []
       }

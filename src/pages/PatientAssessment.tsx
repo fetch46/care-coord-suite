@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Printer, Plus, X } from "lucide-react";
+import { Printer, Plus, X, Save, CheckCircle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -27,6 +27,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+
+// --- Types ---
+interface Patient {
+  id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  room_number?: string;
+}
+
+interface PatientAllergy {
+  id: string;
+  allergy_name: string;
+  severity?: string;
+  reaction?: string;
+}
 
 // --- Reusable Components ---
 function FormCheckboxGroup({ label, options, selectedValues, onValueChange, className = "" }) {
@@ -66,20 +84,6 @@ function FormRadioGroup({ label, options, selectedValue, onValueChange, classNam
 }
 
 // --- Static Data Definitions ---
-const patients = [
-  { id: "1", name: "John Doe", mrn: "MRN12345" },
-  { id: "2", name: "Jane Smith", mrn: "MRN67890" },
-  { id: "3", name: "Robert Johnson", mrn: "MRN54321" },
-  { id: "4", name: "Emily Davis", mrn: "MRN09876" },
-];
-
-const assessmentTypes = [
-  "Initial Assessment",
-  "45 Day Assessment",
-  "90 Day Assessment",
-  "Annual Assessment",
-  "Change of Condition",
-];
 
 const dietOptions = [
   { id: "regular", label: "Regular" },
@@ -341,6 +345,15 @@ const pressureUlcerCountOptions = [
 ];
 
 export default function PatientAssessment() {
+  const { toast } = useToast();
+  
+  // --- Database State ---
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [assessmentTypes, setAssessmentTypes] = useState<string[]>([]);
+  const [patientAllergies, setPatientAllergies] = useState<PatientAllergy[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
+  
   // --- State Management ---
   const [selectedPatient, setSelectedPatient] = useState("");
   const [assessmentType, setAssessmentType] = useState("");
@@ -468,6 +481,68 @@ export default function PatientAssessment() {
   const [participantGuardianName, setParticipantGuardianName] = useState("");
   const [participantGuardianSignature, setParticipantGuardianSignature] = useState("");
   const [participantGuardianDate, setParticipantGuardianDate] = useState("");
+
+  // --- Data Fetching ---
+  useEffect(() => {
+    fetchPatients();
+    fetchAssessmentTypes();
+  }, []);
+
+  useEffect(() => {
+    if (selectedPatient) {
+      fetchPatientAllergies(selectedPatient);
+    }
+  }, [selectedPatient]);
+
+  const fetchPatients = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select('id, first_name, last_name, date_of_birth, room_number')
+        .order('last_name');
+      
+      if (error) throw error;
+      setPatients(data || []);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch patients",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchAssessmentTypes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('assessment_types')
+        .select('name')
+        .eq('is_active', true)
+        .order('name');
+      
+      if (error) throw error;
+      setAssessmentTypes(data?.map(type => type.name) || []);
+    } catch (error) {
+      console.error('Error fetching assessment types:', error);
+      setAssessmentTypes(["Initial Assessment", "45 Day Assessment", "90 Day Assessment", "Annual Assessment", "Change of Condition"]);
+    }
+  };
+
+  const fetchPatientAllergies = async (patientId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('patient_allergies')
+        .select('*')
+        .eq('patient_id', patientId);
+      
+      if (error) throw error;
+      setPatientAllergies(data || []);
+    } catch (error) {
+      console.error('Error fetching patient allergies:', error);
+      setPatientAllergies([]);
+    }
+  };
 
   // --- Handlers for Checkbox/Radio Groups ---
   const handleCheckboxChange = (setter) => (id, checked) => {
@@ -649,7 +724,7 @@ export default function PatientAssessment() {
                         <SelectContent>
                           {patients.map((p) => (
                             <SelectItem key={p.id} value={p.id}>
-                              {p.name} ({p.mrn})
+                              {p.first_name} {p.last_name} {p.room_number ? `(Room ${p.room_number})` : ''}
                             </SelectItem>
                           ))}
                         </SelectContent>
