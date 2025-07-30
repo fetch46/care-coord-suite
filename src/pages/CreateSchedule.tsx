@@ -42,7 +42,7 @@ export default function CreateSchedule(): JSX.Element {
 
   const fetchStaff = async () => {
     const { data, error } = await supabase
-      .from("staff")
+      .from("caregivers")
       .select("id, first_name, last_name, role")
       .order("last_name");
 
@@ -74,13 +74,14 @@ export default function CreateSchedule(): JSX.Element {
     setSaving(true);
 
     try {
-      const { error } = await supabase.from("availabilities").insert([
+      const { error } = await supabase.from("appointments").insert([
         {
-          staff_id: selectedStaff,
+          caregiver_id: selectedStaff,
           patient_id: selectedPatient || null,
-          start_time: startTime,
-          end_time: endTime,
-          status: selectedPatient ? "Booked" : "Available",
+          appointment_date: startTime,
+          duration_minutes: Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / (1000 * 60)),
+          status: selectedPatient ? "scheduled" : "available",
+          title: selectedPatient ? "Patient Appointment" : "Available Slot",
         },
       ]);
 

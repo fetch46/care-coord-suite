@@ -94,7 +94,7 @@ export default function DigitalTimesheet() {
     try {
       const [caregiversResponse, patientsResponse] = await Promise.all([
         supabase.from("caregivers").select("id, first_name, last_name, role").eq("status", "Active"),
-        supabase.from("patients").select("id, first_name, last_name, room_number, allergies").eq("status", "Active")
+        supabase.from("patients").select("id, first_name, last_name, room_number").eq("status", "Active")
       ]);
 
       if (caregiversResponse.error) throw caregiversResponse.error;

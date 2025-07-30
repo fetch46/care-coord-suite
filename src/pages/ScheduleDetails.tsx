@@ -229,7 +229,7 @@ export default function ScheduleDetails() {
                   </div>
                   <div className="flex items-center gap-3">
                     {isEditing ? (
-                      <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                      <Select value={selectedStatus} onValueChange={(value: "Available" | "Booked" | "On Leave") => setSelectedStatus(value)}>
                         <SelectTrigger className="w-40">
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>

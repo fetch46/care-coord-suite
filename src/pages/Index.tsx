@@ -72,28 +72,28 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
               <StatsCard
                 title="Total Patients"
-                value={isLoading ? <Skeleton className="h-8 w-14" /> : "847"}
+                value={isLoading ? "..." : "847"}
                 icon={Users}
                 variant="primary"
                 change={{ value: "+12%", trend: "up" }}
               />
               <StatsCard
                 title="Active Staff"
-                value={isLoading ? <Skeleton className="h-8 w-14" /> : "156"}
+                value={isLoading ? "..." : "156"}
                 icon={UserCheck}
                 variant="teal"
                 change={{ value: "+3%", trend: "up" }}
               />
               <StatsCard
                 title="Today's Appointments"
-                value={isLoading ? <Skeleton className="h-8 w-14" /> : "24"}
+                value={isLoading ? "..." : "24"}
                 icon={Calendar}
                 variant="coral"
                 change={{ value: "-2%", trend: "down" }}
               />
               <StatsCard
                 title="Assessments Pending"
-                value={isLoading ? <Skeleton className="h-8 w-14" /> : "8"}
+                value={isLoading ? "..." : "8"}
                 icon={ClipboardList}
                 variant="default"
                 change={{ value: "+1", trend: "up" }}

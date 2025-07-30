@@ -17,6 +17,8 @@ import SkinAssessment from "./pages/SkinAssessment";
 import PatientAssessment from "./pages/PatientAssessment";
 import DigitalTimesheet from "./pages/DigitalTimesheet";
 import TimesheetReports from "./pages/TimesheetReports";
+import CreateSchedule from "./pages/CreateSchedule";
+import ScheduleDetails from "./pages/ScheduleDetails";
 import NotFound from "./pages/NotFound";
 import Reports from "./pages/Reports";
   
@@ -34,6 +36,8 @@ const App = () => (
           <Route path="/medical-records" element={<MedicalRecords />} />
           <Route path="/assessments" element={<Assessments />} />
           <Route path="/schedule" element={<Schedule />} />
+          <Route path="/schedules/new" element={<CreateSchedule />} />
+          <Route path="/schedule/:id" element={<ScheduleDetails />} />
           <Route path="/patients/:id" element={<PatientDetails />} />
           <Route path="/staff" element={<Staff />} />
           <Route path="/staff/:id" element={<StaffDetails />} />
