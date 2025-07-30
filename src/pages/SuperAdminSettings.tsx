@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { SuperAdminLayout } from "@/components/layouts/SuperAdminLayout";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -139,13 +140,14 @@ export default function SuperAdminSettings() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Super Admin Settings</h1>
-        <p className="text-muted-foreground">
-          Manage system-wide settings, payment gateways, and communication providers
-        </p>
-      </div>
+    <SuperAdminLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
+          <p className="text-muted-foreground">
+            Manage system-wide settings, payment gateways, and communication providers
+          </p>
+        </div>
 
       <Tabs defaultValue="payment" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
@@ -439,6 +441,7 @@ export default function SuperAdminSettings() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </SuperAdminLayout>
   );
 }
