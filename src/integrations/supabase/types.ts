@@ -1791,13 +1791,22 @@ export type Database = {
         Returns: string
       }
       create_user_with_staff: {
-        Args: {
-          p_email: string
-          p_first_name: string
-          p_last_name: string
-          p_role: string
-          p_phone?: string
-        }
+        Args:
+          | {
+              p_email: string
+              p_first_name: string
+              p_last_name: string
+              p_role: string
+              p_phone?: string
+            }
+          | {
+              p_user_id: string
+              p_email: string
+              p_first_name: string
+              p_last_name: string
+              p_role: string
+              p_phone?: string
+            }
         Returns: Json
       }
       has_role: {
