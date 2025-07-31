@@ -1782,9 +1782,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_tenant_signup: {
+        Args: { p_signup_id: string }
+        Returns: Json
+      }
       create_super_admin_user: {
         Args: { user_email: string; user_password: string }
         Returns: string
+      }
+      create_user_with_staff: {
+        Args: {
+          p_email: string
+          p_first_name: string
+          p_last_name: string
+          p_role: string
+          p_phone?: string
+        }
+        Returns: Json
       }
       has_role: {
         Args: {
