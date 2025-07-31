@@ -71,26 +71,64 @@ export default function SuperAdminTenantSignups() {
   const updateSignupStatus = async (signupId: string, status: 'approved' | 'rejected') => {
     setUpdating(true);
     try {
-      const { error } = await supabase
-        .from('tenant_signups')
-        .update({
-          status,
-          processed_date: new Date().toISOString(),
-          notes: notes || null
-        })
-        .eq('id', signupId);
+      if (status === 'approved') {
+        // Call the database function to approve the signup and create the tenant
+        const { data: approvalResult, error: approvalError } = await supabase
+          .rpc('approve_tenant_signup', { p_signup_id: signupId });
 
-      if (error) throw error;
+        if (approvalError) {
+          console.error('Error approving tenant signup:', approvalError);
+          throw approvalError;
+        }
+
+        // Parse the JSON response
+        const result = approvalResult as { success: boolean; message?: string; tenant_id?: string };
+        
+        if (!result?.success) {
+          throw new Error(result?.message || 'Failed to approve tenant signup');
+        }
+
+        // Update the notes if provided
+        if (notes) {
+          const { error: notesError } = await supabase
+            .from('tenant_signups')
+            .update({ notes })
+            .eq('id', signupId);
+
+          if (notesError) {
+            console.error('Error updating notes:', notesError);
+            // Don't throw here as the main approval was successful
+          }
+        }
+
+        toast({
+          title: "Success",
+          description: `Tenant signup approved and client created successfully. The new client will appear in the Clients list.`
+        });
+      } else {
+        // For rejection, just update the status
+        const { error } = await supabase
+          .from('tenant_signups')
+          .update({
+            status,
+            processed_date: new Date().toISOString(),
+            notes: notes || null
+          })
+          .eq('id', signupId);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: `Tenant signup ${status} successfully`
+        });
+      }
 
       await fetchSignups();
       setIsDialogOpen(false);
       setSelectedSignup(null);
       setNotes("");
       
-      toast({
-        title: "Success",
-        description: `Tenant signup ${status} successfully`
-      });
     } catch (error) {
       console.error('Error updating signup status:', error);
       toast({

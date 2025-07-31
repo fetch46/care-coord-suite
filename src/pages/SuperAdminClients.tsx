@@ -73,6 +73,11 @@ export default function SuperAdminClients() {
 
   useEffect(() => {
     fetchTenants();
+    
+    // Set up polling to check for new tenants every 30 seconds
+    const interval = setInterval(fetchTenants, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -232,10 +237,24 @@ export default function SuperAdminClients() {
             Manage all tenant companies and their subscriptions
           </p>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Client
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={fetchTenants}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+            ) : (
+              <Eye className="w-4 h-4 mr-2" />
+            )}
+            Refresh
+          </Button>
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Client
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
