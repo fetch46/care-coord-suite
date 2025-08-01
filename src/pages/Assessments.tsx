@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
@@ -6,15 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { 
-  Search, 
-  Plus, 
-  Filter, 
-  CalendarCheck, 
+import {
+  Search,
+  Plus,
+  Filter,
+  CalendarCheck,
   SlidersHorizontal,
   ChevronDown,
   User,
-  Users
+  Users,
+  ClipboardList,
+  CheckCircle2,
+  Hourglass,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -33,12 +36,14 @@ export default function Assessments() {
   const [loading, setLoading] = useState(true);
 
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const pageSize = 10;
   const [totalCount, setTotalCount] = useState(0);
 
   const [dashboardStats, setDashboardStats] = useState({
     total: 0,
     upcoming: 0,
+    completed: 0,
+    pending: 0,
   });
 
   useEffect(() => {
@@ -46,7 +51,7 @@ export default function Assessments() {
     fetchDashboardStats();
   }, [page, searchTerm, filterType, filterDate]);
 
-  /** Fetch assessments with pagination and server-side filters */
+  // Fetch paginated assessments with server-side filters
   const fetchAssessments = async () => {
     setLoading(true);
     try {
@@ -65,6 +70,7 @@ export default function Assessments() {
       if (filterDate) query = query.eq("date", filterDate);
 
       const { data, error, count } = await query;
+
       if (error) throw error;
 
       setAssessments(data || []);
@@ -76,7 +82,7 @@ export default function Assessments() {
     }
   };
 
-  /** Fetch dashboard stats */
+  // Fetch dashboard summary stats
   const fetchDashboardStats = async () => {
     try {
       const { count: total } = await supabase
@@ -90,9 +96,21 @@ export default function Assessments() {
         .select("*", { count: "exact", head: true })
         .gt("date", today);
 
+      const { count: completed } = await supabase
+        .from("assessments")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "Completed");
+
+      const { count: pending } = await supabase
+        .from("assessments")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "Pending Review");
+
       setDashboardStats({
         total: total || 0,
         upcoming: upcoming || 0,
+        completed: completed || 0,
+        pending: pending || 0,
       });
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
@@ -115,14 +133,11 @@ export default function Assessments() {
         <SidebarInset>
           <main className="flex-1 overflow-auto p-6">
             <div className="max-w-none w-full space-y-8">
-              
               {/* Header */}
               <div className="flex justify-between items-center">
                 <div>
                   <h1 className="text-3xl font-bold text-foreground">Assessments</h1>
-                  <p className="text-muted-foreground mt-1">
-                    Review and manage assessments
-                  </p>
+                  <p className="text-muted-foreground mt-1">Review and manage assessments</p>
                 </div>
 
                 <DropdownMenu>
@@ -150,23 +165,38 @@ export default function Assessments() {
                 </DropdownMenu>
               </div>
 
-              {/* Dashboard Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Total Assessments</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">{dashboardStats.total}</p>
-                  </CardContent>
+              {/* Modern Dashboard Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                <Card className="p-4 flex items-center gap-4">
+                  <ClipboardList className="w-8 h-8 text-indigo-600" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Assessments</p>
+                    <p className="text-xl font-bold">{dashboardStats.total}</p>
+                  </div>
                 </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Upcoming Assessments</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">{dashboardStats.upcoming}</p>
-                  </CardContent>
+
+                <Card className="p-4 flex items-center gap-4">
+                  <CalendarCheck className="w-8 h-8 text-blue-500" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Upcoming</p>
+                    <p className="text-xl font-bold">{dashboardStats.upcoming}</p>
+                  </div>
+                </Card>
+
+                <Card className="p-4 flex items-center gap-4">
+                  <CheckCircle2 className="w-8 h-8 text-green-600" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Completed</p>
+                    <p className="text-xl font-bold">{dashboardStats.completed}</p>
+                  </div>
+                </Card>
+
+                <Card className="p-4 flex items-center gap-4">
+                  <Hourglass className="w-8 h-8 text-yellow-500" />
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Pending Review</p>
+                    <p className="text-xl font-bold">{dashboardStats.pending}</p>
+                  </div>
                 </Card>
               </div>
 
@@ -179,7 +209,10 @@ export default function Assessments() {
                       <Input
                         placeholder="Search assessments by client, type, or status..."
                         value={searchTerm}
-                        onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+                        onChange={(e) => {
+                          setSearchTerm(e.target.value);
+                          setPage(1);
+                        }}
                         className="pl-10"
                       />
                     </div>
@@ -188,7 +221,10 @@ export default function Assessments() {
                       <Input
                         placeholder="Filter by Type"
                         value={filterType}
-                        onChange={(e) => { setFilterType(e.target.value); setPage(1); }}
+                        onChange={(e) => {
+                          setFilterType(e.target.value);
+                          setPage(1);
+                        }}
                         className="pl-10"
                       />
                     </div>
@@ -197,7 +233,10 @@ export default function Assessments() {
                       <Input
                         type="date"
                         value={filterDate}
-                        onChange={(e) => { setFilterDate(e.target.value); setPage(1); }}
+                        onChange={(e) => {
+                          setFilterDate(e.target.value);
+                          setPage(1);
+                        }}
                         className="pl-10"
                       />
                     </div>
@@ -264,9 +303,9 @@ export default function Assessments() {
 
               {/* Pagination */}
               <div className="flex justify-between items-center mt-4">
-                <Button 
-                  variant="outline" 
-                  disabled={page === 1} 
+                <Button
+                  variant="outline"
+                  disabled={page === 1}
                   onClick={() => setPage((p) => p - 1)}
                 >
                   Previous
@@ -274,9 +313,9 @@ export default function Assessments() {
                 <span>
                   Page {page} of {totalPages}
                 </span>
-                <Button 
-                  variant="outline" 
-                  disabled={page === totalPages} 
+                <Button
+                  variant="outline"
+                  disabled={page === totalPages || totalPages === 0}
                   onClick={() => setPage((p) => p + 1)}
                 >
                   Next
