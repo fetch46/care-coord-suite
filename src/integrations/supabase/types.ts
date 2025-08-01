@@ -766,12 +766,48 @@ export type Database = {
           },
         ]
       }
+      notification_templates: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          message_template: string
+          recipients: Json
+          title_template: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          message_template: string
+          recipients?: Json
+          title_template: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          message_template?: string
+          recipients?: Json
+          title_template?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
           id: string
           is_read: boolean | null
           message: string
+          metadata: Json | null
+          notification_type: string | null
+          tenant_id: string | null
           title: string
           type: string | null
           updated_at: string
@@ -782,6 +818,9 @@ export type Database = {
           id?: string
           is_read?: boolean | null
           message: string
+          metadata?: Json | null
+          notification_type?: string | null
+          tenant_id?: string | null
           title: string
           type?: string | null
           updated_at?: string
@@ -792,10 +831,51 @@ export type Database = {
           id?: string
           is_read?: boolean | null
           message?: string
+          metadata?: Json | null
+          notification_type?: string | null
+          tenant_id?: string | null
           title?: string
           type?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      password_reset_tokens: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          token: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          token: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          token?: string
+          used_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1523,6 +1603,68 @@ export type Database = {
           },
         ]
       }
+      tenant_profiles: {
+        Row: {
+          billing_address: string | null
+          billing_contact_email: string | null
+          billing_contact_name: string | null
+          billing_contact_phone: string | null
+          business_address: string | null
+          business_email: string | null
+          business_phone: string | null
+          created_at: string
+          id: string
+          license_number: string | null
+          settings: Json | null
+          tax_id: string | null
+          tenant_id: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          billing_address?: string | null
+          billing_contact_email?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          business_address?: string | null
+          business_email?: string | null
+          business_phone?: string | null
+          created_at?: string
+          id?: string
+          license_number?: string | null
+          settings?: Json | null
+          tax_id?: string | null
+          tenant_id: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          billing_address?: string | null
+          billing_contact_email?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          business_address?: string | null
+          business_email?: string | null
+          business_phone?: string | null
+          created_at?: string
+          id?: string
+          license_number?: string | null
+          settings?: Json | null
+          tax_id?: string | null
+          tenant_id?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_profiles_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_signups: {
         Row: {
           admin_email: string
@@ -1815,6 +1957,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      send_notification_from_template: {
+        Args: { p_template_type: string; p_data?: Json; p_tenant_id?: string }
+        Returns: string
       }
     }
     Enums: {
