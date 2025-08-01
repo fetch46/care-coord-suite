@@ -39,6 +39,7 @@ import SuperAdminSubscriptions from "./pages/SuperAdminSubscriptions";
 import SuperAdminUserManagement from "./pages/SuperAdminUserManagement";
 import SuperAdminSecurity from "./pages/SuperAdminSecurity";
 import SuperAdminCommunication from "./pages/SuperAdminCommunication";
+import TenantProfile from "./pages/TenantProfile";
 import { SuperAdminLayout } from "./components/layouts/SuperAdminLayout";
   
 const queryClient = new QueryClient();
@@ -74,6 +75,7 @@ const App = () => (
             <Route path="/timesheet-reports" element={<ProtectedRoute><TimesheetReports /></ProtectedRoute>} />
             <Route path="/timesheets" element={<ProtectedRoute><Timesheet /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/tenant-profile" element={<ProtectedRoute><TenantProfile /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
             <Route path="/assessment-reports" element={<ProtectedRoute><AssessmentReports /></ProtectedRoute>} />
             <Route path="/super-admin" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />

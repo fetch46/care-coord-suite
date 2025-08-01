@@ -181,11 +181,58 @@ export default function SuperAdminUserManagement() {
     })
   }
 
-  const handleResetPassword = (userId: string) => {
-    toast({
-      title: "Reset Password",
-      description: `Password reset email sent for user ${userId}`
-    })
+  const handleResetPassword = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('password-reset', {
+        body: {
+          action: 'admin-reset-password',
+          userId: userId
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password Reset Successful",
+        description: `Temporary password: ${data.temporaryPassword}`,
+      });
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reset password",
+        variant: "destructive"
+      });
+    }
+  }
+
+  const handleMasqueradeUser = async (userId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('masquerade', {
+        body: {
+          action: 'start',
+          targetUserId: userId
+        }
+      });
+
+      if (error) throw error;
+
+      // Open masquerade session in new tab
+      if (data.loginUrl) {
+        window.open(data.loginUrl, '_blank');
+        toast({
+          title: "Masquerade Started",
+          description: "Login link opened in new tab"
+        });
+      }
+    } catch (error) {
+      console.error('Error starting masquerade:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start masquerade session",
+        variant: "destructive"
+      });
+    }
   }
 
   const handleDeleteUser = (userId: string) => {
@@ -348,6 +395,9 @@ export default function SuperAdminUserManagement() {
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleResetPassword(user.id)}>
                               Reset Password
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleMasqueradeUser(user.id)}>
+                              Login as User
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleDeactivateUser(user.id)}>
                               Deactivate User

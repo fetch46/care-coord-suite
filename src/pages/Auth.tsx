@@ -18,8 +18,10 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showSignupForm, setShowSignupForm] = useState(false);
+  const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
 
   const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [forgotEmail, setForgotEmail] = useState("");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -63,6 +65,50 @@ export default function Auth() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!forgotPasswordMode) {
+      setForgotPasswordMode(true);
+      setForgotEmail(loginData.email);
+      return;
+    }
+
+    if (!forgotEmail.trim()) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('password-reset', {
+        body: {
+          action: 'forgot-password',
+          email: forgotEmail
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password Reset Email Sent",
+        description: "Check your email for password reset instructions.",
+      });
+      setForgotPasswordMode(false);
+    } catch (error) {
+      console.error("Password reset error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send password reset email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (showSignupForm) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted px-4">
@@ -90,60 +136,117 @@ export default function Auth() {
               </TabsList>
 
               <TabsContent value="login" className="space-y-4">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={loginData.email}
-                        onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
-                        className="pl-10"
-                        required
-                      />
+                {forgotPasswordMode ? (
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <h3 className="text-lg font-semibold">Reset Password</h3>
+                      <p className="text-sm text-muted-foreground">Enter your email to receive reset instructions</p>
                     </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        id="login-password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        value={loginData.password}
-                        onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
-                        className="pl-10 pr-10"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowPassword(!showPassword)}
+                    <div className="space-y-2">
+                      <Label htmlFor="forgot-email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                        <Input
+                          id="forgot-email"
+                          type="email"
+                          placeholder="Enter your email"
+                          value={forgotEmail}
+                          onChange={(e) => setForgotEmail(e.target.value)}
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setForgotPasswordMode(false)}
+                        className="flex-1"
+                        disabled={loading}
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        Back to Login
+                      </Button>
+                      <Button 
+                        type="button" 
+                        onClick={handleForgotPassword}
+                        className="flex-1 bg-gradient-primary text-white hover:opacity-90"
+                        disabled={loading}
+                      >
+                        {loading ? "Sending..." : "Send Reset Email"}
                       </Button>
                     </div>
                   </div>
+                ) : (
+                  <div className="space-y-4">
+                    <form onSubmit={handleLogin} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="login-email">Email</Label>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                          <Input
+                            id="login-email"
+                            type="email"
+                            placeholder="Enter your email"
+                            value={loginData.email}
+                            onChange={(e) => setLoginData(prev => ({ ...prev, email: e.target.value }))}
+                            className="pl-10"
+                            required
+                          />
+                        </div>
+                      </div>
 
-                  <Button type="submit" className="w-full bg-gradient-primary text-white hover:opacity-90" disabled={loading}>
-                    {loading ? "Signing in..." : "Sign In"}
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </form>
+                      <div className="space-y-2">
+                        <Label htmlFor="login-password">Password</Label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                          <Input
+                            id="login-password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Enter your password"
+                            value={loginData.password}
+                            onChange={(e) => setLoginData(prev => ({ ...prev, password: e.target.value }))}
+                            className="pl-10 pr-10"
+                            required
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </Button>
+                        </div>
+                      </div>
 
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground mt-2">Don't have an account?</p>
-                  <Button variant="link" onClick={() => setShowSignupForm(true)} className="text-primary font-semibold text-sm">
-                    Get Started
-                  </Button>
-                </div>
+                      <div className="text-right">
+                        <Button 
+                          type="button" 
+                          variant="link" 
+                          onClick={() => handleForgotPassword()}
+                          className="text-primary text-sm"
+                          disabled={loading}
+                        >
+                          Forgot password?
+                        </Button>
+                      </div>
+
+                      <Button type="submit" className="w-full bg-gradient-primary text-white hover:opacity-90" disabled={loading}>
+                        {loading ? "Signing in..." : "Sign In"}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </form>
+
+                    <div className="text-center">
+                      <p className="text-sm text-muted-foreground mt-2">Don't have an account?</p>
+                      <Button variant="link" onClick={() => setShowSignupForm(true)} className="text-primary font-semibold text-sm">
+                        Get Started
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
