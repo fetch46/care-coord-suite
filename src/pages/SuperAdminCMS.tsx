@@ -46,7 +46,7 @@ export default function SuperAdminCMS() {
         .order("content_key");
 
       if (error) throw error;
-      setContent(data || []);
+      setContent((data || []) as CMSContent[]);
     } catch (error) {
       console.error("Error fetching CMS content:", error);
       toast({
@@ -65,7 +65,7 @@ export default function SuperAdminCMS() {
       if (isNewContent) {
         const { data, error } = await supabase.from("cms_content").insert([item]).select();
         if (error) throw error;
-        setContent((prev) => [...prev, ...(data || [])]);
+        setContent((prev) => [...prev, ...((data || []) as CMSContent[])]);
       } else {
         const { error } = await supabase
           .from("cms_content")

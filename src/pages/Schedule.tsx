@@ -56,7 +56,7 @@ interface Availability {
   staff_id: string;
   start_time: string;
   end_time: string;
-  status: "Available" | "Booked" | "On Leave";
+  status: string;
   patient_id?: string;
   staff: Staff;
   patient?: Patient;
@@ -101,7 +101,7 @@ export default function Schedule() {
     setLoading(true);
     try {
       let query = supabase
-        .from("availability")
+        .from("availabilities")
         .select(
           `
           *,
@@ -153,7 +153,7 @@ export default function Schedule() {
       // To avoid too many results, if searchTerm present, fetch a larger range:
       if (searchTerm) {
         const { data } = await supabase
-          .from("availability")
+          .from("availabilities")
           .select(
             `
             *,
@@ -210,21 +210,21 @@ export default function Schedule() {
   async function fetchDashboardStats() {
     try {
       const { count: total } = await supabase
-        .from("availability")
+        .from("availabilities")
         .select("*", { count: "exact", head: true });
 
       const { count: available } = await supabase
-        .from("availability")
+        .from("availabilities")
         .select("*", { count: "exact", head: true })
         .eq("status", "Available");
 
       const { count: booked } = await supabase
-        .from("availability")
+        .from("availabilities")
         .select("*", { count: "exact", head: true })
         .eq("status", "Booked");
 
       const { count: onLeave } = await supabase
-        .from("availability")
+        .from("availabilities")
         .select("*", { count: "exact", head: true })
         .eq("status", "On Leave");
 

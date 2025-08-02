@@ -56,18 +56,18 @@ export default function Assessments() {
     setLoading(true);
     try {
       let query = supabase
-        .from("assessments")
+        .from("patient_assessments")
         .select("*", { count: "exact" })
-        .order("date", { ascending: false })
+        .order("assessment_date", { ascending: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
 
       if (searchTerm) {
         query = query.or(
-          `client.ilike.%${searchTerm}%,type.ilike.%${searchTerm}%,status.ilike.%${searchTerm}%`
+          `title.ilike.%${searchTerm}%,assessment_type.ilike.%${searchTerm}%,status.ilike.%${searchTerm}%`
         );
       }
-      if (filterType) query = query.eq("type", filterType);
-      if (filterDate) query = query.eq("date", filterDate);
+      if (filterType) query = query.eq("assessment_type", filterType);
+      if (filterDate) query = query.eq("assessment_date", filterDate);
 
       const { data, error, count } = await query;
 
@@ -86,25 +86,25 @@ export default function Assessments() {
   const fetchDashboardStats = async () => {
     try {
       const { count: total } = await supabase
-        .from("assessments")
+        .from("patient_assessments")
         .select("*", { count: "exact", head: true });
 
       const today = format(new Date(), "yyyy-MM-dd");
 
       const { count: upcoming } = await supabase
-        .from("assessments")
+        .from("patient_assessments")
         .select("*", { count: "exact", head: true })
-        .gt("date", today);
+        .gt("assessment_date", today);
 
       const { count: completed } = await supabase
-        .from("assessments")
+        .from("patient_assessments")
         .select("*", { count: "exact", head: true })
-        .eq("status", "Completed");
+        .eq("status", "completed");
 
       const { count: pending } = await supabase
-        .from("assessments")
+        .from("patient_assessments")
         .select("*", { count: "exact", head: true })
-        .eq("status", "Pending Review");
+        .eq("status", "pending");
 
       setDashboardStats({
         total: total || 0,
@@ -281,9 +281,9 @@ export default function Assessments() {
                             <TableCell>
                               <CalendarCheck className="w-6 h-6 text-primary" />
                             </TableCell>
-                            <TableCell className="font-semibold">{assessment.type}</TableCell>
-                            <TableCell>{assessment.client}</TableCell>
-                            <TableCell>{assessment.date}</TableCell>
+                            <TableCell className="font-semibold">{assessment.assessment_type}</TableCell>
+                            <TableCell>{assessment.title}</TableCell>
+                            <TableCell>{format(new Date(assessment.assessment_date), 'MMM dd, yyyy')}</TableCell>
                             <TableCell>{assessment.status}</TableCell>
                             <TableCell>
                               <Link
