@@ -28,7 +28,16 @@ import {
   User,
   Phone,
   Users,
+  Crown,
+  Heart,
 } from "lucide-react";
+
+// Plan configuration
+const planConfig = {
+  basic: { name: "Basic", price: "$99/month", color: "text-blue-600", icon: Heart },
+  professional: { name: "Professional", price: "$199/month", color: "text-purple-600", icon: Building2 },
+  enterprise: { name: "Enterprise", price: "$399/month", color: "text-orange-600", icon: Crown },
+};
 
 const tenantSignupSchema = z.object({
   company_name: z.string().min(2, "Company name must be at least 2 characters"),
@@ -38,16 +47,18 @@ const tenantSignupSchema = z.object({
   admin_phone: z.string().optional(),
   company_size: z.string().min(1, "Please select company size"),
   industry: z.string().min(1, "Please select industry"),
+  selected_plan: z.string().default("basic"),
 });
 
 type TenantSignupFormData = z.infer<typeof tenantSignupSchema>;
 
 interface TenantSignupFormProps {
+  selectedPlan?: string;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps) {
+export function TenantSignupForm({ selectedPlan = "basic", onSuccess, onCancel }: TenantSignupFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -61,6 +72,7 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
       admin_phone: "",
       company_size: "",
       industry: "",
+      selected_plan: selectedPlan,
     },
   });
 
@@ -75,6 +87,11 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
         admin_phone: data.admin_phone || null,
         company_size: data.company_size,
         industry: data.industry,
+        selected_plan: data.selected_plan,
+        plan_details: {
+          planId: data.selected_plan,
+          selectedAt: new Date().toISOString()
+        }
       };
 
       const { error } = await supabase
@@ -115,6 +132,27 @@ export function TenantSignupForm({ onSuccess, onCancel }: TenantSignupFormProps)
           <CardDescription>
             Join hundreds of healthcare organizations already using our platform to streamline operations and improve patient care.
           </CardDescription>
+          
+          {/* Selected Plan Display */}
+          {selectedPlan && planConfig[selectedPlan as keyof typeof planConfig] && (
+            <div className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+              <div className="flex items-center gap-3">
+                {(() => {
+                  const config = planConfig[selectedPlan as keyof typeof planConfig];
+                  const IconComponent = config.icon;
+                  return (
+                    <>
+                      <IconComponent className={`w-5 h-5 ${config.color}`} />
+                      <div>
+                        <span className="font-semibold">{config.name} Plan Selected</span>
+                        <span className="text-sm text-muted-foreground ml-2">({config.price})</span>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

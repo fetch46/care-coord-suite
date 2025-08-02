@@ -1677,7 +1677,9 @@ export type Database = {
           id: string
           industry: string | null
           notes: string | null
+          plan_details: Json | null
           processed_date: string | null
+          selected_plan: string | null
           signup_date: string
           status: string
           tenant_id: string | null
@@ -1694,7 +1696,9 @@ export type Database = {
           id?: string
           industry?: string | null
           notes?: string | null
+          plan_details?: Json | null
           processed_date?: string | null
+          selected_plan?: string | null
           signup_date?: string
           status?: string
           tenant_id?: string | null
@@ -1711,7 +1715,9 @@ export type Database = {
           id?: string
           industry?: string | null
           notes?: string | null
+          plan_details?: Json | null
           processed_date?: string | null
+          selected_plan?: string | null
           signup_date?: string
           status?: string
           tenant_id?: string | null

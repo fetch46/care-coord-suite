@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { TenantSignupForm } from "@/components/forms/TenantSignupForm";
+import { PricingSection } from "@/components/sections/PricingSection";
 import { useCMSContent } from "@/hooks/useCMSContent";
 
 export default function Landing() {
@@ -80,6 +81,9 @@ export default function Landing() {
           </div>
           
           <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild className="hidden sm:inline-flex">
+              <Link to="/pricing">Pricing</Link>
+            </Button>
             <Button variant="ghost" asChild className="hidden sm:inline-flex">
               <Link to="/auth">Sign In</Link>
             </Button>
@@ -294,6 +298,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Pricing Section */}
+      <PricingSection />
 
       {/* CTA Section */}
       <section className="relative py-24 px-4 overflow-hidden">
