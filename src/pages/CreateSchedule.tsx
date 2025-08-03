@@ -42,7 +42,7 @@ export default function CreateSchedule(): JSX.Element {
 
   const fetchStaff = async () => {
     const { data, error } = await supabase
-      .from("caregivers")
+      .from("staff")
       .select("id, first_name, last_name, role")
       .order("last_name");
 
@@ -56,7 +56,8 @@ export default function CreateSchedule(): JSX.Element {
   const fetchPatients = async () => {
     const { data, error } = await supabase
       .from("patients")
-      .select("id, first_name, last_name");
+      .select("id, first_name, last_name")
+      .order("first_name");
 
     if (error) {
       console.error("Error fetching patients:", error);
@@ -74,14 +75,13 @@ export default function CreateSchedule(): JSX.Element {
     setSaving(true);
 
     try {
-      const { error } = await supabase.from("appointments").insert([
+      const { error } = await supabase.from("availabilities").insert([
         {
-          caregiver_id: selectedStaff,
+          staff_id: selectedStaff,
           patient_id: selectedPatient || null,
-          appointment_date: startTime,
-          duration_minutes: Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / (1000 * 60)),
-          status: selectedPatient ? "scheduled" : "available",
-          title: selectedPatient ? "Patient Appointment" : "Available Slot",
+          start_time: startTime,
+          end_time: endTime,
+          status: selectedPatient ? "Booked" : "Available",
         },
       ]);
 
@@ -130,11 +130,11 @@ export default function CreateSchedule(): JSX.Element {
                         <SelectValue placeholder="Select staff member" />
                       </SelectTrigger>
                       <SelectContent>
-                        {staffList.map((staff) => (
-                          <SelectItem key={staff.id} value={staff.id}>
-                            {staff.first_name} {staff.last_name} ({staff.role})
-                          </SelectItem>
-                        ))}
+                      {staffList.map((staff) => (
+                        <SelectItem key={staff.id} value={staff.id}>
+                          {staff.first_name} {staff.last_name} ({staff.role})
+                        </SelectItem>
+                      ))}
                       </SelectContent>
                     </Select>
                   </div>
