@@ -14,6 +14,9 @@ import {
   User,
   LogOut,
   Crown,
+  DollarSign,
+  CreditCard,
+  TrendingUp,
 } from "lucide-react"
 import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
@@ -63,6 +66,16 @@ const navigationItems = [
     icon: Clock,
     submenu: [
       { title: "Submit Timesheet", url: "/digital-timesheet", icon: FileText },
+    ]
+  },
+  { 
+    title: "Billing & Finance", 
+    url: "/billing", 
+    icon: DollarSign,
+    submenu: [
+      { title: "Invoices", url: "/billing", icon: FileText },
+      { title: "Payments", url: "/payments", icon: CreditCard },
+      { title: "Financial Reports", url: "/financial-reports", icon: TrendingUp },
     ]
   },
 

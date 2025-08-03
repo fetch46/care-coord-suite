@@ -24,6 +24,10 @@ import PatientAssessment from "./pages/PatientAssessment";
 import DigitalTimesheet from "./pages/DigitalTimesheet";
 import TimesheetReports from "./pages/TimesheetReports";
 import CreateSchedule from "./pages/CreateSchedule";
+import Billing from "./pages/Billing";
+import CreateInvoice from "./pages/CreateInvoice";
+import Payments from "./pages/Payments";
+import FinancialReports from "./pages/FinancialReports";
 import ScheduleDetails from "./pages/ScheduleDetails";
 import Settings from "./pages/Settings";
 import PatientEdit from "./pages/PatientEdit";
@@ -76,6 +80,10 @@ const App = () => (
             <Route path="/digital-timesheet" element={<ProtectedRoute><DigitalTimesheet /></ProtectedRoute>} />
             <Route path="/timesheet-reports" element={<ProtectedRoute><TimesheetReports /></ProtectedRoute>} />
             <Route path="/timesheets" element={<ProtectedRoute><Timesheet /></ProtectedRoute>} />
+            <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+            <Route path="/billing/invoice/new" element={<ProtectedRoute><CreateInvoice /></ProtectedRoute>} />
+            <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+            <Route path="/financial-reports" element={<ProtectedRoute><FinancialReports /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/tenant-profile" element={<ProtectedRoute><TenantProfile /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
