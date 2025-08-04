@@ -17,6 +17,8 @@ import {
   DollarSign,
   CreditCard,
   TrendingUp,
+  Bed,
+  Package,
 } from "lucide-react"
 import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
@@ -55,7 +57,10 @@ const navigationItems = [
     url: "/patients", 
     icon: Users,
     submenu: [
-     { title: "Medical Records", url: "/medical-records", icon: FileText },
+      { title: "Patient Registration", url: "/patient-registration", icon: UserPlus },
+      { title: "Medical Records", url: "/medical-records", icon: FileText },
+      { title: "Admissions", url: "/admissions", icon: Bed },
+      { title: "Package Management", url: "/package-management", icon: Package },
     ]
   },
   

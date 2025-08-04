@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Plus,
   Trash2,
@@ -10,6 +13,8 @@ import {
   Phone,
   Stethoscope,
   CheckCircle,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -40,7 +45,59 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
+
+// Validation schemas
+const clientInfoSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  middleName: z.string().optional(),
+  address: z.string().min(1, "Address is required"),
+  dob: z.string().min(1, "Date of birth is required"),
+  sex: z.string().min(1, "Sex is required"),
+  race: z.string().min(1, "Race is required"),
+  ssn: z.string().min(1, "SSN is required"),
+  referralSource: z.string().optional(),
+  dateOfDischarge: z.string().optional(),
+  primaryDiagnosis: z.string().optional(),
+  secondaryDiagnosis: z.string().optional(),
+  allergies: z.string().optional(),
+  planOfCare: z.string().optional(),
+});
+
+const insuranceSchema = z.object({
+  company: z.string().optional(),
+  memberNumber: z.string().optional(),
+  groupNumber: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  medicaidNumber: z.string().optional(),
+});
+
+const emergencyContactSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  relationship: z.string().min(1, "Relationship is required"),
+  homePhone: z.string().optional(),
+  workPhone: z.string().optional(),
+  cellPhone: z.string().min(1, "At least one phone number is required"),
+  address: z.string().optional(),
+});
+
+const physicianSchema = z.object({
+  primaryPhysicianName: z.string().min(1, "Primary physician name is required"),
+  physicianPhone: z.string().optional(),
+  npiNumber: z.string().optional(),
+  physicianAddress: z.string().optional(),
+});
+
+const registrationSchema = z.object({
+  clientInfo: clientInfoSchema,
+  insuranceDetails: insuranceSchema,
+  emergencyContacts: z.array(emergencyContactSchema).min(1, "At least one emergency contact is required"),
+  physicianInfo: physicianSchema,
+});
+
+type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 export default function PatientRegistration() {
   const { toast } = useToast();

@@ -76,6 +76,17 @@ interface AssessmentType {
   is_active: boolean;
 }
 
+interface Module {
+  id: string;
+  name: string;
+  display_name: string;
+  description: string;
+  is_enabled: boolean;
+  module_key: string;
+  category: string;
+  dependencies: string[];
+}
+
 export default function Settings() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -84,6 +95,7 @@ export default function Settings() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [assessmentTypes, setAssessmentTypes] = useState<AssessmentType[]>([]);
+  const [modules, setModules] = useState<Module[]>([]);
   const [newRoom, setNewRoom] = useState({ room_number: "", room_type: "", capacity: 1, status: "available", notes: "" });
   const [newAssessmentType, setNewAssessmentType] = useState({ name: "", description: "" });
   const [editingAssessmentType, setEditingAssessmentType] = useState<AssessmentType | null>(null);
@@ -98,12 +110,13 @@ export default function Settings() {
 
   const fetchData = async () => {
     try {
-      const [companyRes, financialRes, roomsRes, rolesRes, assessmentTypesRes] = await Promise.all([
+      const [companyRes, financialRes, roomsRes, rolesRes, assessmentTypesRes, modulesRes] = await Promise.all([
         supabase.from("company_settings").select("*").maybeSingle(),
         supabase.from("financial_settings").select("*").maybeSingle(),
         supabase.from("rooms").select("*").order("room_number"),
         supabase.from("user_roles").select("*").order("created_at"),
-        supabase.from("assessment_types").select("*").order("name")
+        supabase.from("assessment_types").select("*").order("name"),
+        supabase.from("modules").select("*").order("category", { ascending: true })
       ]);
 
       if (companyRes.data) setCompanySettings(companyRes.data);
@@ -118,6 +131,13 @@ export default function Settings() {
       if (roomsRes.data) setRooms(roomsRes.data);
       if (rolesRes.data) setUserRoles(rolesRes.data);
       if (assessmentTypesRes.data) setAssessmentTypes(assessmentTypesRes.data);
+      if (modulesRes.data) {
+        const formattedModules = modulesRes.data.map(module => ({
+          ...module,
+          dependencies: Array.isArray(module.dependencies) ? module.dependencies : []
+        }));
+        setModules(formattedModules);
+      }
     } catch (error) {
       console.error("Error fetching settings:", error);
       toast({
@@ -363,6 +383,34 @@ export default function Settings() {
     setLoading(false);
   };
 
+  // Module management functions
+  const toggleModuleStatus = async (id: string, isEnabled: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("modules")
+        .update({ is_enabled: isEnabled })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      setModules(modules.map(module => 
+        module.id === id ? { ...module, is_enabled: isEnabled } : module
+      ));
+
+      toast({
+        title: "Success",
+        description: `Module ${isEnabled ? 'enabled' : 'disabled'} successfully`,
+      });
+    } catch (error) {
+      console.error("Error toggling module status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update module status",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen">
@@ -405,6 +453,10 @@ export default function Settings() {
                   <TabsTrigger value="communication" className="justify-start w-full">
                     <Crown className="w-4 h-4 mr-2" />
                     Communication
+                  </TabsTrigger>
+                  <TabsTrigger value="modules" className="justify-start w-full">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Modules
                   </TabsTrigger>
                   <TabsTrigger value="backup" className="justify-start w-full">
                     <Database className="w-4 h-4 mr-2" />
@@ -955,9 +1007,160 @@ export default function Settings() {
                         </div>
                       </CardContent>
                     </Card>
-                  </TabsContent>
+                   </TabsContent>
 
-                  {/* Backup & Data */}
+                   {/* Modules Management */}
+                   <TabsContent value="modules" className="space-y-6">
+                     <Card>
+                       <CardHeader>
+                         <CardTitle>Module Management</CardTitle>
+                         <p className="text-sm text-muted-foreground">
+                           Enable or disable modules to customize your application functionality
+                         </p>
+                       </CardHeader>
+                       <CardContent className="space-y-6">
+                         {/* Core Modules */}
+                         <div>
+                           <h3 className="font-semibold mb-4 flex items-center gap-2">
+                             <Shield className="w-4 h-4" />
+                             Core Modules
+                           </h3>
+                           <div className="grid gap-4">
+                             {modules.filter(module => module.category === 'core').map((module) => (
+                               <div key={module.id} className="border rounded-lg p-4">
+                                 <div className="flex items-center justify-between">
+                                   <div className="flex-1">
+                                     <div className="flex items-center gap-2">
+                                       <h4 className="font-medium">{module.display_name}</h4>
+                                       <Badge variant={module.is_enabled ? "default" : "secondary"}>
+                                         {module.is_enabled ? "Enabled" : "Disabled"}
+                                       </Badge>
+                                     </div>
+                                     {module.description && (
+                                       <p className="text-sm text-muted-foreground mt-1">
+                                         {module.description}
+                                       </p>
+                                     )}
+                                   </div>
+                                   <Switch
+                                     checked={module.is_enabled}
+                                     onCheckedChange={(checked) => toggleModuleStatus(module.id, checked)}
+                                     disabled={loading}
+                                   />
+                                 </div>
+                               </div>
+                             ))}
+                           </div>
+                         </div>
+
+                         {/* Clinical Modules */}
+                         <div>
+                           <h3 className="font-semibold mb-4 flex items-center gap-2">
+                             <FileText className="w-4 h-4" />
+                             Clinical Modules
+                           </h3>
+                           <div className="grid gap-4">
+                             {modules.filter(module => module.category === 'clinical').map((module) => (
+                               <div key={module.id} className="border rounded-lg p-4">
+                                 <div className="flex items-center justify-between">
+                                   <div className="flex-1">
+                                     <div className="flex items-center gap-2">
+                                       <h4 className="font-medium">{module.display_name}</h4>
+                                       <Badge variant={module.is_enabled ? "default" : "secondary"}>
+                                         {module.is_enabled ? "Enabled" : "Disabled"}
+                                       </Badge>
+                                     </div>
+                                     {module.description && (
+                                       <p className="text-sm text-muted-foreground mt-1">
+                                         {module.description}
+                                       </p>
+                                     )}
+                                   </div>
+                                   <Switch
+                                     checked={module.is_enabled}
+                                     onCheckedChange={(checked) => toggleModuleStatus(module.id, checked)}
+                                     disabled={loading}
+                                   />
+                                 </div>
+                               </div>
+                             ))}
+                           </div>
+                         </div>
+
+                         {/* Business Modules */}
+                         <div>
+                           <h3 className="font-semibold mb-4 flex items-center gap-2">
+                             <DollarSign className="w-4 h-4" />
+                             Business Modules
+                           </h3>
+                           <div className="grid gap-4">
+                             {modules.filter(module => module.category === 'business').map((module) => (
+                               <div key={module.id} className="border rounded-lg p-4">
+                                 <div className="flex items-center justify-between">
+                                   <div className="flex-1">
+                                     <div className="flex items-center gap-2">
+                                       <h4 className="font-medium">{module.display_name}</h4>
+                                       <Badge variant={module.is_enabled ? "default" : "secondary"}>
+                                         {module.is_enabled ? "Enabled" : "Disabled"}
+                                       </Badge>
+                                     </div>
+                                     {module.description && (
+                                       <p className="text-sm text-muted-foreground mt-1">
+                                         {module.description}
+                                       </p>
+                                     )}
+                                   </div>
+                                   <Switch
+                                     checked={module.is_enabled}
+                                     onCheckedChange={(checked) => toggleModuleStatus(module.id, checked)}
+                                     disabled={loading}
+                                   />
+                                 </div>
+                               </div>
+                             ))}
+                           </div>
+                         </div>
+
+                         {/* Other Modules */}
+                         {modules.filter(module => !['core', 'clinical', 'business'].includes(module.category)).length > 0 && (
+                           <div>
+                             <h3 className="font-semibold mb-4 flex items-center gap-2">
+                               <Crown className="w-4 h-4" />
+                               Other Modules
+                             </h3>
+                             <div className="grid gap-4">
+                               {modules.filter(module => !['core', 'clinical', 'business'].includes(module.category)).map((module) => (
+                                 <div key={module.id} className="border rounded-lg p-4">
+                                   <div className="flex items-center justify-between">
+                                     <div className="flex-1">
+                                       <div className="flex items-center gap-2">
+                                         <h4 className="font-medium">{module.display_name}</h4>
+                                         <Badge variant={module.is_enabled ? "default" : "secondary"}>
+                                           {module.is_enabled ? "Enabled" : "Disabled"}
+                                         </Badge>
+                                       </div>
+                                       {module.description && (
+                                         <p className="text-sm text-muted-foreground mt-1">
+                                           {module.description}
+                                         </p>
+                                       )}
+                                     </div>
+                                     <Switch
+                                       checked={module.is_enabled}
+                                       onCheckedChange={(checked) => toggleModuleStatus(module.id, checked)}
+                                       disabled={loading}
+                                     />
+                                   </div>
+                                 </div>
+                               ))}
+                             </div>
+                           </div>
+                         )}
+                       </CardContent>
+                     </Card>
+                   </TabsContent>
+
+                   {/* Backup & Data */}
                   <TabsContent value="backup" className="space-y-6">
                     <Card>
                       <CardHeader>

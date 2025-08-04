@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      admissions: {
+        Row: {
+          admission_date: string
+          admission_notes: string | null
+          admission_status: string | null
+          admission_type: string | null
+          attending_physician: string | null
+          care_level: string | null
+          created_at: string
+          created_by: string | null
+          discharge_date: string | null
+          discharge_reason: string | null
+          emergency_contact_notified: boolean | null
+          estimated_length_of_stay: number | null
+          id: string
+          insurance_authorization: string | null
+          patient_id: string
+          room_id: string
+          special_requirements: string | null
+          updated_at: string
+        }
+        Insert: {
+          admission_date?: string
+          admission_notes?: string | null
+          admission_status?: string | null
+          admission_type?: string | null
+          attending_physician?: string | null
+          care_level?: string | null
+          created_at?: string
+          created_by?: string | null
+          discharge_date?: string | null
+          discharge_reason?: string | null
+          emergency_contact_notified?: boolean | null
+          estimated_length_of_stay?: number | null
+          id?: string
+          insurance_authorization?: string | null
+          patient_id: string
+          room_id: string
+          special_requirements?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admission_date?: string
+          admission_notes?: string | null
+          admission_status?: string | null
+          admission_type?: string | null
+          attending_physician?: string | null
+          care_level?: string | null
+          created_at?: string
+          created_by?: string | null
+          discharge_date?: string | null
+          discharge_reason?: string | null
+          emergency_contact_notified?: boolean | null
+          estimated_length_of_stay?: number | null
+          id?: string
+          insurance_authorization?: string | null
+          patient_id?: string
+          room_id?: string
+          special_requirements?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           appointment_date: string
@@ -970,6 +1033,45 @@ export type Database = {
           },
         ]
       }
+      modules: {
+        Row: {
+          category: string | null
+          created_at: string
+          dependencies: Json | null
+          description: string | null
+          display_name: string
+          id: string
+          is_enabled: boolean | null
+          module_key: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          dependencies?: Json | null
+          description?: string | null
+          display_name: string
+          id?: string
+          is_enabled?: boolean | null
+          module_key: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          dependencies?: Json | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_enabled?: boolean | null
+          module_key?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_templates: {
         Row: {
           created_at: string
@@ -1052,6 +1154,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      packages: {
+        Row: {
+          billing_type: string | null
+          created_at: string
+          description: string | null
+          duration_hours: number | null
+          id: string
+          includes_services: Json | null
+          is_active: boolean | null
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          billing_type?: string | null
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          id?: string
+          includes_services?: Json | null
+          is_active?: boolean | null
+          name: string
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          billing_type?: string | null
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          id?: string
+          includes_services?: Json | null
+          is_active?: boolean | null
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       password_reset_tokens: {
         Row: {
@@ -1297,6 +1438,42 @@ export type Database = {
           member_number?: string | null
           patient_id?: string
           phone_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      patient_packages: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          notes: string | null
+          package_id: string
+          patient_id: string
+          start_date: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          package_id: string
+          patient_id: string
+          start_date?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          notes?: string | null
+          package_id?: string
+          patient_id?: string
+          start_date?: string
+          status?: string | null
           updated_at?: string
         }
         Relationships: []
