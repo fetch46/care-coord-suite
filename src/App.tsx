@@ -48,6 +48,7 @@ import TenantProfile from "./pages/TenantProfile";
 import { SuperAdminLayout } from "./components/layouts/SuperAdminLayout";
 import AdmissionsList from "./pages/AdmissionsList";
 import PatientAdmission from "./pages/PatientAdmission";
+import SuperAdminPackages from "./pages/SuperAdminPackages";
   
 const queryClient = new QueryClient();
 
@@ -94,6 +95,7 @@ const App = () => (
             <Route path="/assessment-reports" element={<ProtectedRoute><AssessmentReports /></ProtectedRoute>} />
             <Route path="/super-admin" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />
             <Route path="/super-admin/clients" element={<ProtectedRoute><SuperAdminClients /></ProtectedRoute>} />
+            <Route path="/super-admin/packages" element={<ProtectedRoute><SuperAdminPackages /></ProtectedRoute>} />
             <Route path="/super-admin/subscriptions" element={<ProtectedRoute><SuperAdminSubscriptions /></ProtectedRoute>} />
             <Route path="/super-admin/users" element={<ProtectedRoute><SuperAdminUserManagement /></ProtectedRoute>} />
             <Route path="/super-admin/settings" element={<ProtectedRoute><SuperAdminSettings /></ProtectedRoute>} />

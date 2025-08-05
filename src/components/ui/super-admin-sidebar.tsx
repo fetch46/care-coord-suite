@@ -25,6 +25,7 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
+  Package,
   Settings,
   Shield,
   Users,
@@ -38,6 +39,7 @@ import {
 const superAdminNavigationItems = [
   { title: "Dashboard", url: "/super-admin", icon: LayoutDashboard },
   { title: "Clients (Tenants)", url: "/super-admin/clients", icon: Building2 },
+  { title: "Packages", url: "/super-admin/packages", icon: Package },
   { title: "Subscriptions", url: "/super-admin/subscriptions", icon: CreditCard },
   { title: "User Management", url: "/super-admin/users", icon: Users },
   { title: "System Settings", url: "/super-admin/settings", icon: Settings },

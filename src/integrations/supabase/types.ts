@@ -1942,6 +1942,51 @@ export type Database = {
           },
         ]
       }
+      subscription_packages: {
+        Row: {
+          billing_type: string
+          created_at: string
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          is_popular: boolean | null
+          name: string
+          price: number
+          storage_gb: number | null
+          updated_at: string
+          user_limit: number | null
+        }
+        Insert: {
+          billing_type?: string
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          name: string
+          price?: number
+          storage_gb?: number | null
+          updated_at?: string
+          user_limit?: number | null
+        }
+        Update: {
+          billing_type?: string
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          name?: string
+          price?: number
+          storage_gb?: number | null
+          updated_at?: string
+          user_limit?: number | null
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           created_at: string
