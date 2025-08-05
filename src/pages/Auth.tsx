@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { TenantSignupForm } from "@/components/forms/TenantSignupForm";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [showSignupForm, setShowSignupForm] = useState(false);
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+  const [checkingRole, setCheckingRole] = useState(false);
 
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [forgotEmail, setForgotEmail] = useState("");
@@ -26,7 +28,20 @@ export default function Auth() {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) navigate("/dashboard");
+      if (session) {
+        // Check user role and redirect accordingly
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (roleData?.role === 'administrator') {
+          navigate("/super-admin");
+        } else {
+          navigate("/dashboard");
+        }
+      }
     };
     checkAuth();
   }, [navigate]);
@@ -51,8 +66,25 @@ export default function Auth() {
         return;
       }
 
-      toast({ title: "Success", description: "Logged in successfully." });
-      navigate("/dashboard");
+      // Check user role and redirect accordingly
+      setCheckingRole(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+        
+        toast({ title: "Success", description: "Logged in successfully." });
+        
+        if (roleData?.role === 'administrator') {
+          navigate("/super-admin");
+        } else {
+          navigate("/dashboard");
+        }
+      }
+      setCheckingRole(false);
     } catch (error) {
       console.error("Login error:", error);
       toast({
@@ -233,8 +265,8 @@ export default function Auth() {
                         </Button>
                       </div>
 
-                      <Button type="submit" className="w-full bg-gradient-primary text-white hover:opacity-90" disabled={loading}>
-                        {loading ? "Signing in..." : "Sign In"}
+                      <Button type="submit" className="w-full bg-gradient-primary text-white hover:opacity-90" disabled={loading || checkingRole}>
+                        {loading || checkingRole ? "Signing in..." : "Sign In"}
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </form>
