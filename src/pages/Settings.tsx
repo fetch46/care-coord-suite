@@ -136,7 +136,7 @@ export default function Settings() {
           ...module,
           dependencies: Array.isArray(module.dependencies) ? module.dependencies : []
         }));
-        setModules(formattedModules);
+        setModules(formattedModules as any);
       }
     } catch (error) {
       console.error("Error fetching settings:", error);

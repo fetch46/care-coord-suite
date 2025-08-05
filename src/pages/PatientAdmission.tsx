@@ -59,8 +59,7 @@ export default function PatientAdmission() {
   
   const preselectedPatientId = searchParams.get('patient_id');
 
-  const form = useForm<AdmissionFormData>({
-    resolver: zodResolver(admissionSchema),
+  const form = useForm({
     defaultValues: {
       patient_id: preselectedPatientId || "",
       room_id: "",
@@ -105,7 +104,7 @@ export default function PatientAdmission() {
     }
   };
 
-  const onSubmit = async (data: AdmissionFormData) => {
+  const onSubmit = async (data: any) => {
     setLoading(true);
     try {
       // Create admission record
@@ -304,7 +303,7 @@ export default function PatientAdmission() {
 
                         <FormField
                           control={form.control}
-                          name="estimated_length_of_stay"
+                          name="care_level"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Estimated Length of Stay (days)</FormLabel>

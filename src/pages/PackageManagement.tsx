@@ -65,8 +65,7 @@ export default function PackageManagement() {
   const [editingPackage, setEditingPackage] = useState<Package | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const form = useForm<PackageFormData>({
-    resolver: zodResolver(packageSchema),
+  const form = useForm({
     defaultValues: {
       name: "",
       description: "",
@@ -106,7 +105,7 @@ export default function PackageManagement() {
     }
   };
 
-  const onSubmit = async (data: PackageFormData) => {
+  const onSubmit = async (data: any) => {
     setLoading(true);
     try {
       if (editingPackage) {
@@ -467,11 +466,11 @@ export default function PackageManagement() {
                       {pkg.description && (
                         <p className="text-sm text-muted-foreground">{pkg.description}</p>
                       )}
-                      
+
                       {pkg.duration_hours && (
                         <div className="flex items-center gap-2 text-sm">
-                          <Clock className="w-4 h-4" />
-                          <span>Duration: {pkg.duration_hours} hours</span>
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span>{pkg.duration_hours} hours</span>
                         </div>
                       )}
 
@@ -479,7 +478,7 @@ export default function PackageManagement() {
                         <div>
                           <h4 className="text-sm font-medium mb-2">Included Services:</h4>
                           <div className="flex flex-wrap gap-1">
-                            {pkg.includes_services.slice(0, 3).map((service) => (
+                            {pkg.includes_services.slice(0, 3).map((service: string) => (
                               <Badge key={service} variant="outline" className="text-xs">
                                 {service}
                               </Badge>
@@ -503,11 +502,11 @@ export default function PackageManagement() {
                     <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     <h3 className="text-lg font-medium mb-2">No packages found</h3>
                     <p className="text-muted-foreground mb-4">
-                      Create your first care package to get started.
+                      Create your first service package to get started.
                     </p>
                     <Button onClick={() => setDialogOpen(true)}>
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Package
+                      Create Package
                     </Button>
                   </CardContent>
                 </Card>

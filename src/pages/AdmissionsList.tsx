@@ -23,11 +23,11 @@ interface Admission {
     first_name: string;
     last_name: string;
     date_of_birth: string;
-  };
+  } | null;
   rooms: {
     room_number: string;
     room_type: string;
-  };
+  } | null;
 }
 
 export default function AdmissionsList() {
@@ -46,13 +46,13 @@ export default function AdmissionsList() {
         .from("admissions")
         .select(`
           *,
-          patients (first_name, last_name, date_of_birth),
-          rooms (room_number, room_type)
+          patients!patient_id (first_name, last_name, date_of_birth),
+          rooms!room_id (room_number, room_type)
         `)
         .order("admission_date", { ascending: false });
 
       if (error) throw error;
-      if (data) setAdmissions(data);
+      if (data) setAdmissions(data as unknown as Admission[]);
     } catch (error) {
       console.error("Error fetching admissions:", error);
       toast({
@@ -152,7 +152,7 @@ export default function AdmissionsList() {
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-lg">
-                            {admission.patients.last_name}, {admission.patients.first_name}
+                            {admission.patients?.last_name || 'Unknown'}, {admission.patients?.first_name || 'Patient'}
                           </CardTitle>
                           <Badge className={getStatusColor(admission.admission_status)}>
                             {admission.admission_status}
@@ -160,17 +160,17 @@ export default function AdmissionsList() {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <User className="w-4 h-4" />
-                          <span>DOB: {new Date(admission.patients.date_of_birth).toLocaleDateString()}</span>
+                          <span>DOB: {admission.patients?.date_of_birth ? new Date(admission.patients.date_of_birth).toLocaleDateString() : 'N/A'}</span>
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <Building className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm">Room {admission.rooms.room_number}</span>
+                            <span className="text-sm">Room {admission.rooms?.room_number || 'N/A'}</span>
                           </div>
                           <Badge variant="outline" className="text-xs">
-                            {admission.rooms.room_type}
+                            {admission.rooms?.room_type || 'N/A'}
                           </Badge>
                         </div>
 

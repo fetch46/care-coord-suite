@@ -47,19 +47,10 @@ const tenantSignupSchema = z.object({
   admin_phone: z.string().optional(),
   company_size: z.string().min(1, "Please select company size"),
   industry: z.string().min(1, "Please select industry"),
-  selected_plan: z.string().default("basic"),
+  selected_plan: z.string().min(1, "Plan selection is required"),
 });
 
-type TenantSignupFormData = {
-  company_name: string;
-  admin_email: string;
-  admin_first_name: string;
-  admin_last_name: string;
-  company_size: string;
-  industry: string;
-  selected_plan: string;
-  admin_phone?: string;
-};
+type TenantSignupFormData = z.infer<typeof tenantSignupSchema>;
 
 interface TenantSignupFormProps {
   selectedPlan?: string;
