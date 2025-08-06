@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Save, FileText } from "lucide-react";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -22,13 +22,15 @@ interface Patient {
 export default function MedicalRecordForm() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const preSelectedPatientId = searchParams.get('patient_id');
   const isEditing = Boolean(id);
 
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    patient_id: "",
+    patient_id: preSelectedPatientId || "",
     title: "",
     record_type: "",
     description: "",
@@ -205,6 +207,7 @@ export default function MedicalRecordForm() {
                       <Select 
                         value={formData.patient_id} 
                         onValueChange={(value) => handleInputChange('patient_id', value)}
+                        disabled={Boolean(preSelectedPatientId)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select a patient" />
@@ -217,6 +220,9 @@ export default function MedicalRecordForm() {
                           ))}
                         </SelectContent>
                       </Select>
+                      {preSelectedPatientId && (
+                        <p className="text-sm text-muted-foreground">Patient pre-selected from patient profile</p>
+                      )}
                     </div>
 
                     {/* Record Type */}

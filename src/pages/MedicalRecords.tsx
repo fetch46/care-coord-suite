@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Search, Plus, Filter, Eye, Edit, Trash2, MoreHorizontal } from "lucide-react";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
 
 interface MedicalRecord {
   id: string;
@@ -34,21 +35,30 @@ export default function MedicalRecords() {
   const [pageSize] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
   const { toast } = useToast();
+  const { hasPermission, loading: permissionsLoading } = useRoleAccess();
+  const [searchParams] = useSearchParams();
+  const patientFilter = searchParams.get('patient_id');
 
   useEffect(() => {
     fetchMedicalRecords();
-  }, []);
+  }, [patientFilter]);
 
   const fetchMedicalRecords = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('medical_records')
         .select(`
           *,
           patients!inner(first_name, last_name)
-        `)
-        .order('recorded_date', { ascending: false });
+        `);
+      
+      // Filter by patient if specified
+      if (patientFilter) {
+        query = query.eq('patient_id', patientFilter);
+      }
+      
+      const { data, error } = await query.order('recorded_date', { ascending: false });
 
       if (error) throw error;
 
@@ -144,17 +154,21 @@ export default function MedicalRecords() {
               {/* Header */}
               <div className="flex justify-between items-center">
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">Medical Records</h1>
+                  <h1 className="text-3xl font-bold text-foreground">
+                    {patientFilter ? 'Patient Medical Records' : 'Medical Records'}
+                  </h1>
                   <p className="text-muted-foreground mt-1">
-                    View and manage patient medical records
+                    {patientFilter ? 'View medical records for this patient' : 'View and manage patient medical records'}
                   </p>
                 </div>
-                <Button className="bg-gradient-primary text-white hover:opacity-90" asChild>
-                  <Link to="/medical-records/new">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Record
-                  </Link>
-                </Button>
+                {hasPermission('medical_records', 'create') && (
+                  <Button className="bg-gradient-primary text-white hover:opacity-90" asChild>
+                    <Link to={`/medical-records/new${patientFilter ? `?patient_id=${patientFilter}` : ''}`}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Record
+                    </Link>
+                  </Button>
+                )}
               </div>
 
               {/* Search and Filter */}
@@ -241,25 +255,31 @@ export default function MedicalRecords() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end" className="bg-background border shadow-md">
-                                  <DropdownMenuItem asChild>
-                                    <Link to={`/medical-records/${record.id}`} className="flex items-center">
-                                      <Eye className="w-4 h-4 mr-2" />
-                                      View Record
-                                    </Link>
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem asChild>
-                                    <Link to={`/medical-records/${record.id}/edit`} className="flex items-center">
-                                      <Edit className="w-4 h-4 mr-2" />
-                                      Edit Record
-                                    </Link>
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem 
-                                    onClick={() => handleDeleteRecord(record.id)}
-                                    className="flex items-center text-destructive"
-                                  >
-                                    <Trash2 className="w-4 h-4 mr-2" />
-                                    Delete Record
-                                  </DropdownMenuItem>
+                                  {hasPermission('medical_records', 'view') && (
+                                    <DropdownMenuItem asChild>
+                                      <Link to={`/medical-records/${record.id}`} className="flex items-center">
+                                        <Eye className="w-4 h-4 mr-2" />
+                                        View Record
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  )}
+                                  {hasPermission('medical_records', 'edit') && (
+                                    <DropdownMenuItem asChild>
+                                      <Link to={`/medical-records/${record.id}/edit`} className="flex items-center">
+                                        <Edit className="w-4 h-4 mr-2" />
+                                        Edit Record
+                                      </Link>
+                                    </DropdownMenuItem>
+                                  )}
+                                  {hasPermission('medical_records', 'delete') && (
+                                    <DropdownMenuItem 
+                                      onClick={() => handleDeleteRecord(record.id)}
+                                      className="flex items-center text-destructive"
+                                    >
+                                      <Trash2 className="w-4 h-4 mr-2" />
+                                      Delete Record
+                                    </DropdownMenuItem>
+                                  )}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </TableCell>

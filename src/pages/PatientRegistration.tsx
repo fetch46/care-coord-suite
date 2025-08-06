@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -15,6 +16,7 @@ import {
   CheckCircle,
   ChevronRight,
   ChevronLeft,
+  ArrowLeft,
 } from "lucide-react";
 import { AppSidebar } from "@/components/ui/app-sidebar";
 import { AppHeader } from "@/components/ui/app-header";
@@ -101,8 +103,12 @@ type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 export default function PatientRegistration() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [patientId, setPatientId] = useState(null);
+  const [currentTab, setCurrentTab] = useState("client-info");
+  
+  const tabOrder = ["client-info", "insurance", "health-history", "emergency", "physician"];
 
   // State to manage all form data
   const [formData, setFormData] = useState({
@@ -204,6 +210,68 @@ export default function PatientRegistration() {
       };
     });
   };
+
+  
+  // Form validation
+  const validateCurrentTab = () => {
+    const errors = [];
+    
+    switch (currentTab) {
+      case "client-info":
+        if (!formData.clientInfo.firstName) errors.push("First name is required");
+        if (!formData.clientInfo.lastName) errors.push("Last name is required");
+        if (!formData.clientInfo.address) errors.push("Address is required");
+        if (!formData.clientInfo.dob) errors.push("Date of birth is required");
+        if (!formData.clientInfo.sex) errors.push("Sex is required");
+        if (!formData.clientInfo.race) errors.push("Race is required");
+        if (!formData.clientInfo.ssn) errors.push("SSN is required");
+        break;
+      case "emergency":
+        const validContacts = formData.emergencyContacts.filter(contact => contact.name);
+        if (validContacts.length === 0) errors.push("At least one emergency contact is required");
+        validContacts.forEach((contact, index) => {
+          if (!contact.cellPhone && !contact.homePhone && !contact.workPhone) {
+            errors.push(`Emergency contact ${index + 1} needs at least one phone number`);
+          }
+        });
+        break;
+      case "physician":
+        if (!formData.physicianInfo.primaryPhysicianName) {
+          errors.push("Primary physician name is required");
+        }
+        break;
+    }
+    
+    if (errors.length > 0) {
+      toast({
+        title: "Validation Error",
+        description: errors.join(", "),
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  // Navigation functions
+  const goToNextTab = () => {
+    if (!validateCurrentTab()) return;
+    
+    const currentIndex = tabOrder.indexOf(currentTab);
+    if (currentIndex < tabOrder.length - 1) {
+      setCurrentTab(tabOrder[currentIndex + 1]);
+    }
+  };
+
+  const goToPreviousTab = () => {
+    const currentIndex = tabOrder.indexOf(currentTab);
+    if (currentIndex > 0) {
+      setCurrentTab(tabOrder[currentIndex - 1]);
+    }
+  };
+
+  const isFirstTab = () => tabOrder.indexOf(currentTab) === 0;
+  const isLastTab = () => tabOrder.indexOf(currentTab) === tabOrder.length - 1;
 
   // Database operations
   const savePatientRegistration = async (status = 'draft') => {
@@ -370,6 +438,19 @@ export default function PatientRegistration() {
           <AppHeader />
           <main className="flex-1 overflow-auto p-6">
             <div className="w-full max-w-screen-2xl mx-auto space-y-8">
+              {/* Header with Back Button */}
+              <div className="flex items-center gap-4">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => navigate('/patients')}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to Patients
+                </Button>
+              </div>
+              
               <div className="text-center space-y-2">
                 <h1 className="text-3xl font-bold text-foreground">
                   Patient Registration
@@ -379,7 +460,7 @@ export default function PatientRegistration() {
                 </p>
               </div>
 
-              <Tabs defaultValue="client-info" className="w-full">
+              <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
                 <TabsList className="mb-6 flex flex-wrap gap-2">
                   <TabsTrigger value="client-info">Client Info</TabsTrigger>
                   <TabsTrigger value="insurance">Insurance Details</TabsTrigger>
@@ -853,28 +934,52 @@ export default function PatientRegistration() {
                 </TabsContent>
               </Tabs>
 
-              {/* Form Buttons */}
-              <div className="flex justify-end items-center pt-6">
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+              {/* Form Navigation */}
+              <div className="flex justify-between items-center pt-6">
+                <div className="flex gap-2">
+                  {!isFirstTab() && (
                     <Button
-                      size="lg"
-                      className="min-w-40 bg-gradient-primary text-white hover:opacity-90"
+                      variant="outline"
+                      onClick={goToPreviousTab}
+                      className="flex items-center gap-2"
                     >
-                      <Send className="w-4 h-4 mr-2" />
-                      Save & Submit
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={handleSaveDraft}>
-                      Save as Draft
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleSubmit}>
-                      Submit
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  {!isLastTab() ? (
+                    <Button
+                      onClick={goToNextTab}
+                      className="bg-gradient-primary text-white hover:opacity-90 flex items-center gap-2"
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={handleSaveDraft}
+                        disabled={loading}
+                        className="flex items-center gap-2"
+                      >
+                        <Save className="w-4 h-4" />
+                        Save Draft
+                      </Button>
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={loading}
+                        className="bg-gradient-primary text-white hover:opacity-90 flex items-center gap-2"
+                      >
+                        <Send className="w-4 h-4" />
+                        Submit Registration
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </main>

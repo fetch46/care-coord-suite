@@ -79,7 +79,6 @@ const navigationItems = [
     submenu: [
       { title: "Invoices", url: "/billing", icon: FileText },
       { title: "Payments", url: "/payments", icon: CreditCard },
-      { title: "Financial Reports", url: "/financial-reports", icon: TrendingUp },
     ]
   },
 
@@ -100,7 +99,8 @@ const navigationItems = [
     { title: "Patient Reports", url: "/patient-reports", icon: FileText },
     { title: "Assessment Reports", url: "/assessment-reports", icon: FileText },
     { title: "Staff Reports", url: "/patient-reports", icon: FileText },
-    { title: "Timesheet Reports", url: "/timesheet-reports", icon: FileText }
+    { title: "Timesheet Reports", url: "/timesheet-reports", icon: FileText },
+    { title: "Financial Reports", url: "/financial-reports", icon: TrendingUp },
   ]
 },
   { title: "Settings", url: "/settings", icon: Settings },

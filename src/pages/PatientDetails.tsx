@@ -491,8 +491,17 @@ export default function PatientDetails() {
 
                 <TabsContent value="medical-records">
                   <Card>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle>Medical Records</CardTitle>
+                      <Button 
+                        className="bg-gradient-primary text-white hover:opacity-90"
+                        asChild
+                      >
+                        <Link to={`/medical-records/new?patient_id=${id}`}>
+                          <FilePlus className="w-4 h-4 mr-2" />
+                          Add Record
+                        </Link>
+                      </Button>
                     </CardHeader>
                     <CardContent className="p-0">
                       <Table>
@@ -503,6 +512,7 @@ export default function PatientDetails() {
                             <TableHead>Title</TableHead>
                             <TableHead>Recorded By</TableHead>
                             <TableHead>Description</TableHead>
+                            <TableHead>Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -523,13 +533,36 @@ export default function PatientDetails() {
                               <TableCell className="max-w-xs truncate">
                                 {record.description}
                               </TableCell>
+                              <TableCell>
+                                <div className="flex gap-1">
+                                  <Button variant="ghost" size="sm" asChild>
+                                    <Link to={`/medical-records/${record.id}`}>
+                                      View
+                                    </Link>
+                                  </Button>
+                                  <Button variant="ghost" size="sm" asChild>
+                                    <Link to={`/medical-records/${record.id}/edit`}>
+                                      Edit
+                                    </Link>
+                                  </Button>
+                                </div>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
                       </Table>
                       {medicalRecords.length === 0 && (
                         <div className="text-center py-8 text-muted-foreground">
-                          No medical records found.
+                          <p>No medical records found.</p>
+                          <Button 
+                            className="mt-4 bg-gradient-primary text-white hover:opacity-90"
+                            asChild
+                          >
+                            <Link to={`/medical-records/new?patient_id=${id}`}>
+                              <FilePlus className="w-4 h-4 mr-2" />
+                              Add First Medical Record
+                            </Link>
+                          </Button>
                         </div>
                       )}
                     </CardContent>
@@ -598,17 +631,86 @@ export default function PatientDetails() {
 
                 <TabsContent value="billing">
                   <Card>
-                    <CardHeader className="flex justify-between items-center">
-                      <CardTitle>Billing</CardTitle>
-                      <Button className="bg-gradient-primary text-white hover:opacity-90 flex items-center gap-2">
-                        <FilePlus className="w-4 h-4" />
-                        Create Invoice
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle>Billing & Invoices</CardTitle>
+                      <Button className="bg-gradient-primary text-white hover:opacity-90 flex items-center gap-2" asChild>
+                        <Link to={`/billing/invoice/new?patient_id=${id}`}>
+                          <FilePlus className="w-4 h-4" />
+                          Create Invoice
+                        </Link>
                       </Button>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground">
-                        Billing details and invoices will appear here.
-                      </p>
+                      <div className="space-y-6">
+                        {/* Recent Invoices Table */}
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">Recent Invoices</h3>
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Invoice Number</TableHead>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Amount</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Actions</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {/* Mock invoice data - replace with real data */}
+                              <TableRow>
+                                <TableCell className="font-medium">INV-001</TableCell>
+                                <TableCell>{new Date().toLocaleDateString()}</TableCell>
+                                <TableCell>$1,250.00</TableCell>
+                                <TableCell>
+                                  <Badge className="bg-green-100 text-green-800 border-green-200">Paid</Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-2">
+                                    <Button variant="ghost" size="sm">View</Button>
+                                    <Button variant="ghost" size="sm">Download</Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                              <TableRow>
+                                <TableCell className="font-medium">INV-002</TableCell>
+                                <TableCell>{new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}</TableCell>
+                                <TableCell>$750.00</TableCell>
+                                <TableCell>
+                                  <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">Pending</Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-2">
+                                    <Button variant="ghost" size="sm">View</Button>
+                                    <Button variant="ghost" size="sm">Send Reminder</Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
+                        
+                        {/* Billing Summary */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <Card>
+                            <CardContent className="p-4">
+                              <div className="text-sm text-muted-foreground">Total Billed</div>
+                              <div className="text-2xl font-bold">$2,000.00</div>
+                            </CardContent>
+                          </Card>
+                          <Card>
+                            <CardContent className="p-4">
+                              <div className="text-sm text-muted-foreground">Amount Paid</div>
+                              <div className="text-2xl font-bold text-green-600">$1,250.00</div>
+                            </CardContent>
+                          </Card>
+                          <Card>
+                            <CardContent className="p-4">
+                              <div className="text-sm text-muted-foreground">Outstanding</div>
+                              <div className="text-2xl font-bold text-orange-600">$750.00</div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
                 </TabsContent>
