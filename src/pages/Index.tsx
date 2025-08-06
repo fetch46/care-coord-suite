@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import heroImage from "@/assets/healthcare-hero.jpg"
 import { BarChart, Bar, ResponsiveContainer } from "recharts"
 import { useUserRole } from "@/hooks/useUserRole"
+import { useUserProfile } from "@/hooks/useUserProfile"
 import { NurseReceptionDashboard } from "@/components/dashboard/nurse-reception-dashboard"
 import { CaregiverDashboard } from "@/components/dashboard/caregiver-dashboard"
 
@@ -41,7 +42,8 @@ const MetricProgress = ({ label, value, percent, colorClass }: {
 
 const Index = () => {
   const { userRole, loading: roleLoading } = useUserRole()
-  const isLoading = roleLoading
+  const { getDisplayName, loading: profileLoading } = useUserProfile()
+  const isLoading = roleLoading || profileLoading
 
   return (
     <SidebarProvider>
@@ -62,8 +64,8 @@ const Index = () => {
                 }}
               >
                 <div className="z-10">
-                  <h1 className="text-3xl font-bold mb-2">Welcome back, Dr. Andrew</h1>
-                  <p className="text-lg opacity-90">CareSync • Administrator Dashboard</p>
+                  <h1 className="text-3xl font-bold mb-2">Welcome back, {getDisplayName()}</h1>
+                  <p className="text-lg opacity-90">CareSync • {userRole ? userRole.charAt(0).toUpperCase() + userRole.slice(1).replace('_', ' ') : 'User'} Dashboard</p>
                   <p className="text-sm opacity-75 mt-2">Today is a great day to provide exceptional care</p>
                 </div>
                 <div className="hidden lg:flex items-center justify-center w-32 h-32 bg-white/10 rounded-full backdrop-blur-sm">
