@@ -19,7 +19,7 @@ interface CMSContent {
   id?: string;
   content_key: string;
   content_type: "text" | "image" | "json";
-  content_value: any;
+  content_value: string | { text: string } | Record<string, unknown>;
   is_active: boolean;
   created_at?: string;
   updated_at?: string;

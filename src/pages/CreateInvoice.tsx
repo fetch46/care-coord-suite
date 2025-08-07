@@ -101,7 +101,7 @@ export default function CreateInvoice() {
     }
   };
 
-  const updateItem = (id: string, field: keyof InvoiceItem, value: any) => {
+  const updateItem = (id: string, field: keyof InvoiceItem, value: string | number) => {
     setItems(
       items.map((item) => {
         if (item.id === id) {

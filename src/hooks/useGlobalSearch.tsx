@@ -89,7 +89,7 @@ export function useGlobalSearch() {
 
       if (!appointmentsError && appointments) {
         appointments.forEach(appointment => {
-          const patient = appointment.patients as any;
+          const patient = appointment.patients as { first_name: string; last_name: string };
           searchResults.push({
             id: appointment.id,
             type: 'appointment',

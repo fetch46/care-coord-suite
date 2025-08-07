@@ -226,7 +226,7 @@ export default function PatientRegistration() {
         if (!formData.clientInfo.race) errors.push("Race is required");
         if (!formData.clientInfo.ssn) errors.push("SSN is required");
         break;
-      case "emergency":
+      case "emergency": {
         const validContacts = formData.emergencyContacts.filter(contact => contact.name);
         if (validContacts.length === 0) errors.push("At least one emergency contact is required");
         validContacts.forEach((contact, index) => {
@@ -235,6 +235,7 @@ export default function PatientRegistration() {
           }
         });
         break;
+      }
       case "physician":
         if (!formData.physicianInfo.primaryPhysicianName) {
           errors.push("Primary physician name is required");

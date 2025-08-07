@@ -35,7 +35,7 @@ interface PaymentGateway {
   name: string;
   provider: string;
   is_active: boolean;
-  configuration: any;
+  configuration: Record<string, unknown>;
 }
 
 interface CommunicationGateway {
@@ -44,7 +44,7 @@ interface CommunicationGateway {
   type: 'email' | 'sms';
   provider: string;
   is_active: boolean;
-  configuration: any;
+  configuration: Record<string, unknown>;
 }
 
 export default function SuperAdminSettings() {

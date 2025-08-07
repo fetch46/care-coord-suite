@@ -104,7 +104,7 @@ export default function PatientAdmission() {
     }
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: AdmissionFormData) => {
     setLoading(true);
     try {
       // Create admission record

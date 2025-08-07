@@ -80,6 +80,15 @@ interface FormState {
   status: 'draft' | 'completed' | 'reviewed';
 }
 
+type FormAction = 
+  | { type: "UPDATE_FIELD"; field: string; value: string }
+  | { type: "UPDATE_RECORD"; area: HotSpot; patch: Partial<HotSpotRecord> }
+  | { type: "ADD_DOT"; dot: Dot }
+  | { type: "REMOVE_DOT"; id: string }
+  | { type: "CLEAR_DOTS" }
+  | { type: "SET_BODY_VIEW"; view: BodyView }
+  | { type: "LOAD_STATE"; payload: Partial<FormState> };
+
 // Storage service
 const storage = {
   get: (key: string): FormState | null => {
@@ -121,7 +130,7 @@ const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 920;
 
 // Reducer for complex state
-const formReducer = (state: FormState, action: any) => {
+const formReducer = (state: FormState, action: FormAction) => {
   switch (action.type) {
     case "UPDATE_FIELD":
       return { ...state, [action.field]: action.value };
@@ -285,7 +294,7 @@ export default function SkinAssessmentForm() {
             notes: record.notes
           };
           return acc;
-        }, {} as any),
+        }, {} as Record<string, { status: Status; notes: string }>),
         general_notes: state.generalNotes,
         status: 'draft'
       };
@@ -346,7 +355,7 @@ export default function SkinAssessmentForm() {
             notes: record.notes
           };
           return acc;
-        }, {} as any),
+        }, {} as Record<string, { status: Status; notes: string }>),
         general_notes: state.generalNotes,
         status: 'completed'
       };

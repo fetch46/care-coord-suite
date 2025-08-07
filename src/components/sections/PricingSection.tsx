@@ -15,7 +15,7 @@ interface PricingPlan {
   yearlyPrice: number;
   popular?: boolean;
   features: string[];
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   maxUsers: string;
   maxPatients: string;
   support: string;
