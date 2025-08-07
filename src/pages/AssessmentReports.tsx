@@ -31,7 +31,7 @@ interface AssessmentReport {
   patient_name: string;
   assessor_name: string;
   assessment_date: string;
-  report_data: any;
+  report_data: Record<string, unknown>;
 }
 
 export default function AssessmentReports() {

@@ -34,7 +34,7 @@ interface TenantProfile {
   billing_contact_name?: string;
   billing_contact_email?: string;
   billing_contact_phone?: string;
-  settings?: any;
+  settings?: Record<string, unknown>;
   tenant?: {
     company_name: string;
     admin_email: string;
@@ -91,6 +91,7 @@ export default function TenantProfile() {
           throw createError;
         }
         profileData = newProfile;
+        profileError = null; // Clear the error since we created the profile
       } else if (profileError) {
         throw profileError;
       }

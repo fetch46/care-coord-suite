@@ -4,12 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 interface CMSContent {
   content_key: string;
   content_type: string;
-  content_value: any;
+  content_value: string | { text: string };
   is_active: boolean;
 }
 
 export function useCMSContent() {
-  const [content, setContent] = useState<Record<string, any>>({});
+  const [content, setContent] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,9 +25,12 @@ export function useCMSContent() {
           return;
         }
 
-        const contentMap: Record<string, any> = {};
+        const contentMap: Record<string, string> = {};
         data?.forEach((item: CMSContent) => {
-          contentMap[item.content_key] = item.content_value.text || item.content_value;
+          const value = typeof item.content_value === 'string' 
+            ? item.content_value 
+            : item.content_value.text;
+          contentMap[item.content_key] = value;
         });
 
         setContent(contentMap);

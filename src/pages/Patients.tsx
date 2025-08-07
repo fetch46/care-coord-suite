@@ -89,7 +89,7 @@ export default function Patients() {
 
       setPatients(data || []);
       setTotalPatients(count || 0);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error fetching patients:", err);
       setError("Failed to load patients. Please try again.");
     } finally {

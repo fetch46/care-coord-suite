@@ -496,7 +496,7 @@ export default function SuperAdminCommunication() {
                   <Label htmlFor="frequency">Notification Frequency</Label>
                   <Select 
                     value={settings.notification_frequency} 
-                    onValueChange={(value: any) => setSettings({
+                    onValueChange={(value: string) => setSettings({
                       ...settings,
                       notification_frequency: value
                     })}
