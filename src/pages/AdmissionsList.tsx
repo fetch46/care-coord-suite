@@ -19,12 +19,12 @@ interface Admission {
   admission_status: string;
   attending_physician: string;
   care_level: string;
-  patients: {
+  patients?: {
     first_name: string;
     last_name: string;
     date_of_birth: string;
   } | null;
-  rooms: {
+  rooms?: {
     room_number: string;
     room_type: string;
   } | null;
@@ -42,17 +42,42 @@ export default function AdmissionsList() {
 
   const fetchAdmissions = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch admissions without joins (no FK relationships defined)
+      const { data: admissionsData, error: admissionsError } = await supabase
         .from("admissions")
-        .select(`
-          *,
-          patients!patient_id (first_name, last_name, date_of_birth),
-          rooms!room_id (room_number, room_type)
-        `)
+        .select("*")
         .order("admission_date", { ascending: false });
 
-      if (error) throw error;
-      if (data) setAdmissions(data as unknown as Admission[]);
+      if (admissionsError) throw admissionsError;
+      const admissions = admissionsData || [];
+
+      // Collect unique patient and room IDs
+      const patientIds = Array.from(new Set(admissions.map((a: any) => a.patient_id).filter(Boolean)));
+      const roomIds = Array.from(new Set(admissions.map((a: any) => a.room_id).filter(Boolean)));
+
+      // Fetch related patients and rooms in parallel
+      const [patientsRes, roomsRes] = await Promise.all([
+        patientIds.length
+          ? supabase.from("patients").select("id, first_name, last_name, date_of_birth").in("id", patientIds)
+          : Promise.resolve({ data: [], error: null }),
+        roomIds.length
+          ? supabase.from("rooms").select("id, room_number, room_type").in("id", roomIds)
+          : Promise.resolve({ data: [], error: null })
+      ]);
+
+      if (patientsRes.error) throw patientsRes.error;
+      if (roomsRes.error) throw roomsRes.error;
+
+      const patientsMap = new Map((patientsRes.data || []).map((p: any) => [p.id, p]));
+      const roomsMap = new Map((roomsRes.data || []).map((r: any) => [r.id, r]));
+
+      const enriched = admissions.map((a: any) => ({
+        ...a,
+        patients: patientsMap.get(a.patient_id) || null,
+        rooms: roomsMap.get(a.room_id) || null,
+      }));
+
+      setAdmissions(enriched);
     } catch (error) {
       console.error("Error fetching admissions:", error);
       toast({

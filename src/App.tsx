@@ -49,6 +49,11 @@ import { SuperAdminLayout } from "./components/layouts/SuperAdminLayout";
 import AdmissionsList from "./pages/AdmissionsList";
 import PatientAdmission from "./pages/PatientAdmission";
 import SuperAdminPackages from "./pages/SuperAdminPackages";
+import InvoiceView from "./pages/InvoiceView";
+import InvoiceEdit from "./pages/InvoiceEdit";
+import PaymentCreate from "./pages/PaymentCreate";
+import PaymentView from "./pages/PaymentView";
+import PaymentEdit from "./pages/PaymentEdit";
   
 const queryClient = new QueryClient();
 
