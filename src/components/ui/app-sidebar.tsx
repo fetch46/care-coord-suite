@@ -140,10 +140,10 @@ export function AppSidebar() {
   }
 
   const getNavCls = (path: string) => {
-    const baseClasses = "transition-all duration-200 hover:bg-primary/10 hover:text-primary"
+    const baseClasses = "flex items-center w-full rounded-xl px-4 py-4 text-base transition-all duration-200 hover:bg-primary/10 hover:text-primary";
     return isActive(path) 
-      ? `${baseClasses} bg-primary/15 text-primary font-medium border-r-2 border-primary` 
-      : baseClasses
+      ? `${baseClasses} bg-primary/15 text-primary font-semibold border border-primary/30`
+      : baseClasses;
   }
 
   return (
@@ -172,7 +172,7 @@ export function AppSidebar() {
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
+            <SidebarMenu className="flex flex-col gap-5 py-4">
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {item.submenu ? (
@@ -183,7 +183,7 @@ export function AppSidebar() {
                             to={item.url}
                             className={getNavCls(item.url)}
                           >
-                            <item.icon className="w-5 h-5 flex-shrink-0" />
+                            <item.icon className="w-6 h-6 flex-shrink-0" />
                             {!isCollapsed && <span className="ml-3">{item.title}</span>}
                           </NavLink>
                         </SidebarMenuButton>
@@ -202,9 +202,9 @@ export function AppSidebar() {
                               <SidebarMenuSubButton asChild>
                                 <NavLink 
                                   to={subItem.url}
-                                  className={getNavCls(subItem.url)}
+                                  className={`${getNavCls(subItem.url)} pl-8 py-3 text-sm`}
                                 >
-                                  <subItem.icon className="w-4 h-4 flex-shrink-0" />
+                                  <subItem.icon className="w-5 h-5 flex-shrink-0" />
                                   {!isCollapsed && <span className="ml-3">{subItem.title}</span>}
                                 </NavLink>
                               </SidebarMenuSubButton>
@@ -220,7 +220,7 @@ export function AppSidebar() {
                         end={item.url === "/"}
                         className={getNavCls(item.url)}
                       >
-                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <item.icon className="w-6 h-6 flex-shrink-0" />
                         {!isCollapsed && <span className="ml-3">{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
