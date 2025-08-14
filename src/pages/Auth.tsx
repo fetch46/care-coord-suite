@@ -34,7 +34,7 @@ export default function Auth() {
           .from('user_roles')
           .select('role')
           .eq('user_id', session.user.id)
-          .single();
+          .maybeSingle();
         
         if (roleData?.role === 'administrator') {
           navigate("/super-admin");
@@ -74,7 +74,7 @@ export default function Auth() {
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
         
         toast({ title: "Success", description: "Logged in successfully." });
         

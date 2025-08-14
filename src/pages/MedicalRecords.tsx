@@ -86,13 +86,15 @@ export default function MedicalRecords() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Open":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-healthcare-success/10 text-healthcare-success border-healthcare-success/20";
       case "Closed":
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-muted text-muted-foreground border-border";
       case "Pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "bg-healthcare-warning/10 text-healthcare-warning border-healthcare-warning/20";
+      case "Confidential":
+        return "bg-destructive/10 text-destructive border-destructive/20";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-muted text-muted-foreground border-border";
     }
   };
 
@@ -198,7 +200,9 @@ export default function MedicalRecords() {
 
               {/* Error State */}
               {error && (
-                <div className="text-red-600 text-center py-4">{error}</div>
+                <div className="text-destructive text-center py-4 bg-destructive/10 rounded-md border border-destructive/20 p-4">
+                  {error}
+                </div>
               )}
 
               {/* Loading State */}
