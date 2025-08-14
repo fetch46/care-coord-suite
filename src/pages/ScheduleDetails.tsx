@@ -258,7 +258,7 @@ export default function ScheduleDetails() {
                         <SelectValue placeholder="Assign a patient" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Unassigned</SelectItem>
+                        <SelectItem value="unassigned">Unassigned</SelectItem>
                         {patientList.map((patient) => (
                           <SelectItem key={patient.id} value={patient.id}>
                             {patient.first_name} {patient.last_name}

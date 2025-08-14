@@ -133,19 +133,26 @@ export default function TimesheetReports() {
   const filteredTimesheets = timesheets.filter(timesheet => {
     const matchesSearch = timesheet.caregiver_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          timesheet.client_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCaregiver = !selectedCaregiver || timesheet.caregiver_id === selectedCaregiver;
-    const matchesPatient = !selectedPatient || timesheet.client_id === selectedPatient;
-    const matchesStatus = !statusFilter || timesheet.status === statusFilter;
+    const matchesCaregiver = !selectedCaregiver || selectedCaregiver === "all" || timesheet.caregiver_id === selectedCaregiver;
+    const matchesPatient = !selectedPatient || selectedPatient === "all" || timesheet.client_id === selectedPatient;
+    const matchesStatus = !statusFilter || statusFilter === "all" || timesheet.status === statusFilter;
     
     return matchesSearch && matchesCaregiver && matchesPatient && matchesStatus;
   });
 
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedCaregiver("all");
+    setSelectedPatient("all");
+    setStatusFilter("all");
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "approved": return "bg-green-100 text-green-800 border-green-200";
-      case "pending": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "rejected": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+      case "approved": return "bg-healthcare-success/10 text-healthcare-success border-healthcare-success/20";
+      case "pending": return "bg-healthcare-warning/10 text-healthcare-warning border-healthcare-warning/20";
+      case "rejected": return "bg-destructive/10 text-destructive border-destructive/20";
+      default: return "bg-muted text-muted-foreground border-border";
     }
   };
 
@@ -276,7 +283,7 @@ export default function TimesheetReports() {
                         <SelectValue placeholder="Filter by Caregiver" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Caregivers</SelectItem>
+                        <SelectItem value="all">All Caregivers</SelectItem>
                         {caregivers.map((caregiver) => (
                           <SelectItem key={caregiver.id} value={caregiver.id}>
                             {caregiver.first_name} {caregiver.last_name}
@@ -290,7 +297,7 @@ export default function TimesheetReports() {
                         <SelectValue placeholder="Filter by Patient" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Patients</SelectItem>
+                        <SelectItem value="all">All Patients</SelectItem>
                         {patients.map((patient) => (
                           <SelectItem key={patient.id} value={patient.id}>
                             {patient.first_name} {patient.last_name}
@@ -304,14 +311,14 @@ export default function TimesheetReports() {
                         <SelectValue placeholder="Filter by Status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Statuses</SelectItem>
+                        <SelectItem value="all">All Statuses</SelectItem>
                         <SelectItem value="approved">Approved</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="rejected">Rejected</SelectItem>
                       </SelectContent>
                     </Select>
 
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={clearFilters}>
                       <Filter className="w-4 h-4 mr-2" />
                       Clear Filters
                     </Button>

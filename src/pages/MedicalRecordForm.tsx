@@ -75,7 +75,7 @@ export default function MedicalRecordForm() {
         .from('medical_records')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       
@@ -114,8 +114,13 @@ export default function MedicalRecordForm() {
       setLoading(true);
       
       const recordData = {
-        ...formData,
+        patient_id: formData.patient_id,
+        record_type: formData.record_type,
+        title: formData.title,
+        description: formData.description || null,
+        recorded_by: formData.recorded_by || null,
         recorded_date: new Date(formData.recorded_date).toISOString(),
+        is_confidential: formData.is_confidential
       };
 
       if (isEditing) {

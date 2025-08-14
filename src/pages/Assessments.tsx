@@ -27,8 +27,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Assessments() {
+  const { toast } = useToast();
   const [assessments, setAssessments] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("");
@@ -55,28 +57,66 @@ export default function Assessments() {
   const fetchAssessments = async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from("patient_assessments")
-        .select("*", { count: "exact" })
-        .order("assessment_date", { ascending: false })
-        .range((page - 1) * pageSize, page * pageSize - 1);
+      // Fetch both patient assessments and comprehensive assessments
+      const [patientAssessmentsQuery, comprehensiveAssessmentsQuery] = await Promise.all([
+        supabase
+          .from("patient_assessments")
+          .select("*", { count: "exact" })
+          .order("assessment_date", { ascending: false })
+          .range((page - 1) * pageSize, page * pageSize - 1),
+        supabase
+          .from("comprehensive_patient_assessments")
+          .select("*", { count: "exact" })
+          .order("assessment_date", { ascending: false })
+          .range((page - 1) * pageSize, page * pageSize - 1)
+      ]);
 
+      const patientAssessments = patientAssessmentsQuery.data || [];
+      const comprehensiveAssessments = comprehensiveAssessmentsQuery.data || [];
+
+      // Combine and format assessments
+      const combinedAssessments = [
+        ...patientAssessments.map(assessment => ({
+          ...assessment,
+          source: 'patient_assessments'
+        })),
+        ...comprehensiveAssessments.map(assessment => ({
+          ...assessment,
+          title: assessment.assessor_name || 'Comprehensive Assessment',
+          source: 'comprehensive_patient_assessments'
+        }))
+      ].sort((a, b) => new Date(b.assessment_date).getTime() - new Date(a.assessment_date).getTime());
+
+      // Apply filters
+      let filteredAssessments = combinedAssessments;
       if (searchTerm) {
-        query = query.or(
-          `title.ilike.%${searchTerm}%,assessment_type.ilike.%${searchTerm}%,status.ilike.%${searchTerm}%`
+        filteredAssessments = filteredAssessments.filter(assessment =>
+          assessment.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          assessment.assessment_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          assessment.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          assessment.assessor_name?.toLowerCase().includes(searchTerm.toLowerCase())
         );
       }
-      if (filterType) query = query.eq("assessment_type", filterType);
-      if (filterDate) query = query.eq("assessment_date", filterDate);
+      if (filterType) {
+        filteredAssessments = filteredAssessments.filter(assessment => 
+          assessment.assessment_type === filterType
+        );
+      }
+      if (filterDate) {
+        filteredAssessments = filteredAssessments.filter(assessment => 
+          assessment.assessment_date === filterDate
+        );
+      }
 
-      const { data, error, count } = await query;
-
-      if (error) throw error;
-
-      setAssessments(data || []);
-      setTotalCount(count || 0);
+      setAssessments(filteredAssessments);
+      setTotalCount(filteredAssessments.length);
     } catch (error) {
       console.error("Error fetching assessments:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load assessments.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -85,32 +125,63 @@ export default function Assessments() {
   // Fetch dashboard summary stats
   const fetchDashboardStats = async () => {
     try {
-      const { count: total } = await supabase
-        .from("patient_assessments")
-        .select("*", { count: "exact", head: true });
+      const [patientAssessments, comprehensiveAssessments] = await Promise.all([
+        supabase
+          .from("patient_assessments")
+          .select("*", { count: "exact", head: true }),
+        supabase
+          .from("comprehensive_patient_assessments")
+          .select("*", { count: "exact", head: true })
+      ]);
+
+      const total = (patientAssessments.count || 0) + (comprehensiveAssessments.count || 0);
 
       const today = format(new Date(), "yyyy-MM-dd");
 
-      const { count: upcoming } = await supabase
-        .from("patient_assessments")
-        .select("*", { count: "exact", head: true })
-        .gt("assessment_date", today);
+      const [upcomingPatient, upcomingComprehensive] = await Promise.all([
+        supabase
+          .from("patient_assessments")
+          .select("*", { count: "exact", head: true })
+          .gt("assessment_date", today),
+        supabase
+          .from("comprehensive_patient_assessments")
+          .select("*", { count: "exact", head: true })
+          .gt("assessment_date", today)
+      ]);
 
-      const { count: completed } = await supabase
-        .from("patient_assessments")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "completed");
+      const upcoming = (upcomingPatient.count || 0) + (upcomingComprehensive.count || 0);
 
-      const { count: pending } = await supabase
-        .from("patient_assessments")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "pending");
+      const [completedPatient, completedComprehensive] = await Promise.all([
+        supabase
+          .from("patient_assessments")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "completed"),
+        supabase
+          .from("comprehensive_patient_assessments")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "completed")
+      ]);
+
+      const completed = (completedPatient.count || 0) + (completedComprehensive.count || 0);
+
+      const [pendingPatient, pendingComprehensive] = await Promise.all([
+        supabase
+          .from("patient_assessments")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "pending"),
+        supabase
+          .from("comprehensive_patient_assessments")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "draft")
+      ]);
+
+      const pending = (pendingPatient.count || 0) + (pendingComprehensive.count || 0);
 
       setDashboardStats({
-        total: total || 0,
-        upcoming: upcoming || 0,
-        completed: completed || 0,
-        pending: pending || 0,
+        total,
+        upcoming,
+        completed,
+        pending,
       });
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
@@ -150,9 +221,9 @@ export default function Assessments() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem asChild>
-                      <Link to="/create-assessment/patient" className="flex items-center gap-2 p-2">
+                      <Link to="/patient-assessment" className="flex items-center gap-2 p-2">
                         <User className="w-4 h-4" />
-                        Patient Assessment
+                        Comprehensive Assessment
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

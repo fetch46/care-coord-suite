@@ -78,10 +78,10 @@ export default function CreateSchedule(): JSX.Element {
       const { error } = await supabase.from("availabilities").insert([
         {
           staff_id: selectedStaff,
-          patient_id: selectedPatient || null,
+          patient_id: selectedPatient === "unassigned" ? null : selectedPatient || null,
           start_time: startTime,
           end_time: endTime,
-          status: selectedPatient ? "Booked" : "Available",
+          status: selectedPatient && selectedPatient !== "unassigned" ? "Booked" : "Available",
         },
       ]);
 
@@ -147,7 +147,7 @@ export default function CreateSchedule(): JSX.Element {
                         <SelectValue placeholder="Select a patient" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Unassigned</SelectItem>
+                        <SelectItem value="unassigned">Unassigned</SelectItem>
                         {patients.map((patient) => (
                           <SelectItem key={patient.id} value={patient.id}>
                             {patient.first_name} {patient.last_name}

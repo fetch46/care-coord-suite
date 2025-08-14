@@ -579,100 +579,138 @@ export default function PatientAssessment() {
   };
 
   // --- Form Submission ---
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = {
-      selectedPatient,
-      assessmentType,
-      assessmentDate,
-      assessorName,
-      temp,
-      pulse,
-      respiration,
-      bloodPressure,
-      weight,
-      selectedDiets,
-      otherDietDetails: selectedDiets.includes("other") ? otherDietDetails : "",
-      fluidIntake,
-      fluidAmount: fluidIntake === "restricted" ? fluidAmount : "",
-      recentChanges,
-      selectedRespiratoryFindings,
-      otherRespiratoryFindings: selectedRespiratoryFindings.includes("other") ? otherRespiratoryFindings : "",
-      shortnessOfBreath,
-      selectedRespiratoryTreatments,
-      painFrequency,
-      painSites,
-      painIntensity,
-      painAffectsLife,
-      painCause,
-      painTreatment,
-      catheter,
-      urineFrequency,
-      selectedGenitourinaryIssues,
-      otherGenitourinary,
-      utiTreated,
-      bpPulseNormal,
-      rhythm,
-      selectedEdema,
-      otherCardiovascular,
-      bowelsFrequency,
-      selectedGastrointestinalIssues,
-      swallowingIssues,
-      painGastrointestinal,
-      otherGastrointestinal,
-      bowelIncontinenceFrequency,
-      ostomyBowelElimination,
-      cognitiveFunctioning,
-      selectedSpeechIssues,
-      pupils,
-      movements,
-      selectedExtremities,
-      vision,
-      hearing,
-      selectedBehaviors,
-      psychologicalCounseling,
-      selectedMusculoskeletalIssues,
-      otherMusculoskeletal,
-      selectedMentalHealthIssues,
-      selectedSkinColors,
-      skinIntact,
-      pressureUlcers: {
-        stage1: pressureUlcersStage1,
-        stage2: pressureUlcersStage2,
-        stage3: pressureUlcersStage3,
-        stage4: pressureUlcersStage4,
-      },
-      ulcerLocations,
-      surgicalWounds,
-      mobility,
-      ambulatingAid,
-      transferAid,
-      bathingLevel,
-      personalHygieneLevel,
-      toiletingLevel,
-      toiletingIncontinentBladder,
-      toiletingIncontinentBowel,
-      dressingLevel,
-      eatingDrinkingLevel,
-      selectedHealthMaintenanceNeeds,
-      otherHealthNeedsNotes,
-      generalPhysicalCondition,
-      otherPhysicalCondition,
-      medications,
-      medicationAdministration,
-      otherMedicationManagement,
-      nurseVisitType,
-      selectedNurseVisitActivities,
-      caregiverNames,
-      rnName,
-      rnSignature,
-      rnDate,
-      participantGuardianName,
-      participantGuardianSignature,
-      participantGuardianDate,
-    };
-    console.log("Collected Form Data:", formData);
-    alert("Form data logged to console. In a real app, this would be submitted.");
+    
+    if (!selectedPatient || !assessmentType || !assessorName) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields (Patient, Assessment Type, Assessor Name).",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      const assessmentData = {
+        patient_id: selectedPatient,
+        assessment_type: assessmentType,
+        assessment_date: assessmentDate || new Date().toISOString().split('T')[0],
+        assessor_name: assessorName,
+        temperature: temp ? parseFloat(temp) : null,
+        pulse: pulse ? parseInt(pulse) : null,
+        respiration: respiration ? parseInt(respiration) : null,
+        blood_pressure: bloodPressure || null,
+        weight: weight ? parseFloat(weight) : null,
+        selected_diets: selectedDiets,
+        other_diet_details: selectedDiets.includes("other") ? otherDietDetails : null,
+        fluid_intake: fluidIntake || null,
+        fluid_amount: fluidIntake === "restricted" ? fluidAmount : null,
+        recent_changes: recentChanges || null,
+        respiratory_findings: selectedRespiratoryFindings,
+        other_respiratory_findings: selectedRespiratoryFindings.includes("other") ? otherRespiratoryFindings : null,
+        shortness_of_breath: shortnessOfBreath || null,
+        respiratory_treatments: selectedRespiratoryTreatments,
+        pain_frequency: painFrequency || null,
+        pain_sites: painSites || null,
+        pain_intensity: painIntensity || null,
+        pain_affects_life: painAffectsLife,
+        pain_cause: painCause || null,
+        pain_treatment: painTreatment || null,
+        catheter: catheter,
+        urine_frequency: urineFrequency || null,
+        genitourinary_issues: selectedGenitourinaryIssues,
+        other_genitourinary: otherGenitourinary || null,
+        uti_treated: utiTreated,
+        bp_pulse_normal: bpPulseNormal,
+        rhythm: rhythm || null,
+        edema: selectedEdema,
+        other_cardiovascular: otherCardiovascular || null,
+        bowels_frequency: bowelsFrequency || null,
+        gastrointestinal_issues: selectedGastrointestinalIssues,
+        swallowing_issues: swallowingIssues || null,
+        pain_gastrointestinal: painGastrointestinal || null,
+        other_gastrointestinal: otherGastrointestinal || null,
+        bowel_incontinence_frequency: bowelIncontinenceFrequency || null,
+        ostomy_bowel_elimination: ostomyBowelElimination,
+        cognitive_functioning: cognitiveFunctioning || null,
+        speech_issues: selectedSpeechIssues,
+        pupils: pupils || null,
+        movements: movements || null,
+        extremities: selectedExtremities,
+        vision: vision || null,
+        hearing: hearing || null,
+        behaviors: selectedBehaviors,
+        psychological_counseling: psychologicalCounseling || null,
+        musculoskeletal_issues: selectedMusculoskeletalIssues,
+        other_musculoskeletal: otherMusculoskeletal || null,
+        mental_health_issues: selectedMentalHealthIssues,
+        skin_colors: selectedSkinColors,
+        skin_intact: skinIntact || null,
+        pressure_ulcers_stage1: pressureUlcersStage1,
+        pressure_ulcers_stage2: pressureUlcersStage2,
+        pressure_ulcers_stage3: pressureUlcersStage3,
+        pressure_ulcers_stage4: pressureUlcersStage4,
+        ulcer_locations: ulcerLocations || null,
+        surgical_wounds: surgicalWounds || null,
+        mobility: mobility || null,
+        ambulating_aid: ambulatingAid || null,
+        transfer_aid: transferAid || null,
+        bathing_level: bathingLevel || null,
+        personal_hygiene_level: personalHygieneLevel || null,
+        toileting_level: toiletingLevel || null,
+        toileting_incontinent_bladder: toiletingIncontinentBladder,
+        toileting_incontinent_bowel: toiletingIncontinentBowel,
+        dressing_level: dressingLevel || null,
+        eating_drinking_level: eatingDrinkingLevel || null,
+        health_maintenance_needs: selectedHealthMaintenanceNeeds,
+        other_health_needs_notes: otherHealthNeedsNotes || null,
+        general_physical_condition: generalPhysicalCondition || 'stable',
+        other_physical_condition: otherPhysicalCondition || null,
+        medications: medications,
+        medication_administration: medicationAdministration || null,
+        other_medication_management: otherMedicationManagement || null,
+        nurse_visit_type: nurseVisitType || null,
+        nurse_visit_activities: selectedNurseVisitActivities,
+        caregiver_names: caregiverNames || null,
+        rn_name: rnName || null,
+        rn_signature: rnSignature || null,
+        rn_date: rnDate || null,
+        participant_guardian_name: participantGuardianName || null,
+        participant_guardian_signature: participantGuardianSignature || null,
+        participant_guardian_date: participantGuardianDate || null,
+        status: 'completed'
+      };
+
+      const { data, error } = await supabase
+        .from('comprehensive_patient_assessments')
+        .insert([assessmentData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setAssessmentId(data.id);
+      toast({
+        title: "Success",
+        description: "Patient assessment saved successfully!",
+      });
+
+      // Reset form or redirect as needed
+      console.log("Assessment saved with ID:", data.id);
+      
+    } catch (error) {
+      console.error('Error saving assessment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save patient assessment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -1665,8 +1703,14 @@ export default function PatientAssessment() {
                   </CardContent>
                 </Card>
 
-                <div className="flex justify-end mt-6">
-                  <Button type="submit">Submit Assessment</Button>
+                <div className="flex justify-end gap-4 mt-6">
+                  <Button type="button" variant="outline" onClick={() => window.location.href = '/assessments'}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={loading} className="bg-gradient-primary text-white hover:opacity-90">
+                    {loading ? 'Saving...' : 'Save Assessment'}
+                    {loading ? null : <Save className="ml-2 h-4 w-4" />}
+                  </Button>
                 </div>
               </form>
             </main>
