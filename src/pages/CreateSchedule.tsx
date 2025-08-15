@@ -105,8 +105,8 @@ export default function CreateSchedule(): JSX.Element {
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-3xl mx-auto space-y-8">
+          <main className="flex-1 overflow-auto p-4 md:p-6">
+            <div className="max-w-none w-full space-y-6 md:space-y-8">
               {/* Back Button */}
               <div className="flex items-center gap-4">
                 <Button variant="ghost" size="sm" asChild>
@@ -117,11 +117,11 @@ export default function CreateSchedule(): JSX.Element {
                 </Button>
               </div>
 
-              <Card>
+              <Card className="w-full">
                 <CardHeader>
-                  <CardTitle>Create Schedule</CardTitle>
+                  <CardTitle className="text-xl md:text-2xl">Create Schedule</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 md:space-y-6 p-4 md:p-6">
                   {/* Staff Selector */}
                   <div className="space-y-2">
                     <Label htmlFor="staff">Staff Member</Label>

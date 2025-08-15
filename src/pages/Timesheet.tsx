@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search, Plus, Filter, Clock, Users, Calendar, CheckCircle2, Hourglass } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
@@ -38,21 +39,32 @@ export default function Timesheet() {
     try {
       let query = supabase
         .from("timesheets")
-        .select("*", { count: "exact" })
-        .order("date", { ascending: false })
+        .select(`
+          *,
+          caregiver:staff(first_name, last_name),
+          patient:patients(first_name, last_name)
+        `, { count: "exact" })
+        .order("work_date", { ascending: false })
         .range((page - 1) * pageSize, page * pageSize - 1);
 
-      if (searchTerm) {
-        // Filter caregiver, status or date (date assumed string in YYYY-MM-DD)
-        query = query.or(
-          `caregiver.ilike.%${searchTerm}%,status.ilike.%${searchTerm}%,date.ilike.%${searchTerm}%`
-        );
-      }
+      // Filter by submitted status to show only submitted timesheets
+      query = query.eq("status", "submitted");
 
       const { data, error, count } = await query;
       if (error) throw error;
 
-      setTimesheets(data || []);
+      // Format the data for display
+      const formattedTimesheets = (data || []).map((timesheet: any) => ({
+        ...timesheet,
+        caregiver_name: timesheet.caregiver && timesheet.caregiver.first_name
+          ? `${timesheet.caregiver.first_name} ${timesheet.caregiver.last_name}`
+          : 'Unknown Caregiver',
+        patient_name: timesheet.patient && timesheet.patient.first_name
+          ? `${timesheet.patient.first_name} ${timesheet.patient.last_name}`
+          : 'Unknown Patient'
+      }));
+
+      setTimesheets(formattedTimesheets);
       setTotalCount(count || 0);
     } catch (error) {
       console.error("Error fetching timesheets:", error);
@@ -212,10 +224,14 @@ export default function Timesheet() {
                             <TableCell>
                               <Clock className="w-6 h-6 text-primary" />
                             </TableCell>
-                            <TableCell className="font-semibold">{ts.caregiver}</TableCell>
-                            <TableCell>{ts.date}</TableCell>
-                            <TableCell>{ts.hours}</TableCell>
-                            <TableCell>{ts.status}</TableCell>
+                            <TableCell className="font-semibold">{ts.caregiver_name}</TableCell>
+                            <TableCell>{new Date(ts.work_date).toLocaleDateString()}</TableCell>
+                            <TableCell>{ts.total_hours || 'N/A'}</TableCell>
+                            <TableCell>
+                              <Badge variant="secondary">
+                                {ts.status}
+                              </Badge>
+                            </TableCell>
                             <TableCell>
                               <Link
                                 to={`/timesheet/${ts.id}`}

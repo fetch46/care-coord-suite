@@ -165,24 +165,24 @@ export default function PatientAdmission() {
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-4xl mx-auto space-y-6">
+          <main className="flex-1 overflow-auto p-4 md:p-6">
+            <div className="max-w-none w-full space-y-4 md:space-y-6">
               <div className="flex items-center gap-2">
                 <UserPlus className="w-6 h-6 text-primary" />
                 <h1 className="text-3xl font-bold">Patient Admission</h1>
               </div>
 
-              <Card>
+              <Card className="w-full">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Bed className="w-5 h-5" />
+                  <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+                    <Bed className="w-5 h-5 md:w-6 md:h-6" />
                     Admission Details
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-4 md:p-6">
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                         <FormField
                           control={form.control}
                           name="patient_id"

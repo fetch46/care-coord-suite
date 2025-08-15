@@ -63,6 +63,13 @@ export default function CreateInvoice() {
     const defaultDueDate = new Date();
     defaultDueDate.setDate(defaultDueDate.getDate() + 30);
     setDueDate(defaultDueDate.toISOString().split("T")[0]);
+
+    // Check for patient ID in URL params for prefilling
+    const urlParams = new URLSearchParams(window.location.search);
+    const patientId = urlParams.get('patient_id');
+    if (patientId) {
+      setSelectedPatient(patientId);
+    }
   }, []);
 
   const fetchPatients = async () => {
@@ -227,8 +234,8 @@ export default function CreateInvoice() {
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-4xl mx-auto space-y-6">
+          <main className="flex-1 overflow-auto p-4 md:p-6">
+            <div className="max-w-none w-full space-y-4 md:space-y-6">
               {/* Header */}
               <div className="flex items-center gap-4">
                 <Button variant="ghost" size="sm" asChild>
@@ -239,11 +246,11 @@ export default function CreateInvoice() {
                 </Button>
               </div>
 
-              <Card>
+              <Card className="w-full">
                 <CardHeader>
-                  <CardTitle>Create New Invoice</CardTitle>
+                  <CardTitle className="text-xl md:text-2xl">Create New Invoice</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4 md:space-y-6 p-4 md:p-6">
                   {/* Basic Information */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">

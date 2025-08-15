@@ -48,6 +48,10 @@ import TenantProfile from "./pages/TenantProfile";
 import { SuperAdminLayout } from "./components/layouts/SuperAdminLayout";
 import AdmissionsList from "./pages/AdmissionsList";
 import PatientAdmission from "./pages/PatientAdmission";
+import AssessmentView from "./pages/AssessmentView";
+import SkinAssessmentView from "./pages/SkinAssessmentView";
+import MedicalRecordView from "./pages/MedicalRecordView";
+import MedicalRecordEdit from "./pages/MedicalRecordEdit";
 import SuperAdminPackages from "./pages/SuperAdminPackages";
 import InvoiceView from "./pages/InvoiceView";
 import InvoiceEdit from "./pages/InvoiceEdit";
@@ -87,6 +91,15 @@ const App = () => (
             <Route path="/patient-admission" element={<ProtectedRoute><PatientAdmission /></ProtectedRoute>} />
             <Route path="/skin-assessment" element={<ProtectedRoute><SkinAssessment /></ProtectedRoute>} />
             <Route path="/patient-assessment" element={<ProtectedRoute><PatientAssessment /></ProtectedRoute>} />
+            <Route path="/assessments/:id" element={<ProtectedRoute><AssessmentView /></ProtectedRoute>} />
+            <Route path="/skin-assessments/:id" element={<ProtectedRoute><SkinAssessmentView /></ProtectedRoute>} />
+            <Route path="/medical-records/:id" element={<ProtectedRoute><MedicalRecordView /></ProtectedRoute>} />
+            <Route path="/medical-records/:id/edit" element={<ProtectedRoute><MedicalRecordEdit /></ProtectedRoute>} />
+            <Route path="/billing/invoice/:id" element={<ProtectedRoute><InvoiceView /></ProtectedRoute>} />
+            <Route path="/billing/invoice/:id/edit" element={<ProtectedRoute><InvoiceEdit /></ProtectedRoute>} />
+            <Route path="/payments/new" element={<ProtectedRoute><PaymentCreate /></ProtectedRoute>} />
+            <Route path="/payments/:id" element={<ProtectedRoute><PaymentView /></ProtectedRoute>} />
+            <Route path="/payments/:id/edit" element={<ProtectedRoute><PaymentEdit /></ProtectedRoute>} />
             <Route path="/digital-timesheet" element={<ProtectedRoute><DigitalTimesheet /></ProtectedRoute>} />
             <Route path="/timesheet-reports" element={<ProtectedRoute><TimesheetReports /></ProtectedRoute>} />
             <Route path="/timesheets" element={<ProtectedRoute><Timesheet /></ProtectedRoute>} />

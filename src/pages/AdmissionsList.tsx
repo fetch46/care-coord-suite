@@ -143,8 +143,8 @@ export default function AdmissionsList() {
         <AppSidebar />
         <SidebarInset>
           <AppHeader />
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-7xl mx-auto space-y-6">
+          <main className="flex-1 overflow-auto p-4 md:p-6">
+            <div className="max-w-none w-full space-y-4 md:space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Bed className="w-6 h-6 text-primary" />
@@ -171,66 +171,78 @@ export default function AdmissionsList() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-4">
                   {admissions.map((admission) => (
-                    <Card key={admission.id} className="hover:shadow-md transition-shadow">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg">
-                            {admission.patients?.last_name || 'Unknown'}, {admission.patients?.first_name || 'Patient'}
-                          </CardTitle>
-                          <Badge className={getStatusColor(admission.admission_status)}>
-                            {admission.admission_status}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <User className="w-4 h-4" />
-                          <span>DOB: {admission.patients?.date_of_birth ? new Date(admission.patients.date_of_birth).toLocaleDateString() : 'N/A'}</span>
+                    <Card key={admission.id} className="w-full hover:shadow-md transition-shadow">
+                      <CardHeader className="pb-4">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <CardTitle className="text-xl mb-2">
+                              {admission.patients?.last_name || 'Unknown'}, {admission.patients?.first_name || 'Patient'}
+                            </CardTitle>
+                            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <User className="w-4 h-4" />
+                                <span>DOB: {admission.patients?.date_of_birth ? new Date(admission.patients.date_of_birth).toLocaleDateString() : 'N/A'}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                <span>Admitted: {new Date(admission.admission_date).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Badge className={getStatusColor(admission.admission_status)}>
+                              {admission.admission_status}
+                            </Badge>
+                            <Badge className={getTypeColor(admission.admission_type)}>
+                              {admission.admission_type}
+                            </Badge>
+                          </div>
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex items-center justify-between">
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="flex items-center gap-2">
                             <Building className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-sm">Room {admission.rooms?.room_number || 'N/A'}</span>
+                            <div>
+                              <p className="text-sm font-medium">Room {admission.rooms?.room_number || 'N/A'}</p>
+                              <p className="text-xs text-muted-foreground">{admission.rooms?.room_type || 'N/A'}</p>
+                            </div>
                           </div>
-                          <Badge variant="outline" className="text-xs">
-                            {admission.rooms?.room_type || 'N/A'}
-                          </Badge>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">
-                            Admitted: {new Date(admission.admission_date).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <Badge className={getTypeColor(admission.admission_type)}>
-                            {admission.admission_type}
-                          </Badge>
+                          
                           {admission.care_level && (
-                            <Badge variant="secondary" className="text-xs">
-                              {admission.care_level}
-                            </Badge>
+                            <div>
+                              <p className="text-sm font-medium">Care Level</p>
+                              <Badge variant="secondary" className="text-xs">
+                                {admission.care_level}
+                              </Badge>
+                            </div>
+                          )}
+
+                          {admission.attending_physician && (
+                            <div>
+                              <p className="text-sm font-medium">Attending Physician</p>
+                              <p className="text-sm text-muted-foreground">{admission.attending_physician}</p>
+                            </div>
                           )}
                         </div>
 
-                        {admission.attending_physician && (
-                          <div className="text-sm text-muted-foreground">
-                            <strong>Attending:</strong> {admission.attending_physician}
-                          </div>
-                        )}
-
-                        <div className="pt-2">
+                        <div className="flex gap-2 pt-2">
                           <Button 
                             variant="outline" 
                             size="sm" 
-                            className="w-full"
+                            className="flex-1"
                             onClick={() => navigate(`/patients/${admission.patient_id}`)}
                           >
                             View Patient
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => navigate(`/patients/${admission.patient_id}/edit`)}
+                          >
+                            Edit
                           </Button>
                         </div>
                       </CardContent>
