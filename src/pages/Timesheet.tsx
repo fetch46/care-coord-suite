@@ -41,8 +41,8 @@ export default function Timesheet() {
         .from("timesheets")
         .select(`
           *,
-          caregiver:staff(first_name, last_name),
-          patient:patients(first_name, last_name)
+          caregiver:staff!caregiver_id(first_name, last_name),
+          patient:patients!patient_id(first_name, last_name)
         `, { count: "exact" })
         .order("work_date", { ascending: false })
         .range((page - 1) * pageSize, page * pageSize - 1);

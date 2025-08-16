@@ -105,14 +105,14 @@ export default function Schedule() {
         .select(
           `
           *,
-          staff:staff_id (
+          staff:staff!staff_id (
             id,
             first_name,
             last_name,
             role,
             profile_image_url
           ),
-          patient:patient_id (
+          patient:patients!patient_id (
             id,
             first_name,
             last_name
@@ -157,14 +157,14 @@ export default function Schedule() {
           .select(
             `
             *,
-            staff:staff_id (
+            staff:staff!staff_id (
               id,
               first_name,
               last_name,
               role,
               profile_image_url
             ),
-            patient:patient_id (
+            patient:patients!patient_id (
               id,
               first_name,
               last_name

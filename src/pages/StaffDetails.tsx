@@ -57,10 +57,10 @@ export default function StaffDetails() {
   const fetchCaregiverDetails = async () => {
     try {
       const { data, error } = await supabase
-        .from("caregivers")
+        .from("staff")
         .select("*")
         .eq("id", id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       setCaregiver(data);
@@ -75,7 +75,7 @@ export default function StaffDetails() {
         .from("patient_caregivers")
         .select(`
           *,
-          patients (
+          patients!patient_id (
             first_name,
             last_name,
             room_number,

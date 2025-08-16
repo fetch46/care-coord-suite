@@ -127,25 +127,94 @@ export default function SuperAdminSubscriptions() {
     }).format(amount)
   }
 
-  const handleViewDetails = (subscriptionId: string) => {
-    toast({
-      title: "View Details",
-      description: `Viewing details for subscription ${subscriptionId}`
-    })
+  const handleViewDetails = async (subscriptionId: string) => {
+    // Implement view details functionality
+    try {
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('id', subscriptionId)
+        .single()
+      
+      if (error) throw error
+      
+      toast({
+        title: "Subscription Details",
+        description: `Subscription for ${data.billing_cycle} billing`
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch subscription details",
+        variant: "destructive"
+      })
+    }
   }
 
-  const handleCancelSubscription = (subscriptionId: string) => {
-    toast({
-      title: "Cancel Subscription",
-      description: `Canceling subscription ${subscriptionId}`
-    })
+  const handleCancelSubscription = async (subscriptionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('subscriptions')
+        .update({ 
+          status: 'canceled',
+          canceled_at: new Date().toISOString()
+        })
+        .eq('id', subscriptionId)
+      
+      if (error) throw error
+      
+      toast({
+        title: "Success",
+        description: "Subscription canceled successfully"
+      })
+      
+      fetchSubscriptions() // Refresh the list
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to cancel subscription",
+        variant: "destructive"
+      })
+    }
   }
 
-  const handleExtendSubscription = (subscriptionId: string) => {
-    toast({
-      title: "Extend Subscription",
-      description: `Extending subscription ${subscriptionId}`
-    })
+  const handleExtendSubscription = async (subscriptionId: string) => {
+    try {
+      // Add 30 days to the end date
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('ends_at')
+        .eq('id', subscriptionId)
+        .single()
+      
+      if (!subscription) throw new Error('Subscription not found')
+      
+      const currentEndDate = new Date(subscription.ends_at || new Date())
+      const newEndDate = new Date(currentEndDate.getTime() + 30 * 24 * 60 * 60 * 1000)
+      
+      const { error } = await supabase
+        .from('subscriptions')
+        .update({ 
+          ends_at: newEndDate.toISOString(),
+          status: 'active'
+        })
+        .eq('id', subscriptionId)
+      
+      if (error) throw error
+      
+      toast({
+        title: "Success",
+        description: "Subscription extended by 30 days"
+      })
+      
+      fetchSubscriptions() // Refresh the list
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to extend subscription",
+        variant: "destructive"
+      })
+    }
   }
 
   if (loading) {
