@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { MoreHorizontal, Plus, Search, Users, UserCheck, UserX, Shield } from "lucide-react"
+import { MoreHorizontal, Plus, Search, Users, UserCheck, UserX, Shield, Key, LogIn, UserPlus } from "lucide-react"
 
 interface User {
   id: string
@@ -52,6 +52,14 @@ export default function SuperAdminUserManagement() {
   const [roleFilter, setRoleFilter] = useState("all")
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [newStaff, setNewStaff] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    role: "caregiver"
+  })
   const { toast } = useToast()
 
   useEffect(() => {
@@ -60,56 +68,42 @@ export default function SuperAdminUserManagement() {
 
   const fetchUsers = async () => {
     try {
-      // Note: In a real implementation, you'd need to query auth.users which requires admin access
-      // For now, we'll use profiles and user_roles tables
-      // Mock data for now since we need complex joins
-      const mockUsers: User[] = [
-        {
-          id: '1',
-          email: 'admin@example.com',
-          created_at: new Date().toISOString(),
-          last_sign_in_at: new Date().toISOString(),
-          email_confirmed_at: new Date().toISOString(),
-          profiles: {
-            first_name: 'Admin',
-            last_name: 'User',
-            phone: '+1234567890'
-          },
-          user_roles: [{ role: 'administrator' }],
-          tenants: [{ company_name: 'Super Admin' }]
-        },
-        {
-          id: '2',
-          email: 'nurse@example.com',
-          created_at: new Date(Date.now() - 86400000).toISOString(),
-          last_sign_in_at: new Date(Date.now() - 3600000).toISOString(),
-          email_confirmed_at: new Date(Date.now() - 86400000).toISOString(),
-          profiles: {
-            first_name: 'Jane',
-            last_name: 'Nurse',
-            phone: '+1234567891'
-          },
-          user_roles: [{ role: 'registered_nurse' }],
-          tenants: [{ company_name: 'Healthcare Corp' }]
-        },
-        {
-          id: '3',
-          email: 'caregiver@example.com',
-          created_at: new Date(Date.now() - 172800000).toISOString(),
-          last_sign_in_at: null,
-          email_confirmed_at: new Date(Date.now() - 172800000).toISOString(),
-          profiles: {
-            first_name: 'John',
-            last_name: 'Caregiver',
-            phone: '+1234567892'
-          },
-          user_roles: [{ role: 'caregiver' }],
-          tenants: [{ company_name: 'Care Center' }]
-        }
-      ]
+      // Fetch staff members with their user data
+      const { data: staffData, error: staffError } = await supabase
+        .from('staff')
+        .select(`
+          id,
+          user_id,
+          first_name,
+          last_name,
+          email,
+          phone,
+          role,
+          status,
+          created_at
+        `)
+        .order('created_at', { ascending: false });
 
-      setUsers(mockUsers)
-      calculateStats(mockUsers)
+      if (staffError) throw staffError;
+
+      // Transform staff data to user format
+      const transformedUsers: User[] = (staffData || []).map(staff => ({
+        id: staff.user_id || staff.id,
+        email: staff.email || '',
+        created_at: staff.created_at,
+        last_sign_in_at: null, // Would need auth.users table for real data
+        email_confirmed_at: staff.user_id ? new Date().toISOString() : null,
+        profiles: {
+          first_name: staff.first_name,
+          last_name: staff.last_name,
+          phone: staff.phone
+        },
+        user_roles: [{ role: staff.role }],
+        tenants: [{ company_name: 'Healthcare Organization' }]
+      }));
+
+      setUsers(transformedUsers);
+      calculateStats(transformedUsers);
     } catch (error) {
       console.error('Error fetching users:', error)
       toast({
@@ -180,6 +174,76 @@ export default function SuperAdminUserManagement() {
       description: `Deactivating user ${userId}`
     })
   }
+
+  const handleAddStaff = async () => {
+    if (!newStaff.first_name.trim() || !newStaff.last_name.trim() || !newStaff.email.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "All fields are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Create the staff member record first
+      const { data: staffData, error: staffError } = await supabase
+        .from('staff')
+        .insert([{ ...newStaff, status: 'Active' }])
+        .select()
+        .single();
+
+      if (staffError) throw staffError;
+
+      // Generate a temporary password
+      const tempPassword = Math.random().toString(36).slice(-8) + "Aa1!";
+
+      // Create the user account via the password-reset edge function
+      const { data: authData, error: authError } = await supabase.functions.invoke('password-reset', {
+        body: {
+          action: 'create-staff-user',
+          email: newStaff.email,
+          password: tempPassword,
+          firstName: newStaff.first_name,
+          lastName: newStaff.last_name,
+          role: newStaff.role,
+          staffId: staffData.id
+        }
+      });
+
+      if (authError) {
+        // If user creation fails, remove the staff record
+        await supabase.from('staff').delete().eq('id', staffData.id);
+        throw authError;
+      }
+
+      toast({
+        title: "Success",
+        description: `Staff member added successfully. Temporary password: ${tempPassword}`,
+      });
+
+      setNewStaff({
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+        role: "caregiver"
+      });
+      setIsAddDialogOpen(false);
+      await fetchUsers();
+    } catch (error) {
+      console.error('Error adding staff:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add staff member.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleResetPassword = async (userId: string) => {
     try {
@@ -337,10 +401,81 @@ export default function SuperAdminUserManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Invite User
-              </Button>
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Staff Member
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>Add New Staff Member</DialogTitle>
+                    <DialogDescription>
+                      Create a new staff member and user account
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="first_name">First Name *</Label>
+                        <Input
+                          id="first_name"
+                          value={newStaff.first_name}
+                          onChange={(e) => setNewStaff(prev => ({ ...prev, first_name: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="last_name">Last Name *</Label>
+                        <Input
+                          id="last_name"
+                          value={newStaff.last_name}
+                          onChange={(e) => setNewStaff(prev => ({ ...prev, last_name: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={newStaff.email}
+                        onChange={(e) => setNewStaff(prev => ({ ...prev, email: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input
+                        id="phone"
+                        value={newStaff.phone}
+                        onChange={(e) => setNewStaff(prev => ({ ...prev, phone: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="role">Role</Label>
+                      <Select value={newStaff.role} onValueChange={(value) => setNewStaff(prev => ({ ...prev, role: value }))}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="administrator">Administrator</SelectItem>
+                          <SelectItem value="reception">Reception</SelectItem>
+                          <SelectItem value="registered_nurse">Registered Nurse</SelectItem>
+                          <SelectItem value="caregiver">Caregiver</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddStaff} disabled={loading}>
+                      Add Staff Member
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
 
             <div className="rounded-md border">
@@ -391,15 +526,19 @@ export default function SuperAdminUserManagement() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleEditUser(user)}>
+                              <UserPlus className="w-4 h-4 mr-2" />
                               Edit User
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleResetPassword(user.id)}>
+                              <Key className="w-4 h-4 mr-2" />
                               Reset Password
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleMasqueradeUser(user.id)}>
+                              <LogIn className="w-4 h-4 mr-2" />
                               Login as User
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleDeactivateUser(user.id)}>
+                              <UserX className="w-4 h-4 mr-2" />
                               Deactivate User
                             </DropdownMenuItem>
                             <DropdownMenuItem 

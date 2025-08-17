@@ -26,7 +26,8 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const { action, email, token, newPassword, userId } = await req.json();
+    const body = await req.json();
+    const { action, email, token, newPassword, userId } = body;
 
     if (action === "forgot-password") {
       // Generate password reset for any user
@@ -71,6 +72,57 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ message: "Password updated successfully" }),
+        { 
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        }
+      );
+    }
+
+    if (action === "create-staff-user") {
+      // Create new staff user account
+      const { email, password, firstName, lastName, role, staffId } = body;
+
+      // Create user account
+      const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        user_metadata: {
+          first_name: firstName,
+          last_name: lastName
+        },
+        email_confirm: true
+      });
+
+      if (createError) {
+        return new Response(
+          JSON.stringify({ error: createError.message }),
+          { 
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          }
+        );
+      }
+
+      // Update staff record with user_id
+      await supabaseAdmin
+        .from("staff")
+        .update({ user_id: newUser.user.id })
+        .eq("id", staffId);
+
+      // Assign role to user
+      await supabaseAdmin
+        .from("user_roles")
+        .insert({
+          user_id: newUser.user.id,
+          role: role
+        });
+
+      return new Response(
+        JSON.stringify({ 
+          message: "Staff user created successfully",
+          userId: newUser.user.id
+        }),
         { 
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" }

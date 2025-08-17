@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Search, Filter, Edit, Trash2, MoreHorizontal, Eye, UserPlus } from "lucide-react";
+import { Plus, Search, Filter, Edit, Trash2, MoreHorizontal, Eye, UserPlus, Key, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -89,17 +89,52 @@ export function StaffManagement({ onStaffUpdate }: StaffManagementProps) {
       return;
     }
 
+    if (!newStaff.email.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Email is required for staff login.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
-      const { error } = await supabase
+      
+      // Create the staff member record first
+      const { data: staffData, error: staffError } = await supabase
         .from('staff')
-        .insert([newStaff]);
+        .insert([newStaff])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (staffError) throw staffError;
+
+      // Generate a temporary password
+      const tempPassword = Math.random().toString(36).slice(-8) + "Aa1!";
+
+      // Create the user account via the password-reset edge function
+      const { data: authData, error: authError } = await supabase.functions.invoke('password-reset', {
+        body: {
+          action: 'create-staff-user',
+          email: newStaff.email,
+          password: tempPassword,
+          firstName: newStaff.first_name,
+          lastName: newStaff.last_name,
+          role: newStaff.role,
+          staffId: staffData.id
+        }
+      });
+
+      if (authError) {
+        // If user creation fails, remove the staff record
+        await supabase.from('staff').delete().eq('id', staffData.id);
+        throw authError;
+      }
 
       toast({
         title: "Success",
-        description: "Staff member added successfully.",
+        description: `Staff member added successfully. Temporary password: ${tempPassword}`,
       });
 
       setNewStaff({
@@ -190,6 +225,83 @@ export function StaffManagement({ onStaffUpdate }: StaffManagementProps) {
     }
   };
 
+  const handleResetPassword = async (staffMember: Staff) => {
+    if (!staffMember.user_id) {
+      toast({
+        title: "Error",
+        description: "Staff member has no user account.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.functions.invoke('password-reset', {
+        body: {
+          action: 'admin-reset-password',
+          userId: staffMember.user_id
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password Reset Successful",
+        description: `Temporary password: ${data.temporaryPassword}`,
+      });
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reset password.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMasqueradeUser = async (staffMember: Staff) => {
+    if (!staffMember.user_id) {
+      toast({
+        title: "Error",
+        description: "Staff member has no user account.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.functions.invoke('masquerade', {
+        body: {
+          action: 'start',
+          targetUserId: staffMember.user_id
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.loginUrl) {
+        window.open(data.loginUrl, '_blank');
+        toast({
+          title: "Masquerade Started",
+          description: "Login link opened in new tab"
+        });
+      }
+    } catch (error) {
+      console.error('Error starting masquerade:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start masquerade session.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "active":
@@ -250,15 +362,16 @@ export function StaffManagement({ onStaffUpdate }: StaffManagementProps) {
                   />
                 </div>
               </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={newStaff.email}
-                  onChange={(e) => setNewStaff(prev => ({ ...prev, email: e.target.value }))}
-                />
-              </div>
+                <div>
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newStaff.email}
+                    onChange={(e) => setNewStaff(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="Required for staff login"
+                  />
+                </div>
               <div>
                 <Label htmlFor="phone">Phone</Label>
                 <Input
@@ -420,6 +533,24 @@ export function StaffManagement({ onStaffUpdate }: StaffManagementProps) {
                             <Edit className="w-4 h-4 mr-2" />
                             Edit Staff
                           </DropdownMenuItem>
+                          {member.user_id && (
+                            <>
+                              <DropdownMenuItem 
+                                onClick={() => handleResetPassword(member)}
+                                className="flex items-center"
+                              >
+                                <Key className="w-4 h-4 mr-2" />
+                                Reset Password
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleMasqueradeUser(member)}
+                                className="flex items-center"
+                              >
+                                <LogIn className="w-4 h-4 mr-2" />
+                                Login as User
+                              </DropdownMenuItem>
+                            </>
+                          )}
                           <DropdownMenuItem 
                             onClick={() => handleDeleteStaff(member.id)}
                             className="flex items-center text-destructive"
