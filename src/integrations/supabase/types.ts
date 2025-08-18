@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -300,6 +300,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      business_locations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       caregiver_assessments: {
         Row: {
@@ -849,6 +879,95 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      inventory_items: {
+        Row: {
+          category: string | null
+          cost_price: number | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          organization_id: string | null
+          reorder_point: number
+          selling_price: number | null
+          sku: string | null
+          type: string
+          unit: string | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          cost_price?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          organization_id?: string | null
+          reorder_point?: number
+          selling_price?: number | null
+          sku?: string | null
+          type?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          cost_price?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          organization_id?: string | null
+          reorder_point?: number
+          selling_price?: number | null
+          sku?: string | null
+          type?: string
+          unit?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory_levels: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          location_id: string | null
+          quantity: number
+          updated_at: string
+          warehouse_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          location_id?: string | null
+          quantity?: number
+          updated_at?: string
+          warehouse_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          location_id?: string | null
+          quantity?: number
+          updated_at?: string
+          warehouse_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_levels_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoice_items: {
         Row: {
@@ -2433,28 +2552,28 @@ export type Database = {
               p_email: string
               p_first_name: string
               p_last_name: string
-              p_role: string
               p_phone?: string
+              p_role: string
             }
           | {
-              p_user_id: string
               p_email: string
               p_first_name: string
               p_last_name: string
-              p_role: string
               p_phone?: string
+              p_role: string
+              p_user_id: string
             }
         Returns: Json
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
       send_notification_from_template: {
-        Args: { p_template_type: string; p_data?: Json; p_tenant_id?: string }
+        Args: { p_data?: Json; p_template_type: string; p_tenant_id?: string }
         Returns: string
       }
     }
