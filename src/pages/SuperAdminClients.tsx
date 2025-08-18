@@ -88,7 +88,7 @@ export default function SuperAdminClients() {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from("tenants")
+        .from("organizations")
         .select(`
           *,
           subscriptions (

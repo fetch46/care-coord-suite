@@ -1072,11 +1072,11 @@ export type Database = {
           ended_at: string | null
           id: string
           is_active: boolean
+          organization_id: string | null
           session_token: string
           started_at: string
           super_admin_id: string
           target_user_id: string
-          tenant_id: string | null
           updated_at: string
         }
         Insert: {
@@ -1084,11 +1084,11 @@ export type Database = {
           ended_at?: string | null
           id?: string
           is_active?: boolean
+          organization_id?: string | null
           session_token: string
           started_at?: string
           super_admin_id: string
           target_user_id: string
-          tenant_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -1096,11 +1096,11 @@ export type Database = {
           ended_at?: string | null
           id?: string
           is_active?: boolean
+          organization_id?: string | null
           session_token?: string
           started_at?: string
           super_admin_id?: string
           target_user_id?: string
-          tenant_id?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1269,10 +1269,269 @@ export type Database = {
             foreignKeyName: "notifications_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
-            referencedRelation: "tenants"
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
+      }
+      organization_package_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          organization_id: string
+          package_id: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          organization_id: string
+          package_id: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          organization_id?: string
+          package_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_package_assignments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_package_assignments_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "organization_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_packages: {
+        Row: {
+          billing_type: string
+          created_at: string
+          description: string | null
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          is_popular: boolean | null
+          name: string
+          price: number
+          storage_gb: number | null
+          updated_at: string
+          user_limit: number | null
+        }
+        Insert: {
+          billing_type?: string
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          name: string
+          price?: number
+          storage_gb?: number | null
+          updated_at?: string
+          user_limit?: number | null
+        }
+        Update: {
+          billing_type?: string
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          name?: string
+          price?: number
+          storage_gb?: number | null
+          updated_at?: string
+          user_limit?: number | null
+        }
+        Relationships: []
+      }
+      organization_profiles: {
+        Row: {
+          billing_address: string | null
+          billing_contact_email: string | null
+          billing_contact_name: string | null
+          billing_contact_phone: string | null
+          business_address: string | null
+          business_email: string | null
+          business_phone: string | null
+          created_at: string
+          id: string
+          license_number: string | null
+          organization_id: string
+          settings: Json | null
+          tax_id: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          billing_address?: string | null
+          billing_contact_email?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          business_address?: string | null
+          business_email?: string | null
+          business_phone?: string | null
+          created_at?: string
+          id?: string
+          license_number?: string | null
+          organization_id: string
+          settings?: Json | null
+          tax_id?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          billing_address?: string | null
+          billing_contact_email?: string | null
+          billing_contact_name?: string | null
+          billing_contact_phone?: string | null
+          business_address?: string | null
+          business_email?: string | null
+          business_phone?: string | null
+          created_at?: string
+          id?: string
+          license_number?: string | null
+          organization_id?: string
+          settings?: Json | null
+          tax_id?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_profiles_tenant_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_users: {
+        Row: {
+          confirmed_at: string | null
+          created_at: string
+          id: string
+          invited_at: string
+          invited_by: string | null
+          is_confirmed: boolean
+          organization_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          is_confirmed?: boolean
+          organization_id: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          is_confirmed?: boolean
+          organization_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_users_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          admin_email: string
+          admin_user_id: string | null
+          company_name: string
+          created_at: string
+          description: string | null
+          domain: string | null
+          id: string
+          logo_url: string | null
+          max_patients: number | null
+          max_users: number | null
+          settings: Json | null
+          status: string
+          subscription_status: string | null
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_email: string
+          admin_user_id?: string | null
+          company_name: string
+          created_at?: string
+          description?: string | null
+          domain?: string | null
+          id?: string
+          logo_url?: string | null
+          max_patients?: number | null
+          max_users?: number | null
+          settings?: Json | null
+          status?: string
+          subscription_status?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_email?: string
+          admin_user_id?: string | null
+          company_name?: string
+          created_at?: string
+          description?: string | null
+          domain?: string | null
+          id?: string
+          logo_url?: string | null
+          max_patients?: number | null
+          max_users?: number | null
+          settings?: Json | null
+          status?: string
+          subscription_status?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       packages: {
         Row: {
@@ -2061,51 +2320,6 @@ export type Database = {
           },
         ]
       }
-      subscription_packages: {
-        Row: {
-          billing_type: string
-          created_at: string
-          description: string | null
-          features: Json | null
-          id: string
-          is_active: boolean | null
-          is_popular: boolean | null
-          name: string
-          price: number
-          storage_gb: number | null
-          updated_at: string
-          user_limit: number | null
-        }
-        Insert: {
-          billing_type?: string
-          created_at?: string
-          description?: string | null
-          features?: Json | null
-          id?: string
-          is_active?: boolean | null
-          is_popular?: boolean | null
-          name: string
-          price?: number
-          storage_gb?: number | null
-          updated_at?: string
-          user_limit?: number | null
-        }
-        Update: {
-          billing_type?: string
-          created_at?: string
-          description?: string | null
-          features?: Json | null
-          id?: string
-          is_active?: boolean | null
-          is_popular?: boolean | null
-          name?: string
-          price?: number
-          storage_gb?: number | null
-          updated_at?: string
-          user_limit?: number | null
-        }
-        Relationships: []
-      }
       subscription_plans: {
         Row: {
           created_at: string
@@ -2157,11 +2371,11 @@ export type Database = {
           currency: string | null
           ends_at: string | null
           id: string
+          organization_id: string
           plan_id: string
           starts_at: string
           status: string
           stripe_subscription_id: string | null
-          tenant_id: string
           updated_at: string
         }
         Insert: {
@@ -2172,11 +2386,11 @@ export type Database = {
           currency?: string | null
           ends_at?: string | null
           id?: string
+          organization_id: string
           plan_id: string
           starts_at?: string
           status?: string
           stripe_subscription_id?: string | null
-          tenant_id: string
           updated_at?: string
         }
         Update: {
@@ -2187,11 +2401,11 @@ export type Database = {
           currency?: string | null
           ends_at?: string | null
           id?: string
+          organization_id?: string
           plan_id?: string
           starts_at?: string
           status?: string
           stripe_subscription_id?: string | null
-          tenant_id?: string
           updated_at?: string
         }
         Relationships: [
@@ -2204,71 +2418,9 @@ export type Database = {
           },
           {
             foreignKeyName: "subscriptions_tenant_id_fkey"
-            columns: ["tenant_id"]
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      tenant_profiles: {
-        Row: {
-          billing_address: string | null
-          billing_contact_email: string | null
-          billing_contact_name: string | null
-          billing_contact_phone: string | null
-          business_address: string | null
-          business_email: string | null
-          business_phone: string | null
-          created_at: string
-          id: string
-          license_number: string | null
-          settings: Json | null
-          tax_id: string | null
-          tenant_id: string
-          updated_at: string
-          website_url: string | null
-        }
-        Insert: {
-          billing_address?: string | null
-          billing_contact_email?: string | null
-          billing_contact_name?: string | null
-          billing_contact_phone?: string | null
-          business_address?: string | null
-          business_email?: string | null
-          business_phone?: string | null
-          created_at?: string
-          id?: string
-          license_number?: string | null
-          settings?: Json | null
-          tax_id?: string | null
-          tenant_id: string
-          updated_at?: string
-          website_url?: string | null
-        }
-        Update: {
-          billing_address?: string | null
-          billing_contact_email?: string | null
-          billing_contact_name?: string | null
-          billing_contact_phone?: string | null
-          business_address?: string | null
-          business_email?: string | null
-          business_phone?: string | null
-          created_at?: string
-          id?: string
-          license_number?: string | null
-          settings?: Json | null
-          tax_id?: string | null
-          tenant_id?: string
-          updated_at?: string
-          website_url?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tenant_profiles_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: true
-            referencedRelation: "tenants"
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -2329,48 +2481,6 @@ export type Database = {
           signup_date?: string
           status?: string
           tenant_id?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      tenants: {
-        Row: {
-          admin_email: string
-          admin_user_id: string | null
-          company_name: string
-          created_at: string
-          domain: string | null
-          id: string
-          settings: Json | null
-          status: string
-          subscription_status: string | null
-          trial_ends_at: string | null
-          updated_at: string
-        }
-        Insert: {
-          admin_email: string
-          admin_user_id?: string | null
-          company_name: string
-          created_at?: string
-          domain?: string | null
-          id?: string
-          settings?: Json | null
-          status?: string
-          subscription_status?: string | null
-          trial_ends_at?: string | null
-          updated_at?: string
-        }
-        Update: {
-          admin_email?: string
-          admin_user_id?: string | null
-          company_name?: string
-          created_at?: string
-          domain?: string | null
-          id?: string
-          settings?: Json | null
-          status?: string
-          subscription_status?: string | null
-          trial_ends_at?: string | null
           updated_at?: string
         }
         Relationships: []

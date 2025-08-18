@@ -13,7 +13,7 @@ import { MoreHorizontal, Plus, Search, DollarSign, Users, TrendingUp, Calendar }
 
 interface Subscription {
   id: string
-  tenant_id: string
+  organization_id: string
   plan_id: string
   status: string
   billing_cycle: string
@@ -23,7 +23,7 @@ interface Subscription {
   ends_at: string | null
   canceled_at: string | null
   stripe_subscription_id: string | null
-  tenants: {
+  organizations: {
     company_name: string
     admin_email: string
   }
@@ -64,7 +64,7 @@ export default function SuperAdminSubscriptions() {
         .from('subscriptions')
         .select(`
           *,
-          tenants (company_name, admin_email),
+          organizations (company_name, admin_email),
           subscription_plans (name, max_users, max_patients)
         `)
         .order('created_at', { ascending: false })
@@ -102,8 +102,8 @@ export default function SuperAdminSubscriptions() {
 
   const filteredSubscriptions = subscriptions.filter(subscription => {
     const matchesSearch = 
-      subscription.tenants.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      subscription.tenants.admin_email.toLowerCase().includes(searchTerm.toLowerCase())
+      subscription.organizations.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      subscription.organizations.admin_email.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesStatus = statusFilter === "all" || subscription.status === statusFilter
     
@@ -234,7 +234,7 @@ export default function SuperAdminSubscriptions() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Subscription Management</h1>
           <p className="text-muted-foreground">
-            Monitor and manage all tenant subscriptions and billing
+            Monitor and manage all organization subscriptions and billing
           </p>
         </div>
 
@@ -286,7 +286,7 @@ export default function SuperAdminSubscriptions() {
         <Card>
           <CardHeader>
             <CardTitle>Subscriptions</CardTitle>
-            <CardDescription>Manage all tenant subscriptions</CardDescription>
+            <CardDescription>Manage all organization subscriptions</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between gap-4 mb-6">
@@ -339,8 +339,8 @@ export default function SuperAdminSubscriptions() {
                     <TableRow key={subscription.id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{subscription.tenants.company_name}</div>
-                          <div className="text-sm text-muted-foreground">{subscription.tenants.admin_email}</div>
+                          <div className="font-medium">{subscription.organizations.company_name}</div>
+                          <div className="text-sm text-muted-foreground">{subscription.organizations.admin_email}</div>
                         </div>
                       </TableCell>
                       <TableCell>

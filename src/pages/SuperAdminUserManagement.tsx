@@ -27,7 +27,7 @@ interface User {
   user_roles: {
     role: string
   }[]
-  tenants: {
+  organizations: {
     company_name: string
   }[]
 }
@@ -99,7 +99,7 @@ export default function SuperAdminUserManagement() {
           phone: staff.phone
         },
         user_roles: [{ role: staff.role }],
-        tenants: [{ company_name: 'Healthcare Organization' }]
+        organizations: [{ company_name: 'Healthcare Organization' }]
       }));
 
       setUsers(transformedUsers);
@@ -323,7 +323,7 @@ export default function SuperAdminUserManagement() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
           <p className="text-muted-foreground">
-            Manage all users across all tenants and their permissions
+            Manage all users across all organizations and their permissions
           </p>
         </div>
 
@@ -336,7 +336,7 @@ export default function SuperAdminUserManagement() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalUsers}</div>
-              <p className="text-xs text-muted-foreground">Across all tenants</p>
+              <p className="text-xs text-muted-foreground">Across all organizations</p>
             </CardContent>
           </Card>
           <Card>
@@ -458,10 +458,13 @@ export default function SuperAdminUserManagement() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="administrator">Administrator</SelectItem>
-                          <SelectItem value="reception">Reception</SelectItem>
-                          <SelectItem value="registered_nurse">Registered Nurse</SelectItem>
-                          <SelectItem value="caregiver">Caregiver</SelectItem>
+                  <SelectItem value="owner">Owner</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="administrator">Administrator</SelectItem>
+                  <SelectItem value="reception">Reception</SelectItem>
+                  <SelectItem value="registered_nurse">Registered Nurse</SelectItem>
+                  <SelectItem value="caregiver">Caregiver</SelectItem>
+                  <SelectItem value="staff">Staff</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -484,7 +487,7 @@ export default function SuperAdminUserManagement() {
                   <TableRow>
                     <TableHead>User</TableHead>
                     <TableHead>Role</TableHead>
-                    <TableHead>Tenant</TableHead>
+                    <TableHead>Organization</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Created</TableHead>
                     <TableHead>Last Sign In</TableHead>
