@@ -21,7 +21,7 @@ interface OrganizationUser {
   invited_at: string
   confirmed_at: string | null
   invited_by: string | null
-  profiles: {
+  profiles?: {
     first_name: string | null
     last_name: string | null
     email: string | null
@@ -72,7 +72,32 @@ export function OrganizationUserManagement({ organizationId, organizationName }:
         .order('invited_at', { ascending: false })
 
       if (error) throw error
-      setUsers((data || []) as OrganizationUser[])
+      
+      // Handle the data and map to correct type
+      const processedUsers: OrganizationUser[] = (data || [])
+        .map(user => {
+          // Type guard to check if profiles is valid
+          const isValidProfile = (profile: any): profile is { first_name: string | null, last_name: string | null, email: string | null, phone: string | null } => {
+            return profile && 
+              typeof profile === 'object' && 
+              !('error' in profile) &&
+              ('first_name' in profile);
+          };
+            
+          return {
+            id: user.id,
+            organization_id: user.organization_id,
+            user_id: user.user_id,
+            role: user.role,
+            is_confirmed: user.is_confirmed,
+            invited_at: user.invited_at,
+            confirmed_at: user.confirmed_at,
+            invited_by: user.invited_by,
+            profiles: isValidProfile(user.profiles) ? user.profiles : null
+          }
+        })
+      
+      setUsers(processedUsers)
     } catch (error) {
       console.error('Error fetching organization users:', error)
       toast({
