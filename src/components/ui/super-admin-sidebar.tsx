@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { NavLink, useLocation, useNavigate } from "react-router-dom"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -33,12 +34,20 @@ import {
   ChevronDown,
   FileText,
   UserPlus,
+  ChevronRight,
 } from "lucide-react"
 
 // Navigation items configuration
 const superAdminNavigationItems = [
   { title: "Dashboard", url: "/super-admin", icon: LayoutDashboard },
-  { title: "Clients (Tenants)", url: "/super-admin/clients", icon: Building2 },
+  { 
+    title: "Organizations", 
+    url: "/super-admin/organizations", 
+    icon: Building2,
+    subItems: [
+      { title: "Organization Signups", url: "/super-admin/organization-signups", icon: UserPlus }
+    ]
+  },
   { title: "Packages", url: "/super-admin/packages", icon: Package },
   { title: "Subscriptions", url: "/super-admin/subscriptions", icon: CreditCard },
   { title: "User Management", url: "/super-admin/users", icon: Users },
@@ -46,12 +55,9 @@ const superAdminNavigationItems = [
   { title: "Security & Permissions", url: "/super-admin/security", icon: Shield },
   { title: "Communication", url: "/super-admin/communication", icon: Mail },
   { title: "Content Management", url: "/super-admin/cms", icon: FileText },
-  { title: "Tenant Signups", url: "/super-admin/tenant-signups", icon: UserPlus },
 ]
 
 export function SuperAdminSidebar() {
-  
-  
   const { state } = useSidebar()
   const { signOut } = useAuth()
   const { getDisplayName } = useUserProfile()
@@ -59,6 +65,7 @@ export function SuperAdminSidebar() {
   const location = useLocation()
   const { toast } = useToast()
   const isCollapsed = state === "collapsed"
+  const [expandedItems, setExpandedItems] = useState<string[]>([])
 
   const handleSignOut = async () => {
     try {
@@ -99,6 +106,14 @@ export function SuperAdminSidebar() {
     return `${baseClasses} text-muted-foreground hover:bg-muted hover:text-foreground`
   }
 
+  const toggleExpanded = (title: string) => {
+    setExpandedItems(prev => 
+      prev.includes(title) 
+        ? prev.filter(item => item !== title)
+        : [...prev, title]
+    )
+  }
+
   return (
     <Sidebar variant="sidebar" className="border-r bg-background" collapsible="icon">
       <SidebarHeader className="border-b p-4">
@@ -125,18 +140,56 @@ export function SuperAdminSidebar() {
           
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {superAdminNavigationItems.map((item) => (
+              {superAdminNavigationItems.map((item: any) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      end={item.url === "/super-admin"}
-                      className={getNavCls(item.url)}
-                    >
-                      <item.icon className="w-5 h-5 flex-shrink-0" />
-                      {!isCollapsed && <span className="ml-3 truncate">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
+                  {item.subItems ? (
+                    <div>
+                      <SidebarMenuButton asChild>
+                        <button 
+                          onClick={() => toggleExpanded(item.title)}
+                          className={getNavCls(item.url)}
+                        >
+                          <item.icon className="w-5 h-5 flex-shrink-0" />
+                          {!isCollapsed && (
+                            <>
+                              <span className="ml-3 truncate flex-1 text-left">{item.title}</span>
+                              <ChevronRight 
+                                className={`w-4 h-4 transition-transform ${
+                                  expandedItems.includes(item.title) ? 'rotate-90' : ''
+                                }`} 
+                              />
+                            </>
+                          )}
+                        </button>
+                      </SidebarMenuButton>
+                      {!isCollapsed && expandedItems.includes(item.title) && (
+                        <div className="ml-8 mt-1 space-y-1">
+                          {item.subItems.map((subItem: any) => (
+                            <SidebarMenuButton key={subItem.title} asChild>
+                              <NavLink 
+                                to={subItem.url}
+                                className={getNavCls(subItem.url)}
+                              >
+                                <subItem.icon className="w-4 h-4 flex-shrink-0" />
+                                <span className="ml-3 truncate">{subItem.title}</span>
+                              </NavLink>
+                            </SidebarMenuButton>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url} 
+                        end={item.url === "/super-admin"}
+                        className={getNavCls(item.url)}
+                      >
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        {!isCollapsed && <span className="ml-3 truncate">{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

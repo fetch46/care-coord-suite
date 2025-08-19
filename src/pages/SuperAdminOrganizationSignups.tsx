@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 
-interface TenantSignup {
+interface OrganizationSignup {
   id: string;
   company_name: string;
   admin_email: string;
@@ -26,16 +26,16 @@ interface TenantSignup {
   status: string;
   signup_date: string;
   processed_date?: string;
-  tenant_id?: string;
+  organization_id?: string;
   notes?: string;
   created_at: string;
   updated_at: string;
 }
 
-export default function SuperAdminTenantSignups() {
-  const [signups, setSignups] = useState<TenantSignup[]>([]);
+export default function SuperAdminOrganizationSignups() {
+  const [signups, setSignups] = useState<OrganizationSignup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSignup, setSelectedSignup] = useState<TenantSignup | null>(null);
+  const [selectedSignup, setSelectedSignup] = useState<OrganizationSignup | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [notes, setNotes] = useState("");
   const [updating, setUpdating] = useState(false);
@@ -57,10 +57,10 @@ export default function SuperAdminTenantSignups() {
       if (error) throw error;
       setSignups(data || []);
     } catch (error) {
-      console.error('Error fetching tenant signups:', error);
+      console.error('Error fetching organization signups:', error);
       toast({
         title: "Error",
-        description: "Failed to load tenant signups",
+        description: "Failed to load organization signups",
         variant: "destructive"
       });
     } finally {
@@ -72,20 +72,20 @@ export default function SuperAdminTenantSignups() {
     setUpdating(true);
     try {
       if (status === 'approved') {
-        // Call the database function to approve the signup and create the tenant
+        // Call the database function to approve the signup and create the organization
         const { data: approvalResult, error: approvalError } = await supabase
           .rpc('approve_tenant_signup', { p_signup_id: signupId });
 
         if (approvalError) {
-          console.error('Error approving tenant signup:', approvalError);
+          console.error('Error approving organization signup:', approvalError);
           throw approvalError;
         }
 
         // Parse the JSON response
-        const result = approvalResult as { success: boolean; message?: string; tenant_id?: string };
+        const result = approvalResult as { success: boolean; message?: string; organization_id?: string };
         
         if (!result?.success) {
-          throw new Error(result?.message || 'Failed to approve tenant signup');
+          throw new Error(result?.message || 'Failed to approve organization signup');
         }
 
         // Update the notes if provided
@@ -103,7 +103,7 @@ export default function SuperAdminTenantSignups() {
 
         toast({
           title: "Success",
-          description: `Tenant signup approved and client created successfully. The new client will appear in the Clients list.`
+          description: `Organization signup approved and organization created successfully. The new organization will appear in the Organizations list.`
         });
       } else {
         // For rejection, just update the status
@@ -120,7 +120,7 @@ export default function SuperAdminTenantSignups() {
 
         toast({
           title: "Success",
-          description: `Tenant signup ${status} successfully`
+          description: `Organization signup ${status} successfully`
         });
       }
 
@@ -176,7 +176,7 @@ export default function SuperAdminTenantSignups() {
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>Loading tenant signups...</p>
+            <p>Loading organization signups...</p>
           </div>
         </div>
       </SuperAdminLayout>
@@ -190,7 +190,7 @@ export default function SuperAdminTenantSignups() {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight">Tenant Requests</h1>
+              <h1 className="text-4xl font-bold tracking-tight">Organization Requests</h1>
               <p className="text-lg text-muted-foreground mt-2">
                 Review and manage organization signup requests
               </p>
@@ -292,7 +292,7 @@ export default function SuperAdminTenantSignups() {
                 <p className="text-muted-foreground">
                   {searchQuery || statusFilter !== "all" 
                     ? "Try adjusting your search or filter criteria"
-                    : "There are no tenant signup requests at the moment"}
+                    : "There are no organization signup requests at the moment"}
                 </p>
               </div>
             ) : (
@@ -405,113 +405,37 @@ export default function SuperAdminTenantSignups() {
                                   </div>
                                 </div>
 
-                                {/* Contact Information */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                  <Card>
-                                    <CardHeader className="pb-3">
-                                      <CardTitle className="text-lg flex items-center">
-                                        <User className="w-5 h-5 mr-2" />
-                                        Administrator Contact
-                                      </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3">
-                                      <div>
-                                        <Label className="text-xs text-muted-foreground">Full Name</Label>
-                                        <p className="font-semibold">{selectedSignup.admin_first_name} {selectedSignup.admin_last_name}</p>
-                                      </div>
-                                      <div>
-                                        <Label className="text-xs text-muted-foreground">Email Address</Label>
-                                        <div className="flex items-center space-x-2">
-                                          <Mail className="w-4 h-4 text-muted-foreground" />
-                                          <p className="text-sm">{selectedSignup.admin_email}</p>
-                                        </div>
-                                      </div>
-                                      {selectedSignup.admin_phone && (
-                                        <div>
-                                          <Label className="text-xs text-muted-foreground">Phone Number</Label>
-                                          <div className="flex items-center space-x-2">
-                                            <Phone className="w-4 h-4 text-muted-foreground" />
-                                            <p className="text-sm">{selectedSignup.admin_phone}</p>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </CardContent>
-                                  </Card>
-
-                                  <Card>
-                                    <CardHeader className="pb-3">
-                                      <CardTitle className="text-lg flex items-center">
-                                        <Calendar className="w-5 h-5 mr-2" />
-                                        Request Details
-                                      </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-3">
-                                      <div>
-                                        <Label className="text-xs text-muted-foreground">Submitted On</Label>
-                                        <p className="font-semibold">{format(new Date(selectedSignup.created_at), 'MMMM dd, yyyy')}</p>
-                                        <p className="text-sm text-muted-foreground">{format(new Date(selectedSignup.created_at), 'h:mm a')}</p>
-                                      </div>
-                                      {selectedSignup.processed_date && (
-                                        <div>
-                                          <Label className="text-xs text-muted-foreground">Processed On</Label>
-                                          <p className="font-semibold">{format(new Date(selectedSignup.processed_date), 'MMMM dd, yyyy')}</p>
-                                          <p className="text-sm text-muted-foreground">{format(new Date(selectedSignup.processed_date), 'h:mm a')}</p>
-                                        </div>
-                                      )}
-                                    </CardContent>
-                                  </Card>
-                                </div>
-
-                                {/* Notes Section */}
+                                {/* Admin Notes */}
                                 <div className="space-y-4">
-                                  {selectedSignup.notes && (
-                                    <Card>
-                                      <CardHeader className="pb-3">
-                                        <CardTitle className="text-lg">Existing Notes</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <p className="text-sm bg-muted p-4 rounded-lg">{selectedSignup.notes}</p>
-                                      </CardContent>
-                                    </Card>
-                                  )}
-
-                                  <Card>
-                                    <CardHeader className="pb-3">
-                                      <CardTitle className="text-lg">Add Notes</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <Textarea
-                                        value={notes}
-                                        onChange={(e) => setNotes(e.target.value)}
-                                        placeholder="Add any notes about this signup request..."
-                                        rows={4}
-                                        className="resize-none"
-                                      />
-                                    </CardContent>
-                                  </Card>
+                                  <Label htmlFor="admin-notes" className="text-base font-semibold">Admin Notes</Label>
+                                  <Textarea
+                                    id="admin-notes"
+                                    placeholder="Add notes about this signup request..."
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                    className="min-h-[100px]"
+                                  />
                                 </div>
 
                                 {/* Action Buttons */}
                                 {selectedSignup.status === 'pending' && (
-                                  <div className="flex gap-4 pt-6 border-t">
-                                    <Button 
-                                      onClick={() => updateSignupStatus(selectedSignup.id, 'approved')}
-                                      disabled={updating}
-                                      className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700"
-                                    >
-                                      {updating && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-                                      <CheckCircle className="w-5 h-5 mr-2" />
-                                      Approve Request
-                                    </Button>
-                                    <Button 
+                                  <div className="flex justify-end space-x-4">
+                                    <Button
+                                      variant="outline"
                                       onClick={() => updateSignupStatus(selectedSignup.id, 'rejected')}
                                       disabled={updating}
-                                      variant="destructive"
-                                      className="flex-1 h-12"
+                                      className="border-red-200 text-red-700 hover:bg-red-50"
                                     >
-                                      {updating && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-                                      <XCircle className="w-5 h-5 mr-2" />
+                                      {updating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <XCircle className="w-4 h-4 mr-2" />}
                                       Reject Request
+                                    </Button>
+                                    <Button
+                                      onClick={() => updateSignupStatus(selectedSignup.id, 'approved')}
+                                      disabled={updating}
+                                      className="bg-emerald-600 hover:bg-emerald-700"
+                                    >
+                                      {updating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+                                      Approve & Create Organization
                                     </Button>
                                   </div>
                                 )}
@@ -519,16 +443,16 @@ export default function SuperAdminTenantSignups() {
                             )}
                           </DialogContent>
                         </Dialog>
-                      </TableCell>
-                    </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </SuperAdminLayout>
-    );
-  }
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </SuperAdminLayout>
+  );
+}
