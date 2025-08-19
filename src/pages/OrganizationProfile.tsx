@@ -22,7 +22,7 @@ import {
   Calendar
 } from "lucide-react";
 
-interface TenantProfile {
+interface OrganizationProfile {
   id: string;
   business_address?: string;
   business_phone?: string;
@@ -35,7 +35,7 @@ interface TenantProfile {
   billing_contact_email?: string;
   billing_contact_phone?: string;
   settings?: any;
-  tenant?: {
+  organization?: {
     company_name: string;
     admin_email: string;
     status: string;
@@ -44,8 +44,8 @@ interface TenantProfile {
   };
 }
 
-export default function TenantProfile() {
-  const [profile, setProfile] = useState<TenantProfile | null>(null);
+export default function OrganizationProfile() {
+  const [profile, setProfile] = useState<OrganizationProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -53,38 +53,38 @@ export default function TenantProfile() {
   const { user } = useAuth();
 
   useEffect(() => {
-    fetchTenantProfile();
+    fetchOrganizationProfile();
   }, []);
 
-  const fetchTenantProfile = async () => {
+  const fetchOrganizationProfile = async () => {
     try {
       setLoading(true);
       
-      // First get the tenant
-      const { data: tenantData, error: tenantError } = await supabase
-        .from('tenants')
+      // First get the organization
+      const { data: organizationData, error: organizationError } = await supabase
+        .from('organizations')
         .select('*')
         .eq('admin_user_id', user?.id)
         .single();
 
-      if (tenantError) {
-        console.error('Error fetching tenant:', tenantError);
+      if (organizationError) {
+        console.error('Error fetching organization:', organizationError);
         return;
       }
 
       // Then get or create the profile
       let { data: profileData, error: profileError } = await supabase
-        .from('tenant_profiles')
-        .select('*, tenant:tenants(*)')
-        .eq('tenant_id', tenantData.id)
+        .from('organization_profiles')
+        .select('*, organization:organizations(*)')
+        .eq('organization_id', organizationData.id)
         .single();
 
       if (profileError && profileError.code === 'PGRST116') {
         // Profile doesn't exist, create it
         const { data: newProfile, error: createError } = await supabase
-          .from('tenant_profiles')
-          .insert({ tenant_id: tenantData.id })
-          .select('*, tenant:tenants(*)')
+          .from('organization_profiles')
+          .insert({ organization_id: organizationData.id })
+          .select('*, organization:organizations(*)')
           .single();
 
         if (createError) {
@@ -97,10 +97,10 @@ export default function TenantProfile() {
 
       setProfile(profileData);
     } catch (error) {
-      console.error('Error fetching tenant profile:', error);
+      console.error('Error fetching organization profile:', error);
       toast({
         title: "Error",
-        description: "Failed to load tenant profile",
+        description: "Failed to load organization profile",
         variant: "destructive"
       });
     } finally {
@@ -114,7 +114,7 @@ export default function TenantProfile() {
     setSaving(true);
     try {
       const { error } = await supabase
-        .from('tenant_profiles')
+        .from('organization_profiles')
         .update({
           business_address: profile.business_address,
           business_phone: profile.business_phone,
@@ -133,14 +133,14 @@ export default function TenantProfile() {
 
       toast({
         title: "Success",
-        description: "Tenant profile updated successfully"
+        description: "Organization profile updated successfully"
       });
       setEditMode(false);
     } catch (error) {
-      console.error('Error updating tenant profile:', error);
+      console.error('Error updating organization profile:', error);
       toast({
         title: "Error",
-        description: "Failed to update tenant profile",
+        description: "Failed to update organization profile",
         variant: "destructive"
       });
     } finally {
@@ -156,7 +156,7 @@ export default function TenantProfile() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Loading tenant profile...</div>
+          <div className="text-lg">Loading organization profile...</div>
         </div>
       </div>
     );
@@ -166,8 +166,8 @@ export default function TenantProfile() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Tenant Profile Not Found</h1>
-          <p>Unable to load tenant profile information.</p>
+          <h1 className="text-2xl font-bold mb-4">Organization Profile Not Found</h1>
+          <p>Unable to load organization profile information.</p>
         </div>
       </div>
     );
@@ -214,22 +214,22 @@ export default function TenantProfile() {
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label className="text-sm font-medium">Company Name</Label>
-            <p className="text-lg font-semibold">{profile.tenant?.company_name}</p>
+            <p className="text-lg font-semibold">{profile.organization?.company_name}</p>
           </div>
           <div>
             <Label className="text-sm font-medium">Admin Email</Label>
-            <p className="text-sm text-muted-foreground">{profile.tenant?.admin_email}</p>
+            <p className="text-sm text-muted-foreground">{profile.organization?.admin_email}</p>
           </div>
           <div>
             <Label className="text-sm font-medium">Status</Label>
-            <Badge variant={profile.tenant?.status === 'active' ? 'default' : 'secondary'}>
-              {profile.tenant?.status}
+            <Badge variant={profile.organization?.status === 'active' ? 'default' : 'secondary'}>
+              {profile.organization?.status}
             </Badge>
           </div>
           <div>
             <Label className="text-sm font-medium">Subscription</Label>
-            <Badge variant={profile.tenant?.subscription_status === 'active' ? 'default' : 'outline'}>
-              {profile.tenant?.subscription_status}
+            <Badge variant={profile.organization?.subscription_status === 'active' ? 'default' : 'outline'}>
+              {profile.organization?.subscription_status}
             </Badge>
           </div>
           <div>
@@ -237,7 +237,7 @@ export default function TenantProfile() {
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               <p className="text-sm text-muted-foreground">
-                {new Date(profile.tenant?.created_at || '').toLocaleDateString()}
+                {new Date(profile.organization?.created_at || '').toLocaleDateString()}
               </p>
             </div>
           </div>

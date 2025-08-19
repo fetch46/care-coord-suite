@@ -16,7 +16,7 @@ interface OrganizationUser {
   id: string
   organization_id: string
   user_id: string
-  role: string
+  role: 'administrator' | 'reception' | 'registered_nurse' | 'caregiver' | 'owner' | 'admin' | 'staff'
   is_confirmed: boolean
   invited_at: string
   confirmed_at: string | null
@@ -72,7 +72,7 @@ export function OrganizationUserManagement({ organizationId, organizationName }:
         .order('invited_at', { ascending: false })
 
       if (error) throw error
-      setUsers(data || [])
+      setUsers((data || []) as OrganizationUser[])
     } catch (error) {
       console.error('Error fetching organization users:', error)
       toast({
@@ -219,7 +219,7 @@ export function OrganizationUserManagement({ organizationId, organizationName }:
     }
   }
 
-  const handleUpdateRole = async (userId: string, newRole: string) => {
+  const handleUpdateRole = async (userId: string, newRole: 'administrator' | 'reception' | 'registered_nurse' | 'caregiver' | 'owner' | 'admin' | 'staff') => {
     try {
       const { error } = await supabase
         .from('organization_users')

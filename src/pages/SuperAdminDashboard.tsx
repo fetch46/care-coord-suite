@@ -17,13 +17,13 @@ import {
 } from "lucide-react";
 
 interface DashboardStats {
-  totalTenants: number;
+  totalOrganizations: number;
   activeSubscriptions: number;
   expiredSubscriptions: number;
   totalRevenue: number;
 }
 
-interface Tenant {
+interface Organization {
   id: string;
   company_name: string;
   admin_email: string;
@@ -37,12 +37,12 @@ export default function SuperAdminDashboard() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats>({
-    totalTenants: 0,
+    totalOrganizations: 0,
     activeSubscriptions: 0,
     expiredSubscriptions: 0,
     totalRevenue: 0
   });
-  const [recentTenants, setRecentTenants] = useState<Tenant[]>([]);
+  const [recentOrganizations, setRecentOrganizations] = useState<Organization[]>([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -52,13 +52,13 @@ export default function SuperAdminDashboard() {
     try {
       setLoading(true);
 
-      // Fetch tenants
-      const { data: tenants, error: tenantsError } = await supabase
-        .from("tenants")
+      // Fetch organizations
+      const { data: organizations, error: organizationsError } = await supabase
+        .from("organizations")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (tenantsError) throw tenantsError;
+      if (organizationsError) throw organizationsError;
 
       // Fetch subscriptions
       const { data: subscriptions, error: subscriptionsError } = await supabase
@@ -68,19 +68,19 @@ export default function SuperAdminDashboard() {
       if (subscriptionsError) throw subscriptionsError;
 
       // Calculate stats
-      const totalTenants = tenants?.length || 0;
+      const totalOrganizations = organizations?.length || 0;
       const activeSubscriptions = subscriptions?.filter(s => s.status === 'active').length || 0;
       const expiredSubscriptions = subscriptions?.filter(s => s.status === 'expired' || s.status === 'canceled').length || 0;
       const totalRevenue = subscriptions?.reduce((sum, s) => sum + (s.amount || 0), 0) || 0;
 
       setStats({
-        totalTenants,
+        totalOrganizations,
         activeSubscriptions,
         expiredSubscriptions,
         totalRevenue: totalRevenue / 100 // Convert from cents
       });
 
-      setRecentTenants(tenants?.slice(0, 5) || []);
+      setRecentOrganizations(organizations?.slice(0, 5) || []);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       toast({
@@ -141,11 +141,11 @@ export default function SuperAdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tenants</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Organizations</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalTenants}</div>
+            <div className="text-2xl font-bold">{stats.totalOrganizations}</div>
             <p className="text-xs text-muted-foreground">
               Registered companies
             </p>
@@ -192,36 +192,36 @@ export default function SuperAdminDashboard() {
         </Card>
       </div>
 
-      {/* Recent Tenants */}
+      {/* Recent Organizations */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Tenants</CardTitle>
+          <CardTitle>Recent Organizations</CardTitle>
           <p className="text-sm text-muted-foreground">
             Recently registered companies and their status
           </p>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentTenants.length === 0 ? (
+            {recentOrganizations.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                No tenants found
+                No organizations found
               </div>
             ) : (
-              recentTenants.map((tenant) => (
-                <div key={tenant.id} className="flex items-center justify-between p-4 border rounded-lg">
+              recentOrganizations.map((organization) => (
+                <div key={organization.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium">{tenant.company_name}</h4>
-                      <Badge variant={getStatusBadgeVariant(tenant.subscription_status)}>
-                        {tenant.subscription_status}
+                      <h4 className="font-medium">{organization.company_name}</h4>
+                      <Badge variant={getStatusBadgeVariant(organization.subscription_status)}>
+                        {organization.subscription_status}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">{tenant.admin_email}</p>
+                    <p className="text-sm text-muted-foreground">{organization.admin_email}</p>
                     <p className="text-xs text-muted-foreground">
-                      Registered: {new Date(tenant.created_at).toLocaleDateString()}
-                      {tenant.trial_ends_at && (
+                      Registered: {new Date(organization.created_at).toLocaleDateString()}
+                      {organization.trial_ends_at && (
                         <span className="ml-2">
-                          • Trial ends: {new Date(tenant.trial_ends_at).toLocaleDateString()}
+                          • Trial ends: {new Date(organization.trial_ends_at).toLocaleDateString()}
                         </span>
                       )}
                     </p>

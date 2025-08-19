@@ -44,7 +44,7 @@ import SuperAdminSubscriptions from "./pages/SuperAdminSubscriptions";
 import SuperAdminUserManagement from "./pages/SuperAdminUserManagement";
 import SuperAdminSecurity from "./pages/SuperAdminSecurity";
 import SuperAdminCommunication from "./pages/SuperAdminCommunication";
-import TenantProfile from "./pages/TenantProfile";
+import OrganizationProfile from "./pages/OrganizationProfile";
 import { SuperAdminLayout } from "./components/layouts/SuperAdminLayout";
 import AdmissionsList from "./pages/AdmissionsList";
 import PatientAdmission from "./pages/PatientAdmission";
@@ -108,7 +108,7 @@ const App = () => (
             <Route path="/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
             <Route path="/financial-reports" element={<ProtectedRoute><FinancialReports /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/tenant-profile" element={<ProtectedRoute><TenantProfile /></ProtectedRoute>} />
+            <Route path="/organization-profile" element={<ProtectedRoute><OrganizationProfile /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
             <Route path="/assessment-reports" element={<ProtectedRoute><AssessmentReports /></ProtectedRoute>} />
             <Route path="/super-admin" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />

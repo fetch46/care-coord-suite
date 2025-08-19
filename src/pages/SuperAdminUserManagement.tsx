@@ -509,7 +509,7 @@ export default function SuperAdminUserManagement() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {user.tenants[0]?.company_name || 'No Tenant'}
+                        {user.organizations?.[0]?.company_name || 'No Organization'}
                       </TableCell>
                       <TableCell>
                         <Badge variant={user.email_confirmed_at ? "default" : "secondary"}>
