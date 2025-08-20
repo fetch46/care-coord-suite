@@ -45,6 +45,7 @@ const superAdminNavigationItems = [
     url: "/super-admin/organizations", 
     icon: Building2,
     subItems: [
+      { title: "Organizations", url: "/super-admin/organizations", icon: Building2 },
       { title: "Organization Signups", url: "/super-admin/organization-signups", icon: UserPlus }
     ]
   },
