@@ -2641,7 +2641,7 @@ export type Database = {
             foreignKeyName: "timesheets_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "timesheets"
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
