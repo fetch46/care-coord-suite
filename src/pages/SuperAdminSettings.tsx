@@ -151,7 +151,7 @@ export default function SuperAdminSettings() {
         </div>
 
       <Tabs defaultValue="payment" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="payment">
             <CreditCard className="w-4 h-4 mr-2" />
             Payment Gateways
@@ -163,10 +163,6 @@ export default function SuperAdminSettings() {
           <TabsTrigger value="system">
             <SettingsIcon className="w-4 h-4 mr-2" />
             System Settings
-          </TabsTrigger>
-          <TabsTrigger value="favicon">
-            <SettingsIcon className="w-4 h-4 mr-2" />
-            Favicon
           </TabsTrigger>
         </TabsList>
 
