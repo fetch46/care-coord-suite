@@ -73,6 +73,20 @@ interface NewOrganization {
   description: string;
   max_users: number;
   max_patients: number;
+  package_id: string;
+}
+
+interface Package {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  billing_type: string;
+  user_limit: number;
+  storage_gb: number;
+  features: string[];
+  is_popular: boolean;
+  is_active: boolean;
 }
 
 export default function SuperAdminOrganizations() {
@@ -86,17 +100,20 @@ export default function SuperAdminOrganizations() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [newOrganization, setNewOrganization] = useState<NewOrganization>({
     company_name: "",
     admin_email: "",
     domain: "",
     description: "",
     max_users: 10,
-    max_patients: 100
+    max_patients: 100,
+    package_id: ""
   });
 
   useEffect(() => {
     fetchOrganizations();
+    fetchPackages();
     
     // Set up polling to check for new organizations every 30 seconds
     const interval = setInterval(fetchOrganizations, 30000);
@@ -137,6 +154,43 @@ export default function SuperAdminOrganizations() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPackages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("organization_packages")
+        .select("*")
+        .eq("is_active", true)
+        .order("price", { ascending: true });
+
+      if (error) throw error;
+      
+      // Transform the data to ensure features is always an array of strings
+      const transformedData = (data || []).map(pkg => ({
+        id: pkg.id,
+        name: pkg.name,
+        description: pkg.description || "",
+        price: pkg.price,
+        billing_type: pkg.billing_type,
+        user_limit: pkg.user_limit || 0,
+        storage_gb: pkg.storage_gb || 0,
+        features: Array.isArray(pkg.features) 
+          ? pkg.features.filter((f): f is string => typeof f === 'string')
+          : [],
+        is_popular: pkg.is_popular || false,
+        is_active: pkg.is_active || false
+      }));
+      
+      setPackages(transformedData);
+    } catch (error) {
+      console.error("Error fetching packages:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load subscription packages",
+        variant: "destructive"
+      });
     }
   };
 
@@ -191,23 +245,56 @@ export default function SuperAdminOrganizations() {
       return;
     }
 
+    if (!newOrganization.package_id) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a subscription package.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Get the selected package details
+      const selectedPackage = packages.find(pkg => pkg.id === newOrganization.package_id);
+      if (!selectedPackage) {
+        throw new Error("Selected package not found");
+      }
+
+      // Create the organization
+      const { data: organizationData, error: orgError } = await supabase
         .from('organizations')
         .insert([{
-          ...newOrganization,
+          company_name: newOrganization.company_name,
+          admin_email: newOrganization.admin_email,
+          domain: newOrganization.domain,
+          description: newOrganization.description,
+          max_users: selectedPackage.user_limit === -1 ? 999999 : selectedPackage.user_limit,
+          max_patients: newOrganization.max_patients,
           status: 'active',
           subscription_status: 'trial'
         }])
         .select()
         .single();
 
-      if (error) throw error;
+      if (orgError) throw orgError;
+
+      // Assign the package to the organization
+      const { error: packageError } = await supabase
+        .from('organization_package_assignments')
+        .insert([{
+          organization_id: organizationData.id,
+          package_id: newOrganization.package_id,
+          is_active: true
+        }]);
+
+      if (packageError) throw packageError;
 
       toast({
         title: "Success",
-        description: "Organization created successfully",
+        description: "Organization created successfully with selected package",
       });
 
       setNewOrganization({
@@ -216,7 +303,8 @@ export default function SuperAdminOrganizations() {
         domain: "",
         description: "",
         max_users: 10,
-        max_patients: 100
+        max_patients: 100,
+        package_id: ""
       });
       setIsAddDialogOpen(false);
       await fetchOrganizations();
@@ -465,6 +553,65 @@ export default function SuperAdminOrganizations() {
                       placeholder="Brief description of the organization"
                     />
                   </div>
+                  <div>
+                    <Label htmlFor="package">Subscription Package *</Label>
+                    <Select
+                      value={newOrganization.package_id}
+                      onValueChange={(value) => {
+                        const selectedPackage = packages.find(pkg => pkg.id === value);
+                        setNewOrganization(prev => ({ 
+                          ...prev, 
+                          package_id: value,
+                          max_users: selectedPackage ? (selectedPackage.user_limit === -1 ? 999999 : selectedPackage.user_limit) : prev.max_users
+                        }));
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a subscription package" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {packages.map((pkg) => (
+                          <SelectItem key={pkg.id} value={pkg.id}>
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{pkg.name}</span>
+                                {pkg.is_popular && (
+                                  <Badge variant="secondary" className="text-xs">Popular</Badge>
+                                )}
+                              </div>
+                              <div className="text-sm text-muted-foreground ml-2">
+                                ${pkg.price}/{pkg.billing_type}
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {newOrganization.package_id && (
+                      <div className="mt-2 p-3 bg-muted rounded-md">
+                        {(() => {
+                          const selectedPackage = packages.find(pkg => pkg.id === newOrganization.package_id);
+                          return selectedPackage ? (
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium">{selectedPackage.name} - ${selectedPackage.price}/{selectedPackage.billing_type}</p>
+                              <p className="text-xs text-muted-foreground">{selectedPackage.description}</p>
+                              <div className="flex gap-4 text-xs">
+                                <span>Users: {selectedPackage.user_limit === -1 ? 'Unlimited' : selectedPackage.user_limit}</span>
+                                <span>Storage: {selectedPackage.storage_gb}GB</span>
+                              </div>
+                              {selectedPackage.features && selectedPackage.features.length > 0 && (
+                                <div className="text-xs">
+                                  <span className="font-medium">Features: </span>
+                                  {selectedPackage.features.slice(0, 3).join(', ')}
+                                  {selectedPackage.features.length > 3 && '...'}
+                                </div>
+                              )}
+                            </div>
+                          ) : null;
+                        })()}
+                      </div>
+                    )}
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="max_users">Max Users</Label>
@@ -473,7 +620,12 @@ export default function SuperAdminOrganizations() {
                         type="number"
                         value={newOrganization.max_users}
                         onChange={(e) => setNewOrganization(prev => ({ ...prev, max_users: parseInt(e.target.value) || 10 }))}
+                        disabled={!!newOrganization.package_id}
+                        className={newOrganization.package_id ? "bg-muted" : ""}
                       />
+                      {newOrganization.package_id && (
+                        <p className="text-xs text-muted-foreground mt-1">Automatically set by selected package</p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="max_patients">Max Patients</Label>
