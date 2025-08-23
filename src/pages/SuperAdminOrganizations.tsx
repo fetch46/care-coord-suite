@@ -159,13 +159,19 @@ export default function SuperAdminOrganizations() {
 
   const fetchPackages = async () => {
     try {
+      console.log('Fetching packages...');
       const { data, error } = await supabase
         .from("organization_packages")
         .select("*")
         .eq("is_active", true)
         .order("price", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Package fetch error:', error);
+        throw error;
+      }
+      
+      console.log('Packages fetched:', data);
       
       // Transform the data to ensure features is always an array of strings
       const transformedData = (data || []).map(pkg => ({
@@ -183,6 +189,7 @@ export default function SuperAdminOrganizations() {
         is_active: pkg.is_active || false
       }));
       
+      console.log('Transformed packages:', transformedData);
       setPackages(transformedData);
     } catch (error) {
       console.error("Error fetching packages:", error);
@@ -263,40 +270,60 @@ export default function SuperAdminOrganizations() {
         throw new Error("Selected package not found");
       }
 
-      // Create the organization
-      const { data: organizationData, error: orgError } = await supabase
+      // Create the organization with comprehensive data
+      const organizationData = {
+        company_name: newOrganization.company_name,
+        admin_email: newOrganization.admin_email,
+        domain: newOrganization.domain,
+        description: newOrganization.description,
+        max_users: selectedPackage.user_limit === -1 ? 999999 : selectedPackage.user_limit,
+        max_patients: newOrganization.max_patients,
+        status: 'active',
+        subscription_status: 'trial',
+        trial_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days trial
+      };
+
+      console.log('Creating organization with data:', organizationData);
+
+      const { data: organizationResult, error: orgError } = await supabase
         .from('organizations')
-        .insert([{
-          company_name: newOrganization.company_name,
-          admin_email: newOrganization.admin_email,
-          domain: newOrganization.domain,
-          description: newOrganization.description,
-          max_users: selectedPackage.user_limit === -1 ? 999999 : selectedPackage.user_limit,
-          max_patients: newOrganization.max_patients,
-          status: 'active',
-          subscription_status: 'trial'
-        }])
+        .insert([organizationData])
         .select()
         .single();
 
-      if (orgError) throw orgError;
+      if (orgError) {
+        console.error('Organization creation error:', orgError);
+        throw orgError;
+      }
+
+      console.log('Organization created:', organizationResult);
 
       // Assign the package to the organization
       const { error: packageError } = await supabase
         .from('organization_package_assignments')
         .insert([{
-          organization_id: organizationData.id,
+          organization_id: organizationResult.id,
           package_id: newOrganization.package_id,
-          is_active: true
+          is_active: true,
+          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days trial
         }]);
 
-      if (packageError) throw packageError;
+      if (packageError) {
+        console.error('Package assignment error:', packageError);
+        // Don't throw here, organization was created successfully
+        toast({
+          title: "Warning",
+          description: "Organization created but package assignment failed. You can assign the package later.",
+          variant: "destructive",
+        });
+      }
 
       toast({
         title: "Success",
         description: "Organization created successfully with selected package",
       });
 
+      // Reset form
       setNewOrganization({
         company_name: "",
         admin_email: "",
@@ -308,11 +335,11 @@ export default function SuperAdminOrganizations() {
       });
       setIsAddDialogOpen(false);
       await fetchOrganizations();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding organization:', error);
       toast({
         title: "Error",
-        description: "Failed to create organization",
+        description: error.message || "Failed to create organization",
         variant: "destructive",
       });
     } finally {
