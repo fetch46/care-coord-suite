@@ -30,6 +30,7 @@ export type Database = {
           estimated_length_of_stay: number | null
           id: string
           insurance_authorization: string | null
+          organization_id: string | null
           patient_id: string
           room_id: string
           special_requirements: string | null
@@ -50,6 +51,7 @@ export type Database = {
           estimated_length_of_stay?: number | null
           id?: string
           insurance_authorization?: string | null
+          organization_id?: string | null
           patient_id: string
           room_id: string
           special_requirements?: string | null
@@ -70,12 +72,21 @@ export type Database = {
           estimated_length_of_stay?: number | null
           id?: string
           insurance_authorization?: string | null
+          organization_id?: string | null
           patient_id?: string
           room_id?: string
           special_requirements?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "admissions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       appointments: {
         Row: {
@@ -197,6 +208,7 @@ export type Database = {
           end_time: string
           id: string
           notes: string | null
+          organization_id: string | null
           patient_id: string | null
           staff_id: string
           start_time: string
@@ -208,6 +220,7 @@ export type Database = {
           end_time: string
           id?: string
           notes?: string | null
+          organization_id?: string | null
           patient_id?: string | null
           staff_id: string
           start_time: string
@@ -219,6 +232,7 @@ export type Database = {
           end_time?: string
           id?: string
           notes?: string | null
+          organization_id?: string | null
           patient_id?: string | null
           staff_id?: string
           start_time?: string
@@ -226,6 +240,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "availabilities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "availabilities_patient_id_fkey"
             columns: ["patient_id"]
@@ -1007,6 +1028,7 @@ export type Database = {
           description: string
           id: string
           invoice_id: string | null
+          organization_id: string | null
           quantity: number
           service_date: string | null
           total_price: number
@@ -1017,6 +1039,7 @@ export type Database = {
           description: string
           id?: string
           invoice_id?: string | null
+          organization_id?: string | null
           quantity?: number
           service_date?: string | null
           total_price: number
@@ -1027,6 +1050,7 @@ export type Database = {
           description?: string
           id?: string
           invoice_id?: string | null
+          organization_id?: string | null
           quantity?: number
           service_date?: string | null
           total_price?: number
@@ -1038,6 +1062,13 @@ export type Database = {
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -1660,6 +1691,7 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
+          organization_id: string | null
           patient_id: string
           reaction: string | null
           severity: string | null
@@ -1669,6 +1701,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          organization_id?: string | null
           patient_id: string
           reaction?: string | null
           severity?: string | null
@@ -1678,11 +1711,19 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          organization_id?: string | null
           patient_id?: string
           reaction?: string | null
           severity?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "patient_allergies_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "patient_allergies_patient_id_fkey"
             columns: ["patient_id"]
@@ -1757,6 +1798,7 @@ export type Database = {
           id: string
           is_primary: boolean | null
           notes: string | null
+          organization_id: string | null
           patient_id: string
         }
         Insert: {
@@ -1766,6 +1808,7 @@ export type Database = {
           id?: string
           is_primary?: boolean | null
           notes?: string | null
+          organization_id?: string | null
           patient_id: string
         }
         Update: {
@@ -1775,6 +1818,7 @@ export type Database = {
           id?: string
           is_primary?: boolean | null
           notes?: string | null
+          organization_id?: string | null
           patient_id?: string
         }
         Relationships: [
@@ -1783,6 +1827,13 @@ export type Database = {
             columns: ["caregiver_id"]
             isOneToOne: false
             referencedRelation: "caregivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_caregivers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
@@ -2250,6 +2301,7 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
+          organization_id: string | null
           room_number: string
           room_type: string | null
           status: string | null
@@ -2260,6 +2312,7 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          organization_id?: string | null
           room_number: string
           room_type?: string | null
           status?: string | null
@@ -2270,12 +2323,21 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
+          organization_id?: string | null
           room_number?: string
           room_type?: string | null
           status?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rooms_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       skin_assessments: {
         Row: {
