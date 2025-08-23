@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useMasquerade } from "@/hooks/useMasquerade";
+import { useAuth } from "@/contexts/AuthContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -92,6 +93,7 @@ interface Package {
 export default function SuperAdminOrganizations() {
   const { toast } = useToast();
   const { currentMasquerade, isMasquerading, startMasquerade, endMasquerade, loading: masqueradeLoading } = useMasquerade();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [filteredOrganizations, setFilteredOrganizations] = useState<Organization[]>([]);
@@ -270,10 +272,21 @@ export default function SuperAdminOrganizations() {
         throw new Error("Selected package not found");
       }
 
+      if (!user?.id) {
+        toast({
+          title: "Not authenticated",
+          description: "Please sign in again to create an organization.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       // Create the organization with comprehensive data
       const organizationData = {
         company_name: newOrganization.company_name,
         admin_email: newOrganization.admin_email,
+        admin_user_id: user.id,
         domain: newOrganization.domain,
         description: newOrganization.description,
         max_users: selectedPackage.user_limit === -1 ? 999999 : selectedPackage.user_limit,
@@ -281,7 +294,7 @@ export default function SuperAdminOrganizations() {
         status: 'active',
         subscription_status: 'trial',
         trial_ends_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days trial
-      };
+      } as const;
 
       console.log('Creating organization with data:', organizationData);
 
