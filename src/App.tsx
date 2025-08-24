@@ -38,6 +38,7 @@ import AssessmentReports from "./pages/AssessmentReports";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import SuperAdminClients from "./pages/SuperAdminClients";
 import SuperAdminOrganizations from "./pages/SuperAdminOrganizations";
+import SuperAdminOrganizationDetails from "./pages/SuperAdminOrganizationDetails";
 import SuperAdminSettings from "./pages/SuperAdminSettings";
 import SuperAdminCMS from "./pages/SuperAdminCMS";
 import SuperAdminOrganizationSignups from "./pages/SuperAdminOrganizationSignups";
@@ -114,6 +115,7 @@ const App = () => (
             <Route path="/assessment-reports" element={<ProtectedRoute><AssessmentReports /></ProtectedRoute>} />
             <Route path="/super-admin" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />
             <Route path="/super-admin/organizations" element={<ProtectedRoute><SuperAdminOrganizations /></ProtectedRoute>} />
+            <Route path="/super-admin/organizations/:id" element={<ProtectedRoute><SuperAdminOrganizationDetails /></ProtectedRoute>} />
             <Route path="/super-admin/organization-signups" element={<ProtectedRoute><SuperAdminOrganizationSignups /></ProtectedRoute>} />
             <Route path="/super-admin/packages" element={<ProtectedRoute><SuperAdminPackages /></ProtectedRoute>} />
             <Route path="/super-admin/subscriptions" element={<ProtectedRoute><SuperAdminSubscriptions /></ProtectedRoute>} />

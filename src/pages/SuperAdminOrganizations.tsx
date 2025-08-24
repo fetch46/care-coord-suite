@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { SuperAdminLayout } from "@/components/layouts/SuperAdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,6 +92,7 @@ interface Package {
 }
 
 export default function SuperAdminOrganizations() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { currentMasquerade, isMasquerading, startMasquerade, endMasquerade, loading: masqueradeLoading } = useMasquerade();
   const { user } = useAuth();
@@ -450,10 +452,7 @@ export default function SuperAdminOrganizations() {
   };
 
   const handleViewDetails = (organizationId: string) => {
-    toast({
-      title: "View Details",
-      description: "Organization details modal would open here"
-    });
+    navigate(`/super-admin/organizations/${organizationId}`);
   };
 
   const handleViewSubscription = (organizationId: string) => {
