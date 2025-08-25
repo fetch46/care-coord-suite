@@ -81,7 +81,7 @@ serve(async (req) => {
 
     if (action === "create-staff-user") {
       // Create new staff user account
-      const { email, password, firstName, lastName, role, staffId } = body;
+      const { email, password, firstName, lastName, role, phone } = body;
 
       // Create user account
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -104,11 +104,29 @@ serve(async (req) => {
         );
       }
 
-      // Update staff record with user_id
+      // Create profile
+      await supabaseAdmin
+        .from("profiles")
+        .insert({
+          id: newUser.user.id,
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          phone
+        });
+
+      // Create staff record
       await supabaseAdmin
         .from("staff")
-        .update({ user_id: newUser.user.id })
-        .eq("id", staffId);
+        .insert({
+          user_id: newUser.user.id,
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          phone,
+          role,
+          status: 'Active'
+        });
 
       // Assign role to user
       await supabaseAdmin

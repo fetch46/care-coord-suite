@@ -68,39 +68,48 @@ export default function SuperAdminUserManagement() {
 
   const fetchUsers = async () => {
     try {
-      // Fetch staff members with their user data
-      const { data: staffData, error: staffError } = await supabase
-        .from('staff')
+      // Fetch all profiles with user roles for super admin view
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
         .select(`
           id,
-          user_id,
           first_name,
           last_name,
           email,
           phone,
-          role,
-          status,
           created_at
         `)
         .order('created_at', { ascending: false });
 
-      if (staffError) throw staffError;
+      if (profilesError) throw profilesError;
 
-      // Transform staff data to user format
-      const transformedUsers: User[] = (staffData || []).map(staff => ({
-        id: staff.user_id || staff.id,
-        email: staff.email || '',
-        created_at: staff.created_at,
-        last_sign_in_at: null, // Would need auth.users table for real data
-        email_confirmed_at: staff.user_id ? new Date().toISOString() : null,
-        profiles: {
-          first_name: staff.first_name,
-          last_name: staff.last_name,
-          phone: staff.phone
-        },
-        user_roles: [{ role: staff.role }],
-        organizations: [{ company_name: 'Healthcare Organization' }]
-      }));
+      // Fetch user roles for each user
+      const userIds = profilesData?.map(p => p.id) || [];
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds);
+
+      if (rolesError) throw rolesError;
+
+      // Transform to user format
+      const transformedUsers: User[] = (profilesData || []).map(profile => {
+        const userRoles = rolesData?.filter(r => r.user_id === profile.id) || [];
+        return {
+          id: profile.id,
+          email: profile.email || '',
+          created_at: profile.created_at,
+          last_sign_in_at: null,
+          email_confirmed_at: new Date().toISOString(),
+          profiles: {
+            first_name: profile.first_name,
+            last_name: profile.last_name,
+            phone: profile.phone
+          },
+          user_roles: userRoles.map(r => ({ role: r.role })),
+          organizations: [{ company_name: 'System User' }]
+        };
+      });
 
       setUsers(transformedUsers);
       calculateStats(transformedUsers);
@@ -188,15 +197,6 @@ export default function SuperAdminUserManagement() {
     try {
       setLoading(true);
       
-      // Create the staff member record first
-      const { data: staffData, error: staffError } = await supabase
-        .from('staff')
-        .insert([{ ...newStaff, status: 'Active' }])
-        .select()
-        .single();
-
-      if (staffError) throw staffError;
-
       // Generate a temporary password
       const tempPassword = Math.random().toString(36).slice(-8) + "Aa1!";
 
@@ -209,15 +209,11 @@ export default function SuperAdminUserManagement() {
           firstName: newStaff.first_name,
           lastName: newStaff.last_name,
           role: newStaff.role,
-          staffId: staffData.id
+          phone: newStaff.phone
         }
       });
 
-      if (authError) {
-        // If user creation fails, remove the staff record
-        await supabase.from('staff').delete().eq('id', staffData.id);
-        throw authError;
-      }
+      if (authError) throw authError;
 
       toast({
         title: "Success",

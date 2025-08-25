@@ -27,6 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SuperAdminAddUserToOrganization } from "@/components/SuperAdminAddUserToOrganization";
 import { 
   ArrowLeft,
   Building2,
@@ -204,9 +205,14 @@ export default function SuperAdminOrganizationDetails() {
     }
 
     try {
-      // Note: In a real implementation, you would first create the auth user
-      // For demo purposes, we'll show a success message
-      console.log('Would invite user:', newUserEmail, 'with role:', newUserRole);
+      // Use the database function to add user to organization
+      const { data, error } = await supabase.rpc('add_user_to_organization', {
+        p_organization_id: id,
+        p_user_email: newUserEmail,
+        p_role: newUserRole
+      });
+
+      if (error) throw error;
 
       toast({
         title: "Success",
@@ -525,56 +531,19 @@ export default function SuperAdminOrganizationDetails() {
           <TabsContent value="users" className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Organization Users</h3>
-              <Dialog open={showAddUserDialog} onOpenChange={setShowAddUserDialog}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Add User
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add User to Organization</DialogTitle>
-                    <DialogDescription>
-                      Invite a new user to join this organization
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="user_email">Email Address</Label>
-                      <Input
-                        id="user_email"
-                        type="email"
-                        value={newUserEmail}
-                        onChange={(e) => setNewUserEmail(e.target.value)}
-                        placeholder="user@example.com"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="user_role">Role</Label>
-                      <Select value={newUserRole} onValueChange={setNewUserRole}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="user">User</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="manager">Manager</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setShowAddUserDialog(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleAddUser}>
-                      Send Invitation
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <Button onClick={() => setShowAddUserDialog(true)}>
+                <UserPlus className="w-4 h-4 mr-2" />
+                Add User
+              </Button>
             </div>
+
+            <SuperAdminAddUserToOrganization 
+              organizationId={id!}
+              organizationName={organization.company_name}
+              isOpen={showAddUserDialog}
+              onClose={() => setShowAddUserDialog(false)}
+              onSuccess={fetchOrganizationDetails}
+            />
 
             <Card>
               <CardContent className="p-0">

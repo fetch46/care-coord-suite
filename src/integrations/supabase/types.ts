@@ -2813,6 +2813,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_user_to_organization: {
+        Args: {
+          p_organization_id: string
+          p_role?: string
+          p_user_email: string
+        }
+        Returns: Json
+      }
       approve_tenant_signup: {
         Args: { p_signup_id: string }
         Returns: Json
