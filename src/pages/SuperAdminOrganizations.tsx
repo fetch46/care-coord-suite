@@ -28,6 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SuperAdminPackageAssignment } from "@/components/SuperAdminPackageAssignment";
 import { 
   MoreHorizontal,
   Search,
@@ -41,7 +42,8 @@ import {
   Edit,
   Trash,
   Check,
-  Settings
+  Settings,
+  Package
 } from "lucide-react";
 
 interface Organization {
@@ -103,6 +105,7 @@ export default function SuperAdminOrganizations() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isPackageDialogOpen, setIsPackageDialogOpen] = useState(false);
   const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
   const [packages, setPackages] = useState<Package[]>([]);
   const [newOrganization, setNewOrganization] = useState<NewOrganization>({
@@ -456,10 +459,16 @@ export default function SuperAdminOrganizations() {
   };
 
   const handleViewSubscription = (organizationId: string) => {
-    toast({
-      title: "View Subscription",
-      description: "Subscription details modal would open here"
-    });
+    navigate(`/super-admin/subscriptions`);
+  };
+
+  const handleAssignPackage = (organization: Organization) => {
+    setSelectedOrganization(organization);
+    setIsPackageDialogOpen(true);
+  };
+
+  const handleOpenSettings = (organizationId: string) => {
+    navigate(`/super-admin/organizations/${organizationId}/settings`);
   };
 
   const handleMasquerade = async (organizationId: string, adminUserId: string) => {
@@ -821,9 +830,13 @@ export default function SuperAdminOrganizations() {
                                 <CreditCard className="mr-2 h-4 w-4" />
                                 View Subscription
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleViewSubscription(organization.id)}>
+                              <DropdownMenuItem onClick={() => handleAssignPackage(organization)}>
+                                <Package className="mr-2 h-4 w-4" />
+                                Assign Package
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleOpenSettings(organization.id)}>
                                 <Settings className="mr-2 h-4 w-4" />
-                                Manage Packages
+                                Organization Settings
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => handleDeleteOrganization(organization.id)}
@@ -843,6 +856,20 @@ export default function SuperAdminOrganizations() {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Package Assignment Dialog */}
+        <SuperAdminPackageAssignment
+          organizationId={selectedOrganization?.id || ""}
+          organizationName={selectedOrganization?.company_name || ""}
+          isOpen={isPackageDialogOpen}
+          onClose={() => {
+            setIsPackageDialogOpen(false);
+            setSelectedOrganization(null);
+          }}
+          onSuccess={() => {
+            fetchOrganizations();
+          }}
+        />
 
         {/* Edit Organization Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

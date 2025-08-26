@@ -50,35 +50,49 @@ export function SuperAdminAddUserToOrganization({
       if (profileError) throw profileError;
 
       if (!profileData) {
-        // Create new user account
-        const tempPassword = Math.random().toString(36).slice(-8) + "Aa1!";
-        
-        const { data: authData, error: authError } = await supabase.functions.invoke('password-reset', {
-          body: {
-            action: 'create-staff-user',
-            email,
-            password: tempPassword,
-            firstName: email.split('@')[0],
-            lastName: 'User',
-            role: role,
-            phone: ''
-          }
+      // Create new user account
+      const tempPassword = Math.random().toString(36).slice(-8) + "Aa1!";
+      
+      const { data: authData, error: authError } = await supabase.functions.invoke('password-reset', {
+        body: {
+          action: 'create-staff-user',
+          email,
+          password: tempPassword,
+          firstName: email.split('@')[0],
+          lastName: 'User',
+          role: role,
+          phone: ''
+        }
+      });
+
+      if (authError) throw authError;
+
+      // Add to organization
+      const { error: orgError } = await supabase
+        .from('organization_users')
+        .insert({
+          organization_id: organizationId,
+          user_id: authData.userId,
+          role: role as 'staff' | 'administrator' | 'reception' | 'registered_nurse' | 'caregiver' | 'owner' | 'admin',
+          is_confirmed: true,
+          confirmed_at: new Date().toISOString()
         });
 
-        if (authError) throw authError;
+      if (orgError) throw orgError;
 
-        // Add to organization
-        const { error: orgError } = await supabase
-          .from('organization_users')
-          .insert({
-            organization_id: organizationId,
-            user_id: authData.userId,
-            role: role as 'staff' | 'administrator' | 'reception' | 'registered_nurse' | 'caregiver' | 'owner' | 'admin',
-            is_confirmed: true,
-            confirmed_at: new Date().toISOString()
-          });
+      // Create staff record linking to organization
+      const { error: staffError } = await supabase
+        .from('staff')
+        .insert({
+          user_id: authData.userId,
+          first_name: email.split('@')[0],
+          last_name: 'User',
+          email: email,
+          role: role,
+          status: 'Active'
+        });
 
-        if (orgError) throw orgError;
+      if (staffError) console.error('Error creating staff record:', staffError);
 
         toast({
           title: "Success",
@@ -97,6 +111,30 @@ export function SuperAdminAddUserToOrganization({
           });
 
         if (orgError) throw orgError;
+
+        // Check if staff record exists, if not create one
+        const { data: existingStaff, error: staffCheckError } = await supabase
+          .from('staff')
+          .select('id')
+          .eq('user_id', profileData.id)
+          .maybeSingle();
+
+        if (staffCheckError) console.error('Error checking staff record:', staffCheckError);
+
+        if (!existingStaff) {
+          const { error: staffError } = await supabase
+            .from('staff')
+            .insert({
+              user_id: profileData.id,
+              first_name: email.split('@')[0],
+              last_name: 'User',
+              email: email,
+              role: role,
+              status: 'Active'
+            });
+
+          if (staffError) console.error('Error creating staff record:', staffError);
+        }
 
         toast({
           title: "Success",

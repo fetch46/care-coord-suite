@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { SuperAdminLayout } from "@/components/layouts/SuperAdminLayout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -42,6 +43,7 @@ interface SubscriptionStats {
 }
 
 export default function SuperAdminSubscriptions() {
+  const navigate = useNavigate()
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [stats, setStats] = useState<SubscriptionStats>({
     totalRevenue: 0,
@@ -313,7 +315,7 @@ export default function SuperAdminSubscriptions() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button>
+              <Button onClick={() => navigate('/super-admin/subscriptions/create')}>
                 <Plus className="w-4 h-4 mr-2" />
                 Create Subscription
               </Button>
