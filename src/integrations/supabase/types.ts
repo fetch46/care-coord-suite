@@ -2848,6 +2848,12 @@ export type Database = {
             }
         Returns: Json
       }
+      get_user_organizations: {
+        Args: { p_user_id: string }
+        Returns: {
+          organization_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
