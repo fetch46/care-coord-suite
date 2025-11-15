@@ -2821,24 +2821,14 @@ export type Database = {
         }
         Returns: Json
       }
-      approve_tenant_signup: {
-        Args: { p_signup_id: string }
-        Returns: Json
-      }
+      approve_tenant_signup: { Args: { p_signup_id: string }; Returns: Json }
       create_super_admin_user: {
         Args: { user_email: string; user_password: string }
         Returns: string
       }
-      create_user_with_staff: {
-        Args:
-          | {
-              p_email: string
-              p_first_name: string
-              p_last_name: string
-              p_phone?: string
-              p_role: string
-            }
-          | {
+      create_user_with_staff:
+        | {
+            Args: {
               p_email: string
               p_first_name: string
               p_last_name: string
@@ -2846,8 +2836,18 @@ export type Database = {
               p_role: string
               p_user_id: string
             }
-        Returns: Json
-      }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_email: string
+              p_first_name: string
+              p_last_name: string
+              p_phone?: string
+              p_role: string
+            }
+            Returns: Json
+          }
       get_user_organizations: {
         Args: { p_user_id: string }
         Returns: {
