@@ -26,9 +26,9 @@ interface DashboardStats {
 interface Organization {
   id: string;
   company_name: string;
-  admin_email: string;
-  status: string;
-  subscription_status: string;
+  email?: string;
+  is_active?: boolean;
+  subscription_status?: string;
   created_at: string;
   trial_ends_at?: string;
 }

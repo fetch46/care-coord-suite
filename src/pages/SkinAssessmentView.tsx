@@ -12,13 +12,12 @@ import { supabase } from "@/integrations/supabase/client";
 interface SkinAssessment {
   id: string;
   patient_id: string;
-  date: string;
-  attending_physician?: string;
-  room_number?: string;
-  general_notes?: string;
+  assessment_date?: string;
+  skin_condition?: string;
+  pressure_ulcer_risk?: string;
+  notes?: string;
   status: string;
-  body_annotations?: any;
-  hot_spot_assessments?: any;
+  body_map_data?: any;
   patient?: {
     first_name: string;
     last_name: string;
@@ -165,7 +164,7 @@ export default function SkinAssessmentView() {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Assessment Date</p>
                         <p className="font-semibold">
-                          {new Date(assessment.date).toLocaleDateString()}
+                          {assessment.assessment_date ? new Date(assessment.assessment_date).toLocaleDateString() : 'N/A'}
                         </p>
                       </div>
                     </div>
@@ -173,22 +172,22 @@ export default function SkinAssessmentView() {
                     <div className="flex items-center gap-3">
                       <User className="w-5 h-5 text-muted-foreground" />
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Room</p>
-                        <p className="font-semibold">{assessment.room_number || 'N/A'}</p>
+                        <p className="text-sm font-medium text-muted-foreground">Skin Condition</p>
+                        <p className="font-semibold">{assessment.skin_condition || 'N/A'}</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Attending Physician */}
-                  {assessment.attending_physician && (
+                  {/* Pressure Ulcer Risk */}
+                  {assessment.pressure_ulcer_risk && (
                     <div className="bg-muted/30 p-4 rounded-lg">
-                      <h3 className="font-semibold mb-2">Attending Physician</h3>
-                      <p>{assessment.attending_physician}</p>
+                      <h3 className="font-semibold mb-2">Pressure Ulcer Risk</h3>
+                      <p>{assessment.pressure_ulcer_risk}</p>
                     </div>
                   )}
 
-                  {/* Body Annotations */}
-                  {assessment.body_annotations && (
+                  {/* Body Map Data */}
+                  {assessment.body_map_data && (
                     <div>
                       <h3 className="font-semibold mb-4">Body Diagram Annotations</h3>
                       <div className="bg-muted/30 p-4 rounded-lg">
@@ -204,39 +203,13 @@ export default function SkinAssessmentView() {
                     </div>
                   )}
 
-                  {/* Hot Spot Assessments */}
-                  {assessment.hot_spot_assessments && (
-                    <div>
-                      <h3 className="font-semibold mb-4">Hot Spot Assessments</h3>
-                      <div className="bg-muted/30 p-4 rounded-lg">
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Detailed assessments of specific areas
-                        </p>
-                        <div className="space-y-2">
-                          {Object.keys(assessment.hot_spot_assessments).length > 0 ? (
-                            Object.entries(assessment.hot_spot_assessments).map(([key, value]: [string, any]) => (
-                              <div key={key} className="bg-white border rounded p-3">
-                                <p className="font-medium">{key}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  {typeof value === 'object' ? JSON.stringify(value) : value}
-                                </p>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-muted-foreground">No hot spot assessments recorded</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* General Notes */}
-                  {assessment.general_notes && (
+                  {/* Notes */}
+                  {assessment.notes && (
                     <div>
                       <h3 className="font-semibold mb-2">General Notes</h3>
                       <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
                         <p className="leading-relaxed text-blue-900">
-                          {assessment.general_notes}
+                          {assessment.notes}
                         </p>
                       </div>
                     </div>

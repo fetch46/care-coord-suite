@@ -49,24 +49,22 @@ import {
 interface Organization {
   id: string;
   company_name: string;
-  domain?: string;
-  admin_email: string;
-  admin_user_id?: string;
-  status: string;
-  subscription_status: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  is_active?: boolean;
+  subscription_status?: string;
   created_at: string;
   trial_ends_at?: string;
   logo_url?: string;
   description?: string;
-  max_users: number;
-  max_patients: number;
+  user_limit?: number;
+  storage_limit_gb?: number;
   subscriptions?: {
     id: string;
     status: string;
     amount: number;
-    subscription_plans: {
-      name: string;
-    };
+    package_id?: string;
   }[];
 }
 

@@ -15,8 +15,8 @@ import { ArrowLeft, Package, Building2, CreditCard } from "lucide-react";
 interface Organization {
   id: string;
   company_name: string;
-  admin_email: string;
-  subscription_status: string;
+  email?: string;
+  subscription_status?: string;
 }
 
 interface Package {
@@ -67,11 +67,11 @@ export default function SuperAdminCreateSubscription() {
     try {
       const { data, error } = await supabase
         .from("organizations")
-        .select("id, company_name, admin_email, subscription_status")
+        .select("id, company_name, email, subscription_status")
         .order("company_name");
 
       if (error) throw error;
-      setOrganizations(data || []);
+      setOrganizations((data || []) as any);
     } catch (error) {
       console.error("Error fetching organizations:", error);
       toast({

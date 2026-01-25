@@ -345,14 +345,16 @@ export default function PatientRegistration() {
       if (currentPatientId && (formData.insuranceDetails.company || formData.insuranceDetails.memberNumber)) {
         await supabase
           .from('patient_insurance')
-          .upsert({
+          .upsert([{
             patient_id: currentPatientId,
+            provider_name: formData.insuranceDetails.company || 'Unknown Provider',
+            policy_number: formData.insuranceDetails.memberNumber || null,
+            group_number: formData.insuranceDetails.groupNumber || null,
             company: formData.insuranceDetails.company || null,
             member_number: formData.insuranceDetails.memberNumber || null,
-            group_number: formData.insuranceDetails.groupNumber || null,
             phone_number: formData.insuranceDetails.phoneNumber || null,
             medicaid_number: formData.insuranceDetails.medicaidNumber || null,
-          });
+          }]);
       }
 
       // Save surgeries

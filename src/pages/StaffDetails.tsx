@@ -30,14 +30,14 @@ interface Caregiver {
 interface PatientAssignment {
   id: string;
   patient_id: string;
-  assignment_date: string;
+  assigned_at?: string;
   is_primary: boolean;
   notes?: string;
   patients: {
     first_name: string;
     last_name: string;
-    room_number: string;
-    care_level: string;
+    room_number?: string;
+    care_level?: string;
   };
 }
 
@@ -83,7 +83,7 @@ export default function StaffDetails() {
           )
         `)
         .eq("caregiver_id", id)
-        .order("assignment_date", { ascending: false });
+        .order("assigned_at", { ascending: false });
 
       if (error) throw error;
       setAssignments(data || []);
@@ -305,7 +305,7 @@ export default function StaffDetails() {
                                   </Badge>
                                 </TableCell>
                                 <TableCell>
-                                  {new Date(assignment.assignment_date).toLocaleDateString()}
+                                  {assignment.assigned_at ? new Date(assignment.assigned_at).toLocaleDateString() : 'N/A'}
                                 </TableCell>
                                 <TableCell>
                                   {assignment.is_primary ? (

@@ -45,18 +45,24 @@ import {
 interface Tenant {
   id: string;
   company_name: string;
-  domain?: string;
-  admin_email: string;
-  admin_user_id?: string;
-  status: string;
-  subscription_status: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  is_active?: boolean;
+  subscription_status?: string;
   created_at: string;
+  updated_at?: string;
   trial_ends_at?: string;
+  user_limit?: number;
+  storage_limit_gb?: number;
   subscriptions?: {
     id: string;
     status: string;
     amount: number;
-    subscription_plans: {
+    subscription_plans?: {
       name: string;
     };
   }[];
@@ -95,15 +101,13 @@ export default function SuperAdminClients() {
             id,
             status,
             amount,
-            subscription_plans (
-              name
-            )
+            package_id
           )
         `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setTenants(data || []);
+      setTenants((data || []) as any);
     } catch (error) {
       console.error("Error fetching tenants:", error);
       toast({
@@ -123,8 +127,7 @@ export default function SuperAdminClients() {
     if (searchTerm) {
       filtered = filtered.filter(tenant =>
         tenant.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tenant.admin_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        tenant.domain?.toLowerCase().includes(searchTerm.toLowerCase())
+        (tenant.email || '').toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -329,15 +332,15 @@ export default function SuperAdminClients() {
                   return (
                     <TableRow key={tenant.id}>
                       <TableCell className="font-medium">{tenant.company_name}</TableCell>
-                      <TableCell>{tenant.admin_email}</TableCell>
-                      <TableCell>{tenant.domain || "-"}</TableCell>
+                      <TableCell>{tenant.email || "-"}</TableCell>
+                      <TableCell>{tenant.phone || "-"}</TableCell>
                       <TableCell>
-                        <Badge variant={getStatusBadgeVariant(tenant.subscription_status)}>
-                          {tenant.subscription_status}
+                        <Badge variant={getStatusBadgeVariant(tenant.subscription_status || 'trial')}>
+                          {tenant.subscription_status || 'trial'}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {activeSubscription?.subscription_plans?.name || "No Plan"}
+                        {activeSubscription ? "Active Plan" : "No Plan"}
                       </TableCell>
                       <TableCell>
                         {activeSubscription ? formatCurrency(activeSubscription.amount) : "-"}

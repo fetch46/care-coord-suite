@@ -17,11 +17,11 @@ interface Caregiver {
   first_name: string;
   last_name: string;
   role: string;
-  specialization: string;
-  shift: string;
+  specialization?: string;
+  shift?: string;
   status: string;
-  phone: string;
-  email: string;
+  phone?: string;
+  email?: string;
   profile_image_url?: string;
 }
 
@@ -46,19 +46,25 @@ export default function Staff() {
     setLoading(true);
     setError(null);
     try {
-      let request = supabase.from("caregivers").select("*").order("last_name");
+      let request = supabase.from("staff").select("*").order("last_name");
 
       if (query) {
         request = request.or(
-          `first_name.ilike.%${query}%,last_name.ilike.%${query}%,role.ilike.%${query}%,specialization.ilike.%${query}%`
+          `first_name.ilike.%${query}%,last_name.ilike.%${query}%,role.ilike.%${query}%`
         );
       }
 
       const { data, error } = await request;
       if (error) throw error;
-      setCaregivers(data || []);
+      // Map data to match Caregiver interface with optional fields
+      const mappedData = (data || []).map(item => ({
+        ...item,
+        specialization: item.specialization || '',
+        shift: item.shift || '',
+      }));
+      setCaregivers(mappedData);
     } catch (err) {
-      console.error("Error fetching caregivers:", err);
+      console.error("Error fetching staff:", err);
       setError("Failed to load staff. Please try again.");
     } finally {
       setLoading(false);
