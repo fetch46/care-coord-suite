@@ -51,16 +51,15 @@ export function CaregiverDashboard() {
       const { count: todaysAppointments } = await supabase
         .from('appointments')
         .select('*', { count: 'exact', head: true })
-        .eq('caregiver_id', caregiverId)
-        .gte('appointment_date', `${today}T00:00:00`)
-        .lt('appointment_date', `${today}T23:59:59`)
+        .eq('staff_id', caregiverId)
+        .eq('appointment_date', today)
 
       // Fetch completed appointments (this month)
-      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
       const { count: completedAppointments } = await supabase
         .from('appointments')
         .select('*', { count: 'exact', head: true })
-        .eq('caregiver_id', caregiverId)
+        .eq('staff_id', caregiverId)
         .eq('status', 'completed')
         .gte('appointment_date', startOfMonth)
 
@@ -68,7 +67,7 @@ export function CaregiverDashboard() {
       const { count: pendingAppointments } = await supabase
         .from('appointments')
         .select('*', { count: 'exact', head: true })
-        .eq('caregiver_id', caregiverId)
+        .eq('staff_id', caregiverId)
         .eq('status', 'scheduled')
 
       setStats({
