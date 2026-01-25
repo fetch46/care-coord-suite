@@ -56,10 +56,10 @@ interface FinancialSettings {
 interface Room {
   id: string;
   room_number: string;
-  room_type: string;
-  capacity: number;
-  status: string;
-  notes: string;
+  room_type?: string;
+  capacity?: number;
+  status?: string;
+  notes?: string;
 }
 
 interface UserRole {

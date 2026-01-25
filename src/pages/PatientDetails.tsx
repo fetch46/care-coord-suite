@@ -124,21 +124,18 @@ export default function PatientDetails() {
       if (allergiesError) throw allergiesError;
       setAllergies(allergiesData || []);
 
-      // Fetch caregivers
+      // Fetch caregivers - use staff table instead of caregivers
       const { data: caregiversData, error: caregiversError } = await supabase
         .from("patient_caregivers")
         .select(`
           is_primary,
-          caregivers (
+          staff:caregiver_id (
             id,
             first_name,
             last_name,
             role,
-            specialization,
             phone,
-            email,
-            shift,
-            profile_image_url
+            email
           )
         `)
         .eq("patient_id", id);
@@ -146,10 +143,10 @@ export default function PatientDetails() {
       if (caregiversError) throw caregiversError;
 
       const caregiversWithPrimary =
-        caregiversData?.map((item) => ({
-          ...item.caregivers,
+        caregiversData?.map((item: any) => ({
+          ...(item.staff || {}),
           is_primary: item.is_primary,
-        })) || [];
+        })).filter((item: any) => item.id) || [];
       setCaregivers(caregiversWithPrimary);
 
       // Fetch medical records

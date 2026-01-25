@@ -17,43 +17,73 @@ export type Database = {
       admissions: {
         Row: {
           admission_date: string
+          admission_notes: string | null
+          admission_status: string | null
+          admission_type: string | null
+          attending_physician: string | null
           bed_number: string | null
+          care_level: string | null
           created_at: string | null
           diagnosis: string | null
           discharge_date: string | null
+          emergency_contact_notified: boolean | null
+          estimated_length_of_stay: number | null
           id: string
+          insurance_authorization: string | null
           notes: string | null
           organization_id: string | null
           patient_id: string
+          room_id: string | null
           room_number: string | null
+          special_requirements: string | null
           status: string | null
           updated_at: string | null
         }
         Insert: {
           admission_date: string
+          admission_notes?: string | null
+          admission_status?: string | null
+          admission_type?: string | null
+          attending_physician?: string | null
           bed_number?: string | null
+          care_level?: string | null
           created_at?: string | null
           diagnosis?: string | null
           discharge_date?: string | null
+          emergency_contact_notified?: boolean | null
+          estimated_length_of_stay?: number | null
           id?: string
+          insurance_authorization?: string | null
           notes?: string | null
           organization_id?: string | null
           patient_id: string
+          room_id?: string | null
           room_number?: string | null
+          special_requirements?: string | null
           status?: string | null
           updated_at?: string | null
         }
         Update: {
           admission_date?: string
+          admission_notes?: string | null
+          admission_status?: string | null
+          admission_type?: string | null
+          attending_physician?: string | null
           bed_number?: string | null
+          care_level?: string | null
           created_at?: string | null
           diagnosis?: string | null
           discharge_date?: string | null
+          emergency_contact_notified?: boolean | null
+          estimated_length_of_stay?: number | null
           id?: string
+          insurance_authorization?: string | null
           notes?: string | null
           organization_id?: string | null
           patient_id?: string
+          room_id?: string | null
           room_number?: string | null
+          special_requirements?: string | null
           status?: string | null
           updated_at?: string | null
         }
@@ -581,6 +611,44 @@ export type Database = {
           },
         ]
       }
+      financial_settings: {
+        Row: {
+          base_currency: string | null
+          created_at: string | null
+          id: string
+          organization_id: string | null
+          payment_methods: string[] | null
+          tax_rate: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          base_currency?: string | null
+          created_at?: string | null
+          id?: string
+          organization_id?: string | null
+          payment_methods?: string[] | null
+          tax_rate?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          base_currency?: string | null
+          created_at?: string | null
+          id?: string
+          organization_id?: string | null
+          payment_methods?: string[] | null
+          tax_rate?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_transactions: {
         Row: {
           amount: number
@@ -844,6 +912,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      modules: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          dependencies: string[] | null
+          description: string | null
+          display_name: string
+          id: string
+          is_enabled: boolean | null
+          module_key: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          dependencies?: string[] | null
+          description?: string | null
+          display_name: string
+          id?: string
+          is_enabled?: boolean | null
+          module_key: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          dependencies?: string[] | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_enabled?: boolean | null
+          module_key?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -1304,37 +1411,49 @@ export type Database = {
       }
       patient_insurance: {
         Row: {
+          company: string | null
           created_at: string | null
           effective_date: string | null
           expiration_date: string | null
           group_number: string | null
           id: string
           is_primary: boolean | null
+          medicaid_number: string | null
+          member_number: string | null
           patient_id: string
+          phone_number: string | null
           policy_number: string | null
           provider_name: string
           subscriber_name: string | null
         }
         Insert: {
+          company?: string | null
           created_at?: string | null
           effective_date?: string | null
           expiration_date?: string | null
           group_number?: string | null
           id?: string
           is_primary?: boolean | null
+          medicaid_number?: string | null
+          member_number?: string | null
           patient_id: string
+          phone_number?: string | null
           policy_number?: string | null
           provider_name: string
           subscriber_name?: string | null
         }
         Update: {
+          company?: string | null
           created_at?: string | null
           effective_date?: string | null
           expiration_date?: string | null
           group_number?: string | null
           id?: string
           is_primary?: boolean | null
+          medicaid_number?: string | null
+          member_number?: string | null
           patient_id?: string
+          phone_number?: string | null
           policy_number?: string | null
           provider_name?: string
           subscriber_name?: string | null

@@ -53,11 +53,12 @@ interface Patient {
 
 interface Availability {
   id: string;
-  staff_id: string;
+  staff_id?: string;
   start_time: string;
   end_time: string;
-  status: string;
-  patient_id?: string;
+  status?: string;
+  is_available?: boolean;
+  day_of_week?: number;
   staff: Staff;
   patient?: Patient;
 }
@@ -100,19 +101,25 @@ export default function Schedule() {
   async function fetchSchedule() {
     setLoading(true);
     try {
+      // Use schedules table instead of availabilities for schedule data
       let query = supabase
-        .from("availabilities")
+        .from("schedules")
         .select(
           `
-          *,
-          staff:staff!staff_id (
+          id,
+          start_time,
+          end_time,
+          status,
+          title,
+          description,
+          staff:staff_id (
             id,
             first_name,
             last_name,
             role,
             profile_image_url
           ),
-          patient:patients!patient_id (
+          patient:patient_id (
             id,
             first_name,
             last_name
@@ -153,18 +160,23 @@ export default function Schedule() {
       // To avoid too many results, if searchTerm present, fetch a larger range:
       if (searchTerm) {
         const { data } = await supabase
-          .from("availabilities")
+          .from("schedules")
           .select(
             `
-            *,
-            staff:staff!staff_id (
+            id,
+            start_time,
+            end_time,
+            status,
+            title,
+            description,
+            staff:staff_id (
               id,
               first_name,
               last_name,
               role,
               profile_image_url
             ),
-            patient:patients!patient_id (
+            patient:patient_id (
               id,
               first_name,
               last_name
@@ -177,9 +189,9 @@ export default function Schedule() {
         if (!data) throw new Error("Failed to fetch data for search");
 
         // Filter client-side for search
-        const filtered = data.filter((item) => {
-          const staffName = `${item.staff.first_name} ${item.staff.last_name}`.toLowerCase();
-          const staffRole = item.staff.role.toLowerCase();
+        const filtered = (data as any[]).filter((item) => {
+          const staffName = item.staff ? `${item.staff.first_name} ${item.staff.last_name}`.toLowerCase() : '';
+          const staffRole = item.staff?.role?.toLowerCase() || '';
           const patientName = item.patient
             ? `${item.patient.first_name} ${item.patient.last_name}`.toLowerCase()
             : "";
@@ -193,11 +205,11 @@ export default function Schedule() {
 
         setTotalCount(filtered.length);
         // Pagination slice client-side:
-        setSchedule(filtered.slice((page - 1) * pageSize, page * pageSize));
+        setSchedule(filtered.slice((page - 1) * pageSize, page * pageSize) as any);
       } else {
         const { data, error, count } = await query;
         if (error) throw error;
-        setSchedule(data || []);
+        setSchedule((data || []) as any);
         setTotalCount(count || 0);
       }
     } catch (error) {
@@ -425,14 +437,14 @@ export default function Schedule() {
                           <TableCell>
                             <Badge
                               variant={
-                                item.status === "Available"
+                                item.status === "scheduled"
                                   ? "secondary"
-                                  : item.status === "Booked"
+                                  : item.status === "completed"
                                   ? "default"
                                   : "destructive"
                               }
                             >
-                              {item.status}
+                              {item.status || 'Scheduled'}
                             </Badge>
                           </TableCell>
                         </TableRow>

@@ -37,10 +37,10 @@ interface OrganizationProfile {
   settings?: any;
   organization?: {
     company_name: string;
-    admin_email: string;
-    status: string;
-    subscription_status: string;
-    created_at: string;
+    email?: string;
+    is_active?: boolean;
+    subscription_status?: string;
+    created_at?: string;
   };
 }
 
@@ -60,12 +60,23 @@ export default function OrganizationProfile() {
     try {
       setLoading(true);
       
-      // First get the organization
+      // First get the user's organization via organization_users
+      const { data: orgUser, error: orgUserError } = await supabase
+        .from('organization_users')
+        .select('organization_id')
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      if (orgUserError || !orgUser) {
+        console.error('Error fetching organization user:', orgUserError);
+        return;
+      }
+      
       const { data: organizationData, error: organizationError } = await supabase
         .from('organizations')
         .select('*')
-        .eq('admin_user_id', user?.id)
-        .single();
+        .eq('id', orgUser.organization_id)
+        .maybeSingle();
 
       if (organizationError) {
         console.error('Error fetching organization:', organizationError);
@@ -217,13 +228,13 @@ export default function OrganizationProfile() {
             <p className="text-lg font-semibold">{profile.organization?.company_name}</p>
           </div>
           <div>
-            <Label className="text-sm font-medium">Admin Email</Label>
-            <p className="text-sm text-muted-foreground">{profile.organization?.admin_email}</p>
+            <Label className="text-sm font-medium">Email</Label>
+            <p className="text-sm text-muted-foreground">{profile.organization?.email}</p>
           </div>
           <div>
             <Label className="text-sm font-medium">Status</Label>
-            <Badge variant={profile.organization?.status === 'active' ? 'default' : 'secondary'}>
-              {profile.organization?.status}
+            <Badge variant={profile.organization?.is_active ? 'default' : 'secondary'}>
+              {profile.organization?.is_active ? 'Active' : 'Inactive'}
             </Badge>
           </div>
           <div>

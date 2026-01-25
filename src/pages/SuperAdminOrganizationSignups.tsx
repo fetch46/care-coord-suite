@@ -23,13 +23,10 @@ interface OrganizationSignup {
   admin_phone?: string;
   company_size?: string;
   industry?: string;
+  selected_plan?: string;
   status: string;
-  signup_date: string;
-  processed_date?: string;
-  organization_id?: string;
-  notes?: string;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
 }
 
 export default function SuperAdminOrganizationSignups() {

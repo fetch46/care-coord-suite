@@ -107,10 +107,11 @@ export default function PatientAdmission() {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      // Create admission record
+      // Create admission record - use admission_date instead of patient_id as first key
       const { data: admission, error: admissionError } = await supabase
         .from("admissions")
-        .insert({
+        .insert([{
+          admission_date: new Date().toISOString().split('T')[0],
           patient_id: data.patient_id,
           room_id: data.room_id,
           admission_type: data.admission_type,
@@ -122,7 +123,7 @@ export default function PatientAdmission() {
           special_requirements: data.special_requirements,
           emergency_contact_notified: data.emergency_contact_notified,
           admission_status: "admitted",
-        })
+        }])
         .select()
         .single();
 

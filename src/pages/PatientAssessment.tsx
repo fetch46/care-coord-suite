@@ -597,6 +597,7 @@ export default function PatientAssessment() {
       const assessmentData = {
         patient_id: selectedPatient,
         assessment_type: assessmentType,
+        title: `${assessmentType} Assessment - ${new Date().toLocaleDateString()}`,
         assessment_date: assessmentDate || new Date().toISOString().split('T')[0],
         assessor_name: assessorName,
         temperature: temp ? parseFloat(temp) : null,
