@@ -27,19 +27,14 @@ interface TimesheetApproval {
   timesheet: {
     id: string;
     work_date: string;
-    time_in: string;
-    time_out: string;
+    clock_in: string;
+    clock_out: string;
     total_hours: number;
-    caregiver_id: string;
-    patient_id: string;
+    staff_id: string;
     status: string;
     approval_status: string;
   };
-  caregiver: {
-    first_name: string;
-    last_name: string;
-  };
-  patient: {
+  staff: {
     first_name: string;
     last_name: string;
   };
@@ -68,34 +63,44 @@ export function TimesheetApprovalManager({ onApprovalUpdate }: TimesheetApproval
         .select(`
           id,
           work_date,
-          time_in,
-          time_out,
+          date,
+          clock_in,
+          clock_out,
           total_hours,
-          caregiver_id,
-          patient_id,
+          staff_id,
           status,
           approval_status,
-          caregivers!inner(first_name, last_name),
-          patients!inner(first_name, last_name)
+          staff:staff_id(first_name, last_name)
         `)
         .eq('approval_status', 'pending')
-        .order('work_date', { ascending: false });
+        .order('date', { ascending: false });
 
       if (error) throw error;
 
       // Transform the data to match our interface
-      const transformedData = data?.map(timesheet => ({
-        id: `timesheet-${timesheet.id}`,
-        timesheet_id: timesheet.id,
-        approver_id: '',
-        status: 'pending' as const,
-        approval_date: null,
-        rejection_reason: null,
-        notes: null,
-        timesheet: timesheet,
-        caregiver: timesheet.caregivers,
-        patient: timesheet.patients
-      })) || [];
+      const transformedData = (data || []).map(timesheet => {
+        const staffData = timesheet.staff as any;
+        return {
+          id: `timesheet-${timesheet.id}`,
+          timesheet_id: timesheet.id,
+          approver_id: '',
+          status: 'pending' as const,
+          approval_date: null,
+          rejection_reason: null,
+          notes: null,
+          timesheet: {
+            id: timesheet.id,
+            work_date: timesheet.work_date || timesheet.date,
+            clock_in: timesheet.clock_in || '',
+            clock_out: timesheet.clock_out || '',
+            total_hours: timesheet.total_hours || 0,
+            staff_id: timesheet.staff_id || '',
+            status: timesheet.status || '',
+            approval_status: timesheet.approval_status || 'pending'
+          },
+          staff: staffData && !staffData.error ? staffData : { first_name: 'Unknown', last_name: 'Staff' }
+        };
+      });
 
       setApprovals(transformedData);
     } catch (error) {
@@ -119,7 +124,7 @@ export function TimesheetApprovalManager({ onApprovalUpdate }: TimesheetApproval
       // Update timesheet approval status
       const { error: timesheetError } = await supabase
         .from('timesheets')
-        .update({ approval_status: 'approved' })
+        .update({ status: 'approved' })
         .eq('id', timesheetId);
 
       if (timesheetError) throw timesheetError;
@@ -174,7 +179,7 @@ export function TimesheetApprovalManager({ onApprovalUpdate }: TimesheetApproval
       // Update timesheet approval status
       const { error: timesheetError } = await supabase
         .from('timesheets')
-        .update({ approval_status: 'rejected' })
+        .update({ status: 'rejected' })
         .eq('id', timesheetId);
 
       if (timesheetError) throw timesheetError;
@@ -264,17 +269,17 @@ export function TimesheetApprovalManager({ onApprovalUpdate }: TimesheetApproval
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-lg font-semibold">
-                        {approval.caregiver.first_name} {approval.caregiver.last_name}
+                        {approval.staff.first_name} {approval.staff.last_name}
                       </h3>
                       <Badge className={getStatusColor(approval.status)}>
                         {approval.status.charAt(0).toUpperCase() + approval.status.slice(1)}
                       </Badge>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-muted-foreground">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4" />
-                        <span>Patient: {approval.patient.first_name} {approval.patient.last_name}</span>
+                        <span>Staff: {approval.staff.first_name} {approval.staff.last_name}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
@@ -287,7 +292,7 @@ export function TimesheetApprovalManager({ onApprovalUpdate }: TimesheetApproval
                       <div className="flex items-center gap-2">
                         <FileText className="w-4 h-4" />
                         <span>
-                          {approval.timesheet.time_in} - {approval.timesheet.time_out}
+                          {approval.timesheet.clock_in} - {approval.timesheet.clock_out}
                         </span>
                       </div>
                     </div>

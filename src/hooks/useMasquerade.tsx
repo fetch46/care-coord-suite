@@ -7,7 +7,7 @@ interface MasqueradeSession {
   id: string;
   super_admin_id: string;
   target_user_id: string;
-  tenant_id?: string;
+  target_organization_id?: string;
   session_token: string;
   is_active: boolean;
   started_at: string;
@@ -45,7 +45,7 @@ export function useMasquerade() {
     }
   };
 
-  const startMasquerade = async (targetUserId: string, tenantId?: string) => {
+  const startMasquerade = async (targetUserId: string, organizationId?: string) => {
     if (!user) return false;
 
     setLoading(true);
@@ -57,7 +57,7 @@ export function useMasquerade() {
         .insert({
           super_admin_id: user.id,
           target_user_id: targetUserId,
-          tenant_id: tenantId,
+          target_organization_id: organizationId,
           session_token: sessionToken,
           is_active: true
         })

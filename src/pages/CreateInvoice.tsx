@@ -175,6 +175,7 @@ export default function CreateInvoice() {
         patient_id: selectedPatient,
         invoice_date: invoiceDate,
         due_date: dueDate,
+        amount: calculateTotal(),
         subtotal: calculateSubtotal(),
         tax_amount: calculateTax(),
         total_amount: calculateTotal(),
