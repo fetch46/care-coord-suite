@@ -15,23 +15,15 @@ import { MoreHorizontal, Plus, Search, DollarSign, Users, TrendingUp, Calendar }
 interface Subscription {
   id: string
   organization_id: string
-  plan_id: string
+  package_id?: string
   status: string
   billing_cycle: string
   amount: number
-  currency: string
   starts_at: string
   ends_at: string | null
-  canceled_at: string | null
-  stripe_subscription_id: string | null
-  organizations: {
+  organizations?: {
     company_name: string
-    admin_email: string
-  }
-  subscription_plans: {
-    name: string
-    max_users: number
-    max_patients: number
+    email?: string
   }
 }
 
@@ -66,15 +58,14 @@ export default function SuperAdminSubscriptions() {
         .from('subscriptions')
         .select(`
           *,
-          organizations (company_name, admin_email),
-          subscription_plans (name, max_users, max_patients)
+          organizations (company_name, email)
         `)
         .order('created_at', { ascending: false })
 
       if (error) throw error
 
-      setSubscriptions(data || [])
-      calculateStats(data || [])
+      setSubscriptions((data || []) as any)
+      calculateStats((data || []) as any)
     } catch (error) {
       console.error('Error fetching subscriptions:', error)
       toast({
@@ -103,9 +94,11 @@ export default function SuperAdminSubscriptions() {
   }
 
   const filteredSubscriptions = subscriptions.filter(subscription => {
+    const companyName = subscription.organizations?.company_name || ''
+    const email = subscription.organizations?.email || ''
     const matchesSearch = 
-      subscription.organizations.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      subscription.organizations.admin_email.toLowerCase().includes(searchTerm.toLowerCase())
+      companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      email.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesStatus = statusFilter === "all" || subscription.status === statusFilter
     
@@ -341,16 +334,13 @@ export default function SuperAdminSubscriptions() {
                     <TableRow key={subscription.id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{subscription.organizations.company_name}</div>
-                          <div className="text-sm text-muted-foreground">{subscription.organizations.admin_email}</div>
+                          <div className="font-medium">{subscription.organizations?.company_name || 'Unknown'}</div>
+                          <div className="text-sm text-muted-foreground">{subscription.organizations?.email || '-'}</div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{subscription.subscription_plans.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {subscription.subscription_plans.max_users} users, {subscription.subscription_plans.max_patients} patients
-                          </div>
+                          <div className="font-medium">Active Plan</div>
                         </div>
                       </TableCell>
                       <TableCell>

@@ -37,6 +37,11 @@ interface Organization {
   user_limit?: number;
   storage_limit_gb?: number;
   settings?: any;
+  admin_email?: string;
+  domain?: string;
+  max_users?: number;
+  max_patients?: number;
+  status?: string;
 }
 
 interface PackageAssignment {

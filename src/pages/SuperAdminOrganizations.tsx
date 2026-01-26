@@ -60,6 +60,12 @@ interface Organization {
   description?: string;
   user_limit?: number;
   storage_limit_gb?: number;
+  admin_email?: string;
+  domain?: string;
+  max_users?: number;
+  max_patients?: number;
+  status?: string;
+  admin_user_id?: string;
   subscriptions?: {
     id: string;
     status: string;
@@ -777,7 +783,7 @@ export default function SuperAdminOrganizations() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {activeSubscription?.subscription_plans?.name || "No Plan"}
+                          {activeSubscription ? "Active Plan" : "No Plan"}
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">

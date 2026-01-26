@@ -58,6 +58,9 @@ interface Tenant {
   trial_ends_at?: string;
   user_limit?: number;
   storage_limit_gb?: number;
+  admin_email?: string;
+  domain?: string;
+  admin_user_id?: string;
   subscriptions?: {
     id: string;
     status: string;

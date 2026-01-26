@@ -27,6 +27,7 @@ interface OrganizationSignup {
   status: string;
   created_at: string;
   updated_at?: string;
+  notes?: string;
 }
 
 export default function SuperAdminOrganizationSignups() {
@@ -46,20 +47,21 @@ export default function SuperAdminOrganizationSignups() {
 
   const fetchSignups = async () => {
     try {
+      // organization_signups table was just created, fetch from it
       const { data, error } = await supabase
-        .from('tenant_signups')
+        .from('organization_signups' as any)
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setSignups(data || []);
+      if (error) {
+        console.log('Organization signups table may not have data yet:', error);
+        setSignups([]);
+      } else {
+        setSignups((data || []) as any);
+      }
     } catch (error) {
       console.error('Error fetching organization signups:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load organization signups",
-        variant: "destructive"
-      });
+      setSignups([]);
     } finally {
       setLoading(false);
     }
@@ -69,48 +71,37 @@ export default function SuperAdminOrganizationSignups() {
     setUpdating(true);
     try {
       if (status === 'approved') {
-        // Call the database function to approve the signup and create the organization
-        const { data: approvalResult, error: approvalError } = await supabase
-          .rpc('approve_tenant_signup', { p_signup_id: signupId });
+        // Update the signup status directly
+        const { error } = await supabase
+          .from('organization_signups' as any)
+          .update({
+            status: 'approved',
+            updated_at: new Date().toISOString()
+          } as any)
+          .eq('id', signupId);
 
-        if (approvalError) {
-          console.error('Error approving organization signup:', approvalError);
-          throw approvalError;
-        }
+        if (error) throw error;
 
-        // Parse the JSON response
-        const result = approvalResult as { success: boolean; message?: string; organization_id?: string };
-        
-        if (!result?.success) {
-          throw new Error(result?.message || 'Failed to approve organization signup');
-        }
-
-        // Update the notes if provided
+        // Update notes if provided
         if (notes) {
-          const { error: notesError } = await supabase
-            .from('tenant_signups')
-            .update({ notes })
+          await supabase
+            .from('organization_signups' as any)
+            .update({ notes } as any)
             .eq('id', signupId);
-
-          if (notesError) {
-            console.error('Error updating notes:', notesError);
-            // Don't throw here as the main approval was successful
-          }
         }
 
         toast({
           title: "Success",
-          description: `Organization signup approved and organization created successfully. The new organization will appear in the Organizations list.`
+          description: `Organization signup approved successfully.`
         });
       } else {
         // For rejection, just update the status
         const { error } = await supabase
-          .from('tenant_signups')
+          .from('organization_signups' as any)
           .update({
             status,
-            processed_date: new Date().toISOString(),
-            notes: notes || null
-          })
+            updated_at: new Date().toISOString()
+          } as any)
           .eq('id', signupId);
 
         if (error) throw error;

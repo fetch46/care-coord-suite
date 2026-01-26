@@ -222,23 +222,23 @@ export default function Schedule() {
   async function fetchDashboardStats() {
     try {
       const { count: total } = await supabase
-        .from("availabilities")
+        .from("schedules")
         .select("*", { count: "exact", head: true });
 
       const { count: available } = await supabase
-        .from("availabilities")
+        .from("schedules")
         .select("*", { count: "exact", head: true })
-        .eq("status", "Available");
+        .eq("status", "scheduled");
 
       const { count: booked } = await supabase
-        .from("availabilities")
+        .from("schedules")
         .select("*", { count: "exact", head: true })
-        .eq("status", "Booked");
+        .eq("status", "completed");
 
       const { count: onLeave } = await supabase
-        .from("availabilities")
+        .from("schedules")
         .select("*", { count: "exact", head: true })
-        .eq("status", "On Leave");
+        .eq("status", "cancelled");
 
       setDashboardStats({
         total: total || 0,

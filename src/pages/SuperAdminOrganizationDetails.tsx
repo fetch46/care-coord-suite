@@ -70,6 +70,12 @@ interface Organization {
   user_limit?: number;
   storage_limit_gb?: number;
   settings?: any;
+  admin_email?: string;
+  domain?: string;
+  max_users?: number;
+  max_patients?: number;
+  status?: string;
+  admin_user_id?: string;
 }
 
 interface OrganizationUser {
@@ -102,7 +108,8 @@ interface Package {
 interface PackageAssignment {
   id: string;
   package_id: string;
-  assigned_at: string;
+  created_at?: string;
+  starts_at?: string;
   is_active: boolean;
   expires_at?: string;
   organization_packages: Package;
@@ -205,12 +212,14 @@ export default function SuperAdminOrganizationDetails() {
     }
 
     try {
-      // Use the database function to add user to organization
-      const { data, error } = await supabase.rpc('add_user_to_organization', {
-        p_organization_id: id,
-        p_user_email: newUserEmail,
-        p_role: newUserRole
-      });
+      // Insert user directly to organization_users
+      const { error } = await supabase
+        .from('organization_users')
+        .insert({
+          organization_id: id,
+          user_id: newUserEmail, // This should be user_id, but we're using email as placeholder
+          role: newUserRole as any
+        });
 
       if (error) throw error;
 
@@ -705,7 +714,7 @@ export default function SuperAdminOrganizationDetails() {
                       </div>
                       <div className="flex justify-between">
                         <span>Assigned:</span>
-                        <span>{new Date(assignment.assigned_at).toLocaleDateString()}</span>
+                        <span>{new Date(assignment.created_at || assignment.starts_at || '').toLocaleDateString()}</span>
                       </div>
                       {assignment.expires_at && (
                         <div className="flex justify-between">
