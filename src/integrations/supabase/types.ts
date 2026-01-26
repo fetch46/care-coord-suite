@@ -1175,14 +1175,23 @@ export type Database = {
       organizations: {
         Row: {
           address: string | null
+          admin_email: string | null
+          admin_user_id: string | null
           city: string | null
           company_name: string
           created_at: string | null
+          description: string | null
+          domain: string | null
           email: string | null
           id: string
           is_active: boolean | null
+          logo_url: string | null
+          max_patients: number | null
+          max_users: number | null
           phone: string | null
+          settings: Json | null
           state: string | null
+          status: string | null
           storage_limit_gb: number | null
           subscription_status: string | null
           trial_ends_at: string | null
@@ -1192,14 +1201,23 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          admin_email?: string | null
+          admin_user_id?: string | null
           city?: string | null
           company_name: string
           created_at?: string | null
+          description?: string | null
+          domain?: string | null
           email?: string | null
           id?: string
           is_active?: boolean | null
+          logo_url?: string | null
+          max_patients?: number | null
+          max_users?: number | null
           phone?: string | null
+          settings?: Json | null
           state?: string | null
+          status?: string | null
           storage_limit_gb?: number | null
           subscription_status?: string | null
           trial_ends_at?: string | null
@@ -1209,14 +1227,23 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          admin_email?: string | null
+          admin_user_id?: string | null
           city?: string | null
           company_name?: string
           created_at?: string | null
+          description?: string | null
+          domain?: string | null
           email?: string | null
           id?: string
           is_active?: boolean | null
+          logo_url?: string | null
+          max_patients?: number | null
+          max_users?: number | null
           phone?: string | null
+          settings?: Json | null
           state?: string | null
+          status?: string | null
           storage_limit_gb?: number | null
           subscription_status?: string | null
           trial_ends_at?: string | null

@@ -16,6 +16,7 @@ interface Organization {
   id: string;
   company_name: string;
   email?: string;
+  admin_email?: string;
   subscription_status?: string;
 }
 
