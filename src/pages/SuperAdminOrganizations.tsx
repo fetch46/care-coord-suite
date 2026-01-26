@@ -219,7 +219,7 @@ export default function SuperAdminOrganizations() {
     if (searchTerm) {
       filtered = filtered.filter(org =>
         org.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        org.admin_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (org.admin_email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
         org.domain?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -775,11 +775,11 @@ export default function SuperAdminOrganizations() {
                     return (
                       <TableRow key={organization.id}>
                         <TableCell className="font-medium">{organization.company_name}</TableCell>
-                        <TableCell>{organization.admin_email}</TableCell>
+                        <TableCell>{organization.admin_email || '-'}</TableCell>
                         <TableCell>{organization.domain || "-"}</TableCell>
                         <TableCell>
-                          <Badge variant={getStatusBadgeVariant(organization.subscription_status)}>
-                            {organization.subscription_status}
+                          <Badge variant={getStatusBadgeVariant(organization.subscription_status || 'trial')}>
+                            {organization.subscription_status || 'trial'}
                           </Badge>
                         </TableCell>
                         <TableCell>

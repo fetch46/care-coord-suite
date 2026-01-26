@@ -326,7 +326,7 @@ export default function SuperAdminOrganizationSettings() {
                     <Input
                       id="admin_email"
                       type="email"
-                      value={organization.admin_email}
+                      value={organization.admin_email || ''}
                       onChange={(e) => setOrganization(prev => prev ? {...prev, admin_email: e.target.value} : null)}
                     />
                   </div>
@@ -376,7 +376,7 @@ export default function SuperAdminOrganizationSettings() {
                     <Input
                       id="max_users"
                       type="number"
-                      value={organization.max_users}
+                      value={organization.max_users || 10}
                       onChange={(e) => setOrganization(prev => prev ? {...prev, max_users: parseInt(e.target.value) || 10} : null)}
                     />
                   </div>
@@ -385,18 +385,18 @@ export default function SuperAdminOrganizationSettings() {
                     <Input
                       id="max_patients"
                       type="number"
-                      value={organization.max_patients}
+                      value={organization.max_patients || 100}
                       onChange={(e) => setOrganization(prev => prev ? {...prev, max_patients: parseInt(e.target.value) || 100} : null)}
                     />
                   </div>
                   <div>
                     <Label>Current Status</Label>
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge variant={getStatusBadgeVariant(organization.subscription_status)}>
-                        {organization.subscription_status}
+                      <Badge variant={getStatusBadgeVariant(organization.subscription_status || 'trial')}>
+                        {organization.subscription_status || 'trial'}
                       </Badge>
                       <Badge variant="outline">
-                        {organization.status}
+                        {organization.status || 'active'}
                       </Badge>
                     </div>
                   </div>
