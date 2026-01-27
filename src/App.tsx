@@ -35,6 +35,8 @@ import PatientDischarge from "./pages/PatientDischarge";
 import NotFound from "./pages/NotFound";
 import Reports from "./pages/Reports";
 import AssessmentReports from "./pages/AssessmentReports";
+import StaffReports from "./pages/StaffReports";
+import PatientReports from "./pages/PatientReports";
 import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import SuperAdminClients from "./pages/SuperAdminClients";
 import SuperAdminOrganizations from "./pages/SuperAdminOrganizations";
@@ -113,6 +115,8 @@ const App = () => (
             <Route path="/organization-profile" element={<ProtectedRoute><OrganizationProfile /></ProtectedRoute>} />
             <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
             <Route path="/assessment-reports" element={<ProtectedRoute><AssessmentReports /></ProtectedRoute>} />
+            <Route path="/staff-reports" element={<ProtectedRoute><StaffReports /></ProtectedRoute>} />
+            <Route path="/patient-reports" element={<ProtectedRoute><PatientReports /></ProtectedRoute>} />
             <Route path="/super-admin" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />
             <Route path="/super-admin/organizations" element={<ProtectedRoute><SuperAdminOrganizations /></ProtectedRoute>} />
             <Route path="/super-admin/organizations/:id" element={<ProtectedRoute><SuperAdminOrganizationDetails /></ProtectedRoute>} />
