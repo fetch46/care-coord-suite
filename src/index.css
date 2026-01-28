@@ -44,14 +44,26 @@ All colors MUST be HSL.
     --healthcare-success: 142 71% 45%;
     --healthcare-warning: 38 92% 50%;
     
+    /* Super Admin theme colors */
+    --super-admin: 270 60% 55%;
+    --super-admin-foreground: 0 0% 100%;
+    --super-admin-muted: 270 30% 95%;
+    --super-admin-accent: 280 65% 60%;
+    --super-admin-success: 142 71% 45%;
+    --super-admin-warning: 38 92% 50%;
+    --super-admin-info: 213 89% 55%;
+    
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(213 89% 55%), hsl(213 89% 65%));
     --gradient-teal: linear-gradient(135deg, hsl(186 100% 41%), hsl(186 100% 51%));
     --gradient-coral: linear-gradient(135deg, hsl(342 75% 70%), hsl(342 75% 80%));
+    --gradient-super-admin: linear-gradient(135deg, hsl(270 60% 55%), hsl(280 65% 60%));
+    --gradient-super-admin-dark: linear-gradient(135deg, hsl(270 60% 45%), hsl(280 65% 50%));
     
     /* Shadows */
     --shadow-card: 0 2px 8px -2px hsl(213 89% 55% / 0.1);
     --shadow-elevated: 0 8px 25px -8px hsl(213 89% 55% / 0.2);
+    --shadow-super-admin: 0 4px 14px -4px hsl(270 60% 55% / 0.25);
     
     --radius: 0.75rem;
 
