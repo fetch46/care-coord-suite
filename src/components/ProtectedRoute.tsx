@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
-  const { userRole, loading: roleLoading } = useUserRole();
+  const { userRole, loading: roleLoading, isSuperAdmin } = useUserRole();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (!loading && !roleLoading && user && userRole) {
       const currentPath = window.location.pathname;
       
-      if (userRole === 'administrator') {
+      if (isSuperAdmin) {
         // Super admin goes to super admin dashboard
         if (!currentPath.startsWith('/super-admin')) {
           navigate("/super-admin");
@@ -36,7 +36,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         }
       }
     }
-  }, [user, loading, userRole, roleLoading, navigate]);
+  }, [user, loading, userRole, roleLoading, isSuperAdmin, navigate]);
 
   if (loading || roleLoading) {
     return (

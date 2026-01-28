@@ -28,7 +28,8 @@ export function RolePermissions({ onPermissionsUpdate }: RolePermissionsProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const roles = ["administrator", "reception", "registered_nurse", "caregiver"];
+  // Organization-level roles (excludes platform super admin roles like 'administrator')
+  const roles = ["owner", "admin", "staff", "reception", "registered_nurse", "caregiver"];
   const resources = [
     "patients",
     "staff", 
@@ -144,14 +145,18 @@ export function RolePermissions({ onPermissionsUpdate }: RolePermissionsProps) {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case "administrator":
+      case "owner":
         return "bg-red-100 text-red-800 border-red-200";
-      case "reception":
+      case "admin":
+        return "bg-orange-100 text-orange-800 border-orange-200";
+      case "staff":
         return "bg-blue-100 text-blue-800 border-blue-200";
+      case "reception":
+        return "bg-cyan-100 text-cyan-800 border-cyan-200";
       case "registered_nurse":
         return "bg-green-100 text-green-800 border-green-200";
       case "caregiver":
-        return "bg-purple-100 text-purple-800 border-purple-200";
+        return "bg-teal-100 text-teal-800 border-teal-200";
       default:
         return "bg-gray-100 text-gray-800 border-gray-200";
     }
