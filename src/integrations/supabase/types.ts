@@ -1128,6 +1128,54 @@ export type Database = {
           },
         ]
       }
+      organization_signups: {
+        Row: {
+          admin_email: string
+          admin_first_name: string
+          admin_last_name: string
+          admin_phone: string | null
+          company_name: string
+          company_size: string | null
+          created_at: string | null
+          id: string
+          industry: string | null
+          notes: string | null
+          selected_plan: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          admin_email: string
+          admin_first_name?: string
+          admin_last_name?: string
+          admin_phone?: string | null
+          company_name: string
+          company_size?: string | null
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          notes?: string | null
+          selected_plan?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          admin_email?: string
+          admin_first_name?: string
+          admin_last_name?: string
+          admin_phone?: string | null
+          company_name?: string
+          company_size?: string | null
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          notes?: string | null
+          selected_plan?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       organization_users: {
         Row: {
           confirmed_at: string | null

@@ -49,7 +49,7 @@ export default function SuperAdminOrganizationSignups() {
     try {
       // organization_signups table was just created, fetch from it
       const { data, error } = await supabase
-        .from('organization_signups' as any)
+        .from('organization_signups')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -57,7 +57,7 @@ export default function SuperAdminOrganizationSignups() {
         console.log('Organization signups table may not have data yet:', error);
         setSignups([]);
       } else {
-        setSignups((data || []) as any);
+        setSignups((data || []) as OrganizationSignup[]);
       }
     } catch (error) {
       console.error('Error fetching organization signups:', error);
@@ -73,11 +73,11 @@ export default function SuperAdminOrganizationSignups() {
       if (status === 'approved') {
         // Update the signup status directly
         const { error } = await supabase
-          .from('organization_signups' as any)
+          .from('organization_signups')
           .update({
             status: 'approved',
             updated_at: new Date().toISOString()
-          } as any)
+          })
           .eq('id', signupId);
 
         if (error) throw error;
@@ -85,8 +85,8 @@ export default function SuperAdminOrganizationSignups() {
         // Update notes if provided
         if (notes) {
           await supabase
-            .from('organization_signups' as any)
-            .update({ notes } as any)
+            .from('organization_signups')
+            .update({ notes })
             .eq('id', signupId);
         }
 
@@ -97,11 +97,11 @@ export default function SuperAdminOrganizationSignups() {
       } else {
         // For rejection, just update the status
         const { error } = await supabase
-          .from('organization_signups' as any)
+          .from('organization_signups')
           .update({
             status,
             updated_at: new Date().toISOString()
-          } as any)
+          })
           .eq('id', signupId);
 
         if (error) throw error;
