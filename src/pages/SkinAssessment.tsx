@@ -38,11 +38,80 @@ const HOT_SPOTS = {
 
 type HotSpot = typeof HOT_SPOTS[keyof typeof HOT_SPOTS];
 
+// Pressure sore zone regions mapped to canvas coordinates (CANVAS_WIDTH=400, CANVAS_HEIGHT=920)
+// Each zone has a bounding area for front and/or back view
+interface ZoneRegion {
+  view: BodyView;
+  x: number; // center x
+  y: number; // center y
+  radius: number; // detection radius
+}
+
+const PRESSURE_SORE_ZONES: Record<HotSpot, ZoneRegion[]> = {
+  "Rime of Ear": [
+    { view: "front", x: 155, y: 95, radius: 25 },
+    { view: "front", x: 245, y: 95, radius: 25 },
+    { view: "back", x: 155, y: 95, radius: 25 },
+    { view: "back", x: 245, y: 95, radius: 25 },
+  ],
+  "Shoulder Blade": [
+    { view: "back", x: 150, y: 250, radius: 35 },
+    { view: "back", x: 250, y: 250, radius: 35 },
+  ],
+  "Elbow": [
+    { view: "front", x: 105, y: 400, radius: 30 },
+    { view: "front", x: 295, y: 400, radius: 30 },
+    { view: "back", x: 105, y: 400, radius: 30 },
+    { view: "back", x: 295, y: 400, radius: 30 },
+  ],
+  "Sacrum": [
+    { view: "back", x: 200, y: 440, radius: 35 },
+  ],
+  "Hip": [
+    { view: "front", x: 135, y: 460, radius: 30 },
+    { view: "front", x: 265, y: 460, radius: 30 },
+    { view: "back", x: 135, y: 460, radius: 30 },
+    { view: "back", x: 265, y: 460, radius: 30 },
+  ],
+  "Inner Knee": [
+    { view: "front", x: 170, y: 620, radius: 28 },
+    { view: "front", x: 230, y: 620, radius: 28 },
+    { view: "back", x: 170, y: 620, radius: 28 },
+    { view: "back", x: 230, y: 620, radius: 28 },
+  ],
+  "Outer Ankle": [
+    { view: "front", x: 145, y: 810, radius: 22 },
+    { view: "front", x: 255, y: 810, radius: 22 },
+    { view: "back", x: 145, y: 810, radius: 22 },
+    { view: "back", x: 255, y: 810, radius: 22 },
+  ],
+  "Heel": [
+    { view: "back", x: 160, y: 880, radius: 25 },
+    { view: "back", x: 240, y: 880, radius: 25 },
+  ],
+};
+
+// Detect which pressure sore zone a click falls in
+const detectZone = (x: number, y: number, view: BodyView): HotSpot | null => {
+  for (const [area, zones] of Object.entries(PRESSURE_SORE_ZONES)) {
+    for (const zone of zones) {
+      if (zone.view === view) {
+        const dist = Math.sqrt(Math.pow(x - zone.x, 2) + Math.pow(y - zone.y, 2));
+        if (dist <= zone.radius) {
+          return area as HotSpot;
+        }
+      }
+    }
+  }
+  return null;
+};
+
 interface Dot {
   id: string;
   x: number;
   y: number;
   view: BodyView;
+  matchedZone?: HotSpot | null;
 }
 
 interface HotSpotRecord {
@@ -402,18 +471,71 @@ export default function SkinAssessmentForm() {
         ctx.drawImage(currentImage, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       }
 
-      ctx.fillStyle = "red";
+      // Draw pressure zone indicators (subtle outlines)
+      Object.entries(PRESSURE_SORE_ZONES).forEach(([area, zones]) => {
+        const record = state.records.find(r => r.area === area);
+        zones.filter(z => z.view === state.bodyView).forEach(zone => {
+          ctx.beginPath();
+          ctx.arc(zone.x, zone.y, zone.radius, 0, Math.PI * 2);
+          if (record?.status === "Abnormal") {
+            ctx.fillStyle = "rgba(239, 68, 68, 0.12)";
+            ctx.fill();
+            ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
+          } else {
+            ctx.strokeStyle = "rgba(59, 130, 246, 0.2)";
+          }
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        });
+      });
+
+      // Draw annotation dots - bigger, with pulse ring and label
       state.dots
         .filter((dot) => dot.view === state.bodyView)
         .forEach((dot) => {
+          const DOT_RADIUS = 10;
+          
+          // Outer glow
           ctx.beginPath();
-          ctx.arc(dot.x, dot.y, 4, 0, Math.PI * 2);
+          ctx.arc(dot.x, dot.y, DOT_RADIUS + 6, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(239, 68, 68, 0.15)";
           ctx.fill();
+
+          // Main circle
+          ctx.beginPath();
+          ctx.arc(dot.x, dot.y, DOT_RADIUS, 0, Math.PI * 2);
+          ctx.fillStyle = dot.matchedZone ? "rgba(239, 68, 68, 0.9)" : "rgba(249, 115, 22, 0.9)";
+          ctx.fill();
+          ctx.strokeStyle = "white";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Label
+          if (dot.matchedZone) {
+            ctx.font = "bold 11px sans-serif";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+            ctx.textAlign = "center";
+            const labelY = dot.y - DOT_RADIUS - 8;
+            const textWidth = ctx.measureText(dot.matchedZone).width;
+            // Background for label
+            ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+            ctx.beginPath();
+            ctx.roundRect(dot.x - textWidth / 2 - 4, labelY - 10, textWidth + 8, 16, 4);
+            ctx.fill();
+            ctx.strokeStyle = "rgba(239, 68, 68, 0.5)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            // Text
+            ctx.fillStyle = "rgba(185, 28, 28, 1)";
+            ctx.fillText(dot.matchedZone, dot.x, labelY);
+          }
         });
     };
 
     requestAnimationFrame(draw);
-  }, [state.bodyView, state.dots, frontImage, backImage]);
+  }, [state.bodyView, state.dots, state.records, frontImage, backImage]);
 
   useEffect(() => {
     drawCanvas();
@@ -432,11 +554,11 @@ export default function SkinAssessmentForm() {
     const x = clientX * scaleX;
     const y = clientY * scaleY;
 
-    // Check if clicked on existing dot
+    // Check if clicked on existing dot (use bigger hit area matching the bigger dot)
     const dotClicked = state.dots.find((dot) => {
       if (dot.view === state.bodyView) {
         const distance = Math.sqrt(Math.pow(dot.x - x, 2) + Math.pow(dot.y - y, 2));
-        return distance < 10;
+        return distance < 16;
       }
       return false;
     });
@@ -444,6 +566,9 @@ export default function SkinAssessmentForm() {
     if (dotClicked) {
       dispatch({ type: "REMOVE_DOT", id: dotClicked.id });
     } else {
+      // Detect if the click is in a pressure sore zone
+      const matchedZone = detectZone(x, y, state.bodyView);
+      
       dispatch({
         type: "ADD_DOT",
         dot: {
@@ -451,17 +576,36 @@ export default function SkinAssessmentForm() {
           x,
           y,
           view: state.bodyView,
+          matchedZone,
         },
       });
+
+      // Auto-mark the matched zone as Abnormal
+      if (matchedZone) {
+        dispatch({ type: "UPDATE_RECORD", area: matchedZone, patch: { status: "Abnormal" as Status } });
+        toast({
+          title: `${matchedZone} marked`,
+          description: "Area flagged as abnormal. Add notes in the checklist below.",
+        });
+      }
     }
   };
 
   // Memoized HotSpotItem component
   const HotSpotItem = useCallback(
-    ({ area, status, notes }: HotSpotRecord) => (
-      <div className="border rounded p-4 space-y-2">
+    ({ area, status, notes }: HotSpotRecord) => {
+      const annotationCount = state.dots.filter(d => d.matchedZone === area).length;
+      return (
+      <div className={`border rounded-lg p-4 space-y-2 transition-colors ${status === "Abnormal" ? "border-destructive/40 bg-destructive/5" : ""}`}>
         <div className="flex items-center justify-between">
-          <span className="font-semibold">{area}</span>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold">{area}</span>
+            {annotationCount > 0 && (
+              <Badge variant="destructive" className="text-[10px] h-5 px-1.5">
+                {annotationCount} mark{annotationCount > 1 ? 's' : ''}
+              </Badge>
+            )}
+          </div>
           <RadioGroup
             value={status}
             onValueChange={(val: Status) =>
@@ -494,8 +638,9 @@ export default function SkinAssessmentForm() {
           />
         )}
       </div>
-    ),
-    []
+    );
+    },
+    [state.dots]
   );
 
   return (
@@ -648,7 +793,7 @@ export default function SkinAssessmentForm() {
                     Your browser does not support the HTML canvas tag.
                   </canvas>
                   <p className="text-xs text-muted-foreground mt-2 text-center">
-                    Tap anywhere to add a red dot; tap the dot to remove.
+                    Click to annotate. Annotations on pressure sore zones auto-flag them as abnormal. Click a dot to remove it.
                   </p>
                   <div className="flex justify-center mt-4">
                     <Button
