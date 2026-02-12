@@ -22,18 +22,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (!loading && !roleLoading && user && userRole) {
       const currentPath = window.location.pathname;
       
-      if (isSuperAdmin) {
-        // Super admin goes to super admin dashboard
-        if (!currentPath.startsWith('/super-admin')) {
-          navigate("/super-admin");
-          return;
-        }
-      } else {
-        // Tenant users go to main app
-        if (currentPath.startsWith('/super-admin')) {
-          navigate("/dashboard");
-          return;
-        }
+      // Non-super-admin users cannot access super-admin routes
+      if (!isSuperAdmin && currentPath.startsWith('/super-admin')) {
+        navigate("/dashboard");
+        return;
       }
     }
   }, [user, loading, userRole, roleLoading, isSuperAdmin, navigate]);

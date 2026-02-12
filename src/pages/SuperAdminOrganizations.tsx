@@ -147,9 +147,7 @@ export default function SuperAdminOrganizations() {
             id,
             status,
             amount,
-            subscription_plans (
-              name
-            )
+            package_id
           )
         `)
         .order("created_at", { ascending: false });

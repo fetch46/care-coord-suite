@@ -142,8 +142,22 @@ export default function SuperAdminCreateSubscription() {
     try {
       setLoading(true);
 
-      // This is actually creating a package assignment, not a subscription
-      // The name "Create Subscription" is used because it's conceptually the same thing
+      // Create subscription record
+      const { error: subError } = await supabase
+        .from('subscriptions')
+        .insert({
+          organization_id: subscriptionData.organization_id,
+          package_id: subscriptionData.package_id,
+          billing_cycle: subscriptionData.billing_cycle,
+          amount: subscriptionData.amount,
+          status: 'active',
+          starts_at: subscriptionData.starts_at + 'T00:00:00.000Z',
+          ends_at: subscriptionData.ends_at + 'T23:59:59.999Z'
+        });
+
+      if (subError) throw subError;
+
+      // Also create package assignment
       const { error: assignmentError } = await supabase
         .from('organization_package_assignments')
         .insert({
@@ -153,7 +167,7 @@ export default function SuperAdminCreateSubscription() {
           expires_at: subscriptionData.ends_at + 'T23:59:59.999Z'
         });
 
-      if (assignmentError) throw assignmentError;
+      if (assignmentError) console.error('Package assignment error:', assignmentError);
 
       // Update organization subscription status
       const { error: orgUpdateError } = await supabase

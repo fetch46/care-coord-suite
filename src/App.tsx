@@ -57,6 +57,7 @@ import SkinAssessmentView from "./pages/SkinAssessmentView";
 import MedicalRecordView from "./pages/MedicalRecordView";
 import MedicalRecordEdit from "./pages/MedicalRecordEdit";
 import SuperAdminPackages from "./pages/SuperAdminPackages";
+import SuperAdminCreateSubscription from "./pages/SuperAdminCreateSubscription";
 import InvoiceView from "./pages/InvoiceView";
 import InvoiceEdit from "./pages/InvoiceEdit";
 import PaymentCreate from "./pages/PaymentCreate";
@@ -123,6 +124,7 @@ const App = () => (
             <Route path="/super-admin/organization-signups" element={<ProtectedRoute><SuperAdminOrganizationSignups /></ProtectedRoute>} />
             <Route path="/super-admin/packages" element={<ProtectedRoute><SuperAdminPackages /></ProtectedRoute>} />
             <Route path="/super-admin/subscriptions" element={<ProtectedRoute><SuperAdminSubscriptions /></ProtectedRoute>} />
+            <Route path="/super-admin/subscriptions/create" element={<ProtectedRoute><SuperAdminCreateSubscription /></ProtectedRoute>} />
             <Route path="/super-admin/users" element={<ProtectedRoute><SuperAdminUserManagement /></ProtectedRoute>} />
             <Route path="/super-admin/settings" element={<ProtectedRoute><SuperAdminSettings /></ProtectedRoute>} />
             <Route path="/super-admin/security" element={<ProtectedRoute><SuperAdminSecurity /></ProtectedRoute>} />
